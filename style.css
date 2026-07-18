@@ -1,0 +1,1383 @@
+/* #region Sayfa-yapısı */
+:root {
+    /* Arka Plan Renkleri */
+    --bg-main: #0d1117;
+    --bg-box: #161b22;
+
+    /* Renkler */
+    --theme-rgb: 182, 168, 159; 
+    --white-rgb: 255, 255, 255; 
+
+    /* Accent colors as RGB for alpha-friendly usage */
+    --accent-orange-rgb: 255, 136, 0;
+    --accent-hover-rgb: 187, 128, 51;
+
+    --accent-orange: rgb(var(--accent-orange-rgb));
+    --accent-hover: rgb(var(--accent-hover-rgb));
+
+    /* Fontlar */
+    --font-primary: 'Montserrat', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#app-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background-color: var(--bg-main);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: var(--font-primary);
+}
+
+.banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 20vh;
+
+    background-color: var(--accent-orange);
+    color: rgb(var(--white-rgb));
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    overflow: hidden;
+
+    z-index: 99;
+}
+
+.banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.container {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    padding: 8vh 2vw;
+    gap: 2vw;
+    padding-top: 25vh;
+
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+.box {
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    color: rgb(var(--white-rgb));
+    border-radius: 12px;
+    padding: 20px;
+}
+a,
+a:visited,
+a:hover,
+a:active {
+  text-decoration: none;
+  color: inherit;
+}
+/* #endregion */
+/* #region Landing-Screen (Faz 1) */
+.landing-screen {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-main);
+    z-index: 1000;
+}
+
+.landing-box {
+    width: min(380px, 90vw);
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    border-radius: clamp(12px, 1vw + 8px, 18px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 36px 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+}
+
+.landing-title {
+    font-family: var(--font-primary);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: rgb(var(--white-rgb));
+    letter-spacing: -0.02em;
+}
+
+.landing-subtitle {
+    font-size: 0.85rem;
+    color: rgba(var(--white-rgb), 0.5);
+    margin-top: -10px;
+    margin-bottom: 5px;
+}
+/* #endregion */
+/* #region profil alanı */
+.profile {
+    grid-column: 1 / 2;
+    grid-row: 1 / 4;
+    display: flex;
+    flex-direction: column;
+}
+.profile-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+.profile-image {
+    width: clamp(48px, 6vw, 80px);
+    height: clamp(48px, 6vw, 80px);
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid rgba(var(--theme-rgb), 0.4);
+    background-color: transparent;
+}
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.profile-name {
+    font-size: clamp(1.4rem, 1rem + 1.5vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: rgba(var(--white-rgb), 0.8);
+}
+.profile-title {
+    font-size: clamp(0.75rem, 0.65rem + 0.4vw, 0.9rem);
+    line-height: 1.6;
+    letter-spacing: 0.1em;
+    color: rgba(var(--theme-rgb), 1);
+    margin-top: clamp(0.2rem, 1rem + 2vh, 0.6rem);
+    font-weight: 500;
+}
+.profile-bio {
+    font-size: clamp(0.75rem, 0.65rem + 0.3vw, 0.85rem);
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    color: rgba(var(--white-rgb), 0.8);
+    margin-top: clamp(0.3rem, 1rem + 2vh, 0.3rem);
+    font-weight: 400;
+    margin-bottom: 15px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+.profile-bio::-webkit-scrollbar {
+    width: 4px;
+}
+.profile-bio::-webkit-scrollbar-track {
+    background: transparent;
+}
+.profile-bio::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.3);
+    border-radius: 10px;
+}
+.profile-bio::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--theme-rgb), 0.6);
+}
+.profile-links {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(var(--white-rgb), 0.08);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.link-item {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(var(--theme-rgb), 0.8);
+    border: 1px solid rgba(var(--theme-rgb), 0.2);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.link-item:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.8);
+    background-color: rgba(var(--theme-rgb), 0.05);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+/* #endregion */
+/* #region-widget-alanı */
+.widgets {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    grid-column: 2 / 3;
+    grid-row: 1 / 4;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem);
+    overflow: visible;
+    position: relative;
+    z-index: 100;
+}
+
+.widget-slot {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    border-radius: clamp(10px, 1vw + 6px, 16px);
+    overflow: visible;
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    z-index: 1;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.widget-slot:hover {
+    transform: translateY(-3px);
+    border-color: rgba(var(--theme-rgb), 0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.widget-placeholder {
+    background-color: rgba(var(--white-rgb), 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(var(--white-rgb), 0.5);
+    font-size: 0.85rem;
+}
+
+.widget-link {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    container-type: size;
+    container-name: widgetcard;
+}
+
+.stat-card {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    grid-template-rows: repeat(2, 1fr);    
+    width: 80%;
+    height: 100%;
+    padding: 10px;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
+    gap: 8px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    gap: 2px;
+}
+
+.stat-label {
+    font-size: clamp(0.55rem, 3.5cqi, 0.85rem);
+    color: rgba(var(--white-rgb), 0.55);
+    white-space: nowrap;
+}
+
+.stat-value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.1rem, 9cqi, 2rem);
+    font-weight: 500;
+    line-height: 1.1;
+    color: rgba(var(--white-rgb), 0.8);
+}
+
+.stat-percent {
+    font-size: clamp(0.55rem, 3.5cqi, 0.85rem);
+    color: rgba(var(--white-rgb), 0.55);
+}
+
+@container widgetcard (min-width: 280px) {
+    .stat-card {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: 1fr;
+        padding: 15px 5px;
+    }
+
+    .stat-label {
+        font-size: clamp(0.6rem, 3cqi, 0.85rem);
+    }
+    
+    .stat-value {
+        font-size: clamp(1.1rem, 9cqi, 1.8rem);
+    }
+    
+    .stat-percent {
+        font-size: clamp(0.6rem, 3cqi, 0.85rem);
+    }
+}
+
+.widget-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: clamp(10px, 1vw + 6px, 16px);
+    display: block;
+}
+
+/* TEMİZLENMİŞ VE YENİ TASARIMA UYGUN OVERLAY */
+.widget-overlay {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 175%;
+    /* Sağa doğru büyürken viewport kenarına yapışmasın diye bir nefes payı bırakıyoruz.
+       --edge-gutter tanımlı değilse 24px'e düşer; sitenin genel gutter değişkeni varsa
+       onu buraya bağlaman yeterli. */
+    max-width: calc(100vw - var(--edge-gutter, 24px));
+    height: 175%;
+    transform-origin: left center;
+    transform: translateY(-50%) scale(0.9);
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--theme-rgb), 1);
+    border-radius: clamp(10px, 1vw + 6px, 16px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 20;
+
+    /* Overlay artık kendi container-query bağlamını kuruyor: gerçek (büyümüş) genişliğine
+       göre mt-hover-layout'un iç düzeni karar verecek, küçük kapalı slotun genişliğine göre değil */
+    container-type: inline-size;
+    container-name: widgetcard;
+
+    /* Eski flex yapısını sildik, mt-hover-layout kendi grid/flex yapısını yönetecek */
+    display: block;
+    padding: 0; 
+    overflow: hidden; /* Taşmaları garanti engellemek için */
+}
+
+.widget-slot.is-active .widget-overlay {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    pointer-events: auto;
+}
+
+.widget-slot.is-active {
+    z-index: 200;
+}
+/* #endregion */
+/* #region içerik-alanı */
+.content {
+    grid-column: 3 / 5;
+    grid-row: 1 / 4;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    min-height: 0;
+}
+
+.content-tabs-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+    flex-shrink: 0;
+}
+
+.content-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+}
+
+.add-content-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(30px, 2vw + 0.8rem, 36px);
+    height: clamp(30px, 2vw + 0.8rem, 36px);
+    background-color: transparent;
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    border-radius: 999px;
+    color: rgba(var(--theme-rgb), 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-content-btn .plus-icon {
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1;
+    color: inherit;
+    transition: none;
+}
+
+.add-content-btn:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.8);
+    background-color: rgba(var(--theme-rgb), 0.05);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+
+.add-content-btn:disabled {
+    cursor: not-allowed;
+    color: rgba(var(--theme-rgb), 0.25);
+    border-color: rgba(var(--theme-rgb), 0.15);
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.tab {
+    background-color: transparent;
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    color: rgba(var(--theme-rgb), 0.7);
+    border-radius: 999px;
+    height: clamp(30px, 2vw + 0.8rem, 36px);
+    padding: 0 20px;
+    font-family: var(--font-primary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.8);
+    background-color: rgba(var(--theme-rgb), 0.05);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+
+.tab.active { 
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.9);
+    background-color: rgba(var(--theme-rgb), 0.15);
+    box-shadow: 0 0 15px rgba(var(--theme-rgb), 0.2);
+}
+
+.content-body {
+    container-type: size;
+    container-name: contentgrid;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden; /* visible yerine tekrar hidden yapıyoruz */
+    
+    padding: 15px 12px 20px 12px; /* Kartın esneme payı */
+    margin: -15px -12px -20px -12px; /* Dışarıdan görünmez alan açma hilesi */
+}
+
+.content-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.content-card:hover {
+    transform: translateY(-2px);
+}
+
+.card-thumb {
+    position: relative;
+    border-radius: clamp(10px, 0.8vw + 6px, 18px);
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(13, 17, 23, 0.75);
+    backdrop-filter: blur(2px);
+    color: rgba(var(--white-rgb), 0.85);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.9);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    z-index: 2;
+}
+
+.card-delete-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.content-card:hover .card-delete-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.card-delete-btn:hover {
+    background-color: rgba(220, 60, 60, 0.85);
+}
+
+.card-delete-btn.confirm-delete {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+    background-color: rgba(220, 60, 60, 0.9);
+    color: rgb(var(--white-rgb));
+}
+
+.card-delete-btn.confirm-delete:hover {
+    background-color: rgba(190, 40, 40, 0.95);
+}
+
+.card-thumb img {
+    display: block;
+    width: 25.3cqh;
+    height: 36cqh;
+    background-color: var(--accent-orange);
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.content-card:hover .card-thumb {
+    border-color: rgba(var(--theme-rgb), 0.6);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+.content-card:hover .card-thumb img {
+    transform: scale(1.08);
+}
+
+.card-label {
+    margin-top: 2cqh;
+    height: 8.5cqh;
+    font-size: 4cqh;
+    line-height: 1.1;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    font-weight: 500;
+    transition: color 0.3s ease;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+
+.content-card:hover .card-label {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.content-grid {
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 25.3cqh);
+    align-content: flex-start;
+    justify-content: flex-start;
+    column-gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem);
+    row-gap: 7cqh;
+}
+
+/* #endregion */
+/* #region arama-modalı */
+.search-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.search-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.search-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+}
+
+.search-modal-box {
+    position: relative;
+    width: min(480px, 90vw);
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    border-radius: clamp(12px, 1vw + 8px, 18px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    gap: 14px;
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.25s ease;
+}
+
+.search-modal.is-open .search-modal-box {
+    transform: translateY(0) scale(1);
+}
+
+.search-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.search-input {
+    flex: 1;
+    height: 40px;
+    padding: 0 16px;
+    background-color: rgba(var(--white-rgb), 0.04);
+    border: 1px solid rgba(var(--theme-rgb), 0.25);
+    border-radius: 999px;
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input::placeholder {
+    color: rgba(var(--white-rgb), 0.35);
+}
+
+.search-input:focus {
+    border-color: rgba(var(--theme-rgb), 0.8);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+
+.search-modal-close {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: rgba(var(--white-rgb), 0.5);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.search-modal-close:hover {
+    color: rgb(var(--white-rgb));
+    background-color: rgba(var(--white-rgb), 0.08);
+}
+
+.search-results {
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 12px;
+    padding-right: 4px;
+}
+
+.search-hint,
+.search-empty,
+.search-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: rgba(var(--white-rgb), 0.4);
+    font-size: 0.8rem;
+    padding: 20px 0;
+}
+
+.search-result-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.search-result-thumb {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-result-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.search-result-card:hover .search-result-thumb {
+    border-color: rgba(var(--theme-rgb), 0.7);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.2);
+}
+
+.search-result-label {
+    font-size: 0.7rem;
+    text-align: center;
+    color: rgba(var(--white-rgb), 0.7);
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+
+.search-results::-webkit-scrollbar {
+    width: 4px;
+}
+
+.search-results::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.3);
+    border-radius: 10px;
+}
+/* #endregion */
+/* #region auth-modalı */
+.auth-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 600; /* Arama modalından daha önde durması için */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.auth-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.auth-modal-box {
+    position: relative;
+    width: min(380px, 90vw);
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    border-radius: clamp(12px, 1vw + 8px, 18px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.25s ease;
+}
+
+.auth-modal.is-open .auth-modal-box {
+    transform: translateY(0) scale(1);
+}
+
+.auth-modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgb(var(--white-rgb));
+    flex: 1;
+}
+
+.auth-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Arama input sınıflarını (search-input) burada da kullanarak kod tekrarından kaçındık.
+   Sadece genişliklerini tam (%100) kapsayacak şekilde ayarlıyoruz. */
+.auth-form-container .search-input {
+    width: 100%;
+}
+
+.auth-submit-btn {
+    width: 100%;
+    height: 40px;
+    margin-top: 6px;
+    background-color: rgba(var(--theme-rgb), 0.15);
+    border: 1px solid rgba(var(--theme-rgb), 0.4);
+    border-radius: 999px; /* Inputlar ile uyumlu oval köşe */
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-submit-btn:hover {
+    background-color: rgba(var(--theme-rgb), 0.25);
+    box-shadow: 0 0 12px rgba(var(--theme-rgb), 0.2);
+}
+
+.auth-submit-btn.logout-btn {
+    background-color: rgba(220, 60, 60, 0.15);
+    border-color: rgba(220, 60, 60, 0.4);
+    color: #ffb8b8;
+}
+
+.auth-submit-btn.logout-btn:hover {
+    background-color: rgba(220, 60, 60, 0.25);
+    box-shadow: 0 0 12px rgba(220, 60, 60, 0.2);
+}
+
+.auth-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: rgba(var(--white-rgb), 0.5);
+}
+
+.auth-switch-btn {
+    background: transparent;
+    border: none;
+    color: rgba(var(--theme-rgb), 0.9);
+    font-family: var(--font-primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+}
+
+.auth-switch-btn:hover {
+    color: rgb(var(--white-rgb));
+}
+
+.auth-status-text {
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(var(--white-rgb), 0.7);
+    line-height: 1.5;
+}
+
+/* Ayarlar / Giriş Tetikleyici Butonu (Yeni Kapsül Metin Tasarımı) */
+.auth-trigger-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: auto; /* Sabit kare genişlik yerine otomatik metin genişliği */
+    height: 36px; /* İdeal kapsül yüksekliği */
+    padding: 0 16px; /* Yazının sağından solundan dengeli boşluk */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(22, 27, 34, 0.4); /* Arka planla eriyen koyuluk */
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    backdrop-filter: blur(8px); /* Şık yarı saydam cam efekti */
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 999px; /* Tam yuvarlak kapsül form faktörü */
+    color: rgba(var(--white-rgb), 0.6);
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-trigger-btn .login-text {
+    font-family: var(--font-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.auth-trigger-btn:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.5);
+    background-color: rgba(var(--theme-rgb), 0.15);
+    transform: translateY(-1px); /* 90 derece dönme iptal edildi, yukarı tatlı bir esneme verildi */
+    box-shadow: 0 4px 12px rgba(var(--theme-rgb), 0.1);
+}
+
+/* Şık İnline Hata Bildirim Kutusu (Ortalandı ve Margin Ayarı Revize Edildi) */
+.auth-error-box {
+    background-color: rgba(220, 60, 60, 0.1);
+    border: 1px solid rgba(220, 60, 60, 0.3);
+    color: #ffb8b8;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-align: center; /* Sola yaslı yerine butonun üstünde tam ortalandı */
+    margin: 4px 0; /* Giriş butonunun tam üstünde dengeli durması için */
+    animation: shake 0.4s ease;
+}
+
+.minimal-footer {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-primary);
+    font-size: 0.65rem;
+    color: rgba(var(--white-rgb), 0.2);
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    z-index: 10;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+/* #endregion */
+/* #region Monkeytype-Hover-Ozel-Yapi */
+
+/* Ana Kapsayıcı */
+.mt-hover-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+}
+
+/* --- SOL PROFIL ALANI --- */
+.mt-profile-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 3cqi, 12px);
+    flex: 1;
+}
+
+/* Sarı Logo Kutusu */
+.mt-logo-box {
+    width: clamp(50px, 14cqi, 65px); /* Aşırı büyümeyi sınırladık */
+    aspect-ratio: 1 / 1;
+    background-color: #e2b714; 
+    border-radius: clamp(8px, 3cqi, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(226, 183, 20, 0.2); 
+}
+
+.mt-logo-text {
+    font-family: var(--font-mono);
+    color: #111; 
+    font-size: clamp(1.4rem, 6cqi, 2rem);
+    font-weight: 800;
+    line-height: 1;
+    margin-top: -2px; 
+}
+
+/* Nickname Linki */
+.mt-user-link {
+    font-family: var(--font-primary);
+    color: rgb(var(--white-rgb));
+    font-size: clamp(0.75rem, 4cqi, 1rem);
+    font-weight: 700;
+    border-bottom: 2px solid rgb(var(--white-rgb)); /* Gerçek alt çizgi */
+    padding-bottom: 3px; /* Çizginin yazıya olan kusursuz mesafesi */
+    display: inline-block;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mt-user-link:hover {
+    color: #e2b714;
+    text-decoration-color: #e2b714;
+}
+
+/* --- ORTA AYIRAÇ (Divider) --- */
+.mt-divider {
+    width: 1px;
+    height: 60%;
+    background-color: rgba(var(--white-rgb), 0.1);
+    margin: 0 clamp(8px, 3cqi, 15px);
+}
+
+/* --- SAĞ İSTATİSTİK ALANI (Tek Satır Flex & Düzenli Clamp) --- */
+.mt-stats-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 2.5; /* İstatistiklere rahat yayılma alanı */
+    padding-left: clamp(4px, 2cqi, 10px);
+    gap: clamp(6px, 2.5cqi, 16px); /* Etiketlerin birbirine çarpmasını engeller */
+}
+
+.mt-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2px, 1.5cqi, 6px);
+}
+
+.mt-stat-label {
+    font-family: var(--font-primary);
+    font-size: clamp(0.5rem, 2.2cqi, 0.75rem); /* İç içe girmeyi önleyen boyut */
+    color: rgba(var(--white-rgb), 0.5);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.mt-stat-value {
+    font-family: var(--font-mono);
+    font-size: clamp(1.2rem, 7cqi, 1.9rem); /* Çok şişip ekranı boğmasını engelledik */
+    font-weight: 700;
+    color: rgba(var(--white-rgb), 0.95);
+    line-height: 1;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.mt-stat-percent {
+    font-family: var(--font-primary);
+    font-size: clamp(0.45rem, 2cqi, 0.7rem);
+    color: rgba(var(--white-rgb), 0.4);
+    font-weight: 600;
+}
+
+/* Kapalı slot ya da beklenenden dar bir overlay durumunda (ör. çok küçük ekran genişliği
+   sebebiyle max-width devreye girdiğinde) profil + 4 stat'ı tek satırda sıkıştırmak yerine
+   dikeye düşürüyoruz. Böylece her zaman okunur kalıyor. */
+@container widgetcard (max-width: 299px) {
+    .mt-hover-layout {
+        flex-direction: column;
+        gap: clamp(6px, 3cqi, 10px);
+        padding: clamp(8px, 4cqi, 14px);
+    }
+
+    .mt-profile-section {
+        flex: 0 0 auto;
+    }
+
+    .mt-divider {
+        width: 70%;
+        height: 1px;
+        margin: 0;
+    }
+
+    .mt-stats-section {
+        flex: 0 0 auto;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: clamp(4px, 2cqi, 10px);
+        padding-left: 0;
+    }
+}
+/* #endregion */
+/* #region Profil Düzenleme Özel Stilleri */
+
+/* Düzenle Butonu (Kalem İkonu) */
+.edit-btn {
+    background: transparent;
+    border: none;
+    color: rgba(var(--white-rgb), 0.3);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    color: rgb(var(--white-rgb));
+    background-color: rgba(var(--white-rgb), 0.08);
+    transform: scale(1.05);
+}
+
+/* Modal İçi Kategori Başlıkları */
+.edit-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(var(--theme-rgb), 1);
+    letter-spacing: 0.05em;
+    margin-top: 10px;
+    margin-bottom: -6px;
+    text-transform: uppercase;
+}
+
+/* Link Giriş Kutuları (Yan Yana) */
+.link-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.link-input-group .search-input:first-child {
+    flex: 1; /* Platform İsmi (Dar) */
+}
+
+.link-input-group .search-input:nth-child(2) {
+    flex: 2; /* URL (Geniş) */
+}
+
+/* Link Silme Çarpı Butonu */
+.remove-link-btn {
+    background: rgba(220, 60, 60, 0.15);
+    color: #ffb8b8;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.remove-link-btn:hover {
+    background: rgba(220, 60, 60, 0.3);
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* Modal İçi Kaydırma Çubuğu Özelleştirmesi */
+.auth-form-container::-webkit-scrollbar {
+    width: 4px;
+}
+.auth-form-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+.auth-form-container::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.3);
+    border-radius: 10px;
+}
+/* #endregion */
+/* #region Responsive Tasarım (Mobil Uyum - Faz 4) */
+@media (max-width: 480px) {
+    body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* 1. BANNER VE GİRİŞ: %60 Küçültüldü ve Tepeye Sabitlendi */
+    .banner {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px !important; /* Eskiden ~200px'di, ince bir şerit oldu */
+        min-height: unset !important;
+        z-index: 100;
+    }
+
+    .auth-trigger-btn {
+        position: fixed;
+        top: 20px; /* Banner'ın ortasına hizalı */
+        right: 20px;
+        z-index: 101;
+    }
+
+    /* Sabitlenen banner içeriklerin üstünü örtmesin diye padding-top eklendi */
+    .container {
+        display: flex; 
+        flex-direction: column;
+        padding-top: 100px; /* 80px banner + 20px nefes boşluğu */
+        gap: 20px;
+        padding-bottom: 30px;
+        height: auto;
+    }
+
+    .profile, .content, .widgets {
+        width: 100%;
+        height: auto !important; 
+        min-height: unset;
+        padding: 5vw;
+    }
+
+    .profile { order: 1; }
+    .content { order: 2; }
+    .widgets { order: 3; }
+
+    /* ==========================================
+       İÇERİK KARTLARI (Yatay Kaydırmalı Şerit)
+       ========================================== */
+    .content-body {
+        container-type: normal;
+        flex: none;
+        height: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 15px;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-rows: repeat(2, minmax(190px, max-content));
+        grid-auto-columns: 105px;
+        column-gap: 12px;
+        row-gap: 16px; 
+        align-items: start;
+    }
+
+    .card { height: auto !important; }
+    .card-thumb { width: 105px; height: 150px; }
+    .card-label {
+        font-size: 0.75rem; 
+        margin-top: 6px; 
+        line-height: 1.3;
+        
+        /* Metni tam 2 satırda kısıtlar */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        
+        height: 2.6em; /* Tam olarak 2 satırın yüksekliğine sabitliyoruz */
+        white-space: normal;
+    }
+    .card-delete-btn { opacity: 1; transform: scale(1); width: 28px; height: 28px; top: -6px; right: -6px; }
+
+/* ==========================================
+       MODÜL 2: WIDGET'LAR (Taşma ve Çökme Çözümü)
+       ========================================== */
+    .widgets {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .widget-slot {
+        flex: none;
+        height: auto !important; 
+        min-height: 120px; /* Kutuya nefes aldırıyoruz */
+        position: relative;
+        z-index: 1;
+        width: 100%;
+    }
+
+    /* İŞTE ASIL SUÇLU BURADA: Mobilde container-type'ı sıfırlamalıyız! */
+    .widget-link {
+        container-type: normal !important; /* Yükseklik çökmesini engeller */
+        height: auto !important;
+        min-height: 120px;
+        padding: 15px 0; /* İçeriği kutunun ortasında tutar */
+    }
+
+    /* 1. KAPALI DURUM: Kesin 2x2 Izgara */
+    .stat-card {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(2, auto) !important;
+        gap: 15px 5px !important; /* Satırlar arasına boşluk eklendi */
+        height: auto !important;
+        padding: 10px !important;
+        align-content: center !important;
+    }
+    
+    .stat-label, .stat-percent { font-size: 0.65rem !important; }
+    .stat-value { font-size: 1.1rem !important; }
+
+    .widget-slot:hover, 
+    .widget-slot:active {
+        z-index: 10;
+    }
+
+    /* 2. AÇILAN DURUM (OVERLAY): Sadece aşağı doğru büyür */
+    .widget-overlay {
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        height: auto; 
+        min-height: 160px; 
+        transform-origin: top center;
+        transform: scale(0.95);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .widget-slot:hover .widget-overlay {
+        transform: scale(1);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* 3. AÇILAN İÇERİK DÜZENİ */
+    .mt-hover-layout {
+        flex-direction: column !important; 
+        gap: 15px !important;
+        padding: 15px !important;
+    }
+
+    .mt-profile-section {
+        width: 100%;
+        flex: none !important;
+        flex-direction: row !important; 
+        justify-content: flex-start !important;
+    }
+
+    .mt-divider {
+        display: none !important; 
+    }
+
+    .mt-stats-section {
+        width: 100% !important;
+        flex: none !important;
+        padding: 0 !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 12px !important;
+    }
+
+    .mt-stat-label, .mt-stat-percent { font-size: 0.65rem !important; }
+    .mt-stat-value { font-size: 1.2rem !important; }
+}
+/* #endregion */
