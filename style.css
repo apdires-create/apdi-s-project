@@ -1,0 +1,1904 @@
+/* #region 1: Temel Yapı ve Değişkenler */
+:root {
+    /* Arka Plan Renkleri */
+    --bg-main: #0d1117;
+    --bg-box: #161b22;
+
+    /* Temel Renkler */
+    --theme-rgb: 182, 168, 159;
+    --white-rgb: 255, 255, 255; 
+
+    /* Vurgu Renkleri */
+    --accent-orange-rgb: 255, 136, 0;
+    --accent-hover-rgb: 187, 128, 51;
+    --accent-orange: rgb(var(--accent-orange-rgb));
+    --accent-hover: rgb(var(--accent-hover-rgb));
+
+    /* Sistem Renkleri */
+    --color-danger-rgb: 220, 60, 60;
+    --color-danger-light: #ffb8b8;
+    --color-success: #2ea043;
+
+    /* Marka Renkleri (Monkeytype) */
+    --mt-yellow: #e2b714;
+    --mt-dark: #111;
+
+    /* Fontlar */
+    --font-primary: 'Montserrat', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+    
+    /* Z-Index Seviyeleri (Genişletilmiş) */
+    --z-base: 1;
+    --z-inner-overlay: 10; /* Profil/Banner hover katmanları ve footer için */
+    --z-widget-pop: 20;    /* Açılan widget içeriği için */
+    --z-warning: 50;       /* Kaydetme uyarıları için */
+    --z-banner: 99;
+    --z-mobile-nav: 100;   /* Mobil sabitlemeler için */
+    --z-mobile-btn: 101;   /* Mobil giriş butonu için */
+    --z-dropdown: 200;
+    --z-modal: 500;
+    --z-modal-top: 600;
+}
+
+/* Sıfırlama */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a, a:visited, a:hover, a:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Gövde */
+#app-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background-color: var(--bg-main);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: var(--font-primary);
+    color: rgb(var(--white-rgb));
+}
+
+/* Ana Izgara */
+.container {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    padding: 8vh 2vw;
+    padding-top: 25vh;
+    gap: 2vw;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+/* Temel Kutu */
+.box {
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    border-radius: 12px;
+    padding: 20px;
+}
+/* #endregion */
+
+/* #region 2: Banner Alanı */
+.banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 20vh;
+    background-color: var(--bg-box);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    overflow: hidden;
+    z-index: var(--z-banner);
+}
+
+.banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Banner Düzenleme Görünümü */
+.banner-edit-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(1px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgb(var(--white-rgb));
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+    z-index: var(--z-inner-overlay);
+}
+
+body.is-owner .banner:hover .banner-edit-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+/* #endregion */
+
+/* #region 3: Giriş Ekranı */
+.landing-screen {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-main);
+    z-index: 1000;
+}
+
+.landing-box {
+    width: min(380px, 90vw);
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    border-radius: clamp(12px, 1vw + 8px, 18px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 36px 24px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+}
+
+.landing-title {
+    font-family: var(--font-primary);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: rgb(var(--white-rgb));
+    letter-spacing: -0.02em;
+}
+
+.landing-subtitle {
+    font-size: 0.85rem;
+    color: rgba(var(--white-rgb), 0.5);
+    margin-top: -10px;
+    margin-bottom: 5px;
+}
+/* #endregion */
+
+/* #region 4: Profil Alanı (Görünüm ve Düzenleme) */
+
+/* -- ANA KUTU VE BAŞLIK -- */
+.profile {
+    grid-column: 1 / 2;
+    grid-row: 1 / 4;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* -- PROFİL GÖRSELİ VE DÜZENLEME KATMANI -- */
+.profile-image {
+    width: clamp(48px, 6vw, 80px);
+    height: clamp(48px, 6vw, 80px);
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid rgba(var(--theme-rgb), 0.4);
+    background-color: transparent;
+    position: relative; /* İçindeki hover katmanı için eklendi */
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.pfp-edit-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(13, 17, 23, 0.65);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--white-rgb));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    cursor: pointer;
+    z-index: var(--z-inner-overlay);
+}
+
+/* Yalnızca sayfa sahibi profil resminin üzerine gelirse düzenle ikonunu göster */
+body.is-owner .profile-image:hover .pfp-edit-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* -- İSİM VE DÜZENLEME BUTONLARI -- */
+.profile-name-wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-name {
+    flex: 1;
+    width: 100%;
+    font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    color: rgba(var(--white-rgb), 0.8);
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Kutu düzenleme modundayken CSS satır kısıtlamasını iptal et */
+.profile-name.is-input-active {
+    display: block !important;
+    overflow: visible !important;
+}
+
+.edit-actions-group {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.edit-btn {
+    background: transparent;
+    border: none;
+    color: rgba(var(--white-rgb), 0.3);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    color: rgb(var(--white-rgb));
+    background-color: rgba(var(--white-rgb), 0.08);
+    transform: scale(1.05);
+}
+
+/* Satıriçi ikon hover efektleri */
+#inline-edit-trigger:hover .pen-icon { color: rgb(var(--white-rgb)); }
+#inline-edit-trigger:hover .check-icon { stroke: var(--color-success); }
+
+/* -- BİYOGRAFİ VE ÜNVAN -- */
+.profile-title {
+    font-size: clamp(0.75rem, 0.65rem + 0.4vw, 0.9rem);
+    line-height: 1.6;
+    letter-spacing: 0.1em;
+    color: rgba(var(--theme-rgb), 1);
+    margin-top: clamp(0.2rem, 1rem + 2vh, 0.6rem);
+    font-weight: 500;
+}
+
+.profile-bio {
+    font-size: clamp(0.75rem, 0.65rem + 0.3vw, 0.85rem);
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    color: rgba(var(--white-rgb), 0.8);
+    margin-top: clamp(0.3rem, 1rem + 2vh, 0.3rem);
+    font-weight: 400;
+    margin-bottom: 15px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.profile-bio::-webkit-scrollbar { width: 4px; }
+.profile-bio::-webkit-scrollbar-track { background: transparent; }
+.profile-bio::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.3);
+    border-radius: 10px;
+}
+.profile-bio::-webkit-scrollbar-thumb:hover { background: rgba(var(--theme-rgb), 0.6); }
+
+/* -- LİNKLER -- */
+.profile-links {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(var(--white-rgb), 0.08);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    
+    /* YENİ EKLENEN KISIM: 2 Satır limiti ve Scrollbar */
+    max-height: 75px; 
+    overflow-y: auto;
+    padding-right: 5px; /* Scrollbar içeriğe yapışmasın diye */
+}
+
+/* Scrollbar Tasarımı (Bio ile aynı) */
+.profile-links::-webkit-scrollbar { width: 4px; }
+.profile-links::-webkit-scrollbar-track { background: transparent; }
+.profile-links::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.3);
+    border-radius: 10px;
+}
+.profile-links::-webkit-scrollbar-thumb:hover { background: rgba(var(--theme-rgb), 0.6); }
+
+.link-item {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(var(--theme-rgb), 0.8);
+    border: 1px solid rgba(var(--theme-rgb), 0.2);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.link-item:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.8);
+    background-color: rgba(var(--theme-rgb), 0.05);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+
+/* Link Düzenleme Modu Görünümü (Silme ikonlu hali) */
+.link-item.is-editing {
+    position: relative;
+    padding-right: 24px;
+    cursor: default;
+    color: rgba(var(--white-rgb), 0.7);
+    border-color: rgba(var(--white-rgb), 0.2);
+    background-color: transparent;
+}
+
+.link-item.is-editing:hover {
+    box-shadow: none;
+    background-color: transparent;
+}
+
+.link-delete-badge {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(var(--color-danger-rgb), 0.2);
+    color: var(--color-danger-light);
+    border: none;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.link-delete-badge:hover {
+    background: rgba(var(--color-danger-rgb), 0.8);
+    color: rgb(var(--white-rgb));
+}
+
+/* -- DÜZENLEME INPUTLARI (Satıriçi Düzenleme Stilleri) -- */
+.auto-expand-textarea {
+    resize: none !important;
+    overflow: hidden !important;
+    min-height: 60px;
+    line-height: 1.5;
+}
+
+.edit-name-input {
+    font-size: clamp(1rem, 1.5vw, 1.4rem) !important;
+    font-weight: 600 !important;
+    padding: 6px 10px !important;
+    height: auto !important;
+    width: 100%;
+}
+
+.edit-input-rect {
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.edit-input-rect:focus {
+    border-color: rgba(var(--theme-rgb), 0.8) !important;
+}
+
+/* -- EKSİK/BOŞ VERİ GÖRÜNÜMLERİ -- */
+.ghost-text {
+    opacity: 0.4;
+    font-style: italic;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+    border-radius: 6px;
+    padding: 2px 4px;
+    margin-left: -4px;
+}
+
+body.is-owner .ghost-text { cursor: pointer; }
+body.is-owner .ghost-text:hover {
+    opacity: 0.8;
+    background-color: rgba(var(--white-rgb), 0.05);
+}
+
+.dashed-add-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(var(--theme-rgb), 0.6);
+    background: transparent;
+    border: 1px dashed rgba(var(--theme-rgb), 0.4);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashed-add-btn:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.9);
+    background-color: rgba(var(--theme-rgb), 0.05);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+
+.dashed-add-btn.square-add-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+.shake-box-animation {
+    animation: shakeUI 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    border-color: rgba(var(--color-danger-rgb), 0.5) !important;
+}
+
+@keyframes shakeUI {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.unsaved-warning-text {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgb(var(--white-rgb));
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    background: rgba(var(--color-danger-rgb), 0.95);
+    box-shadow: 0 4px 12px rgba(var(--color-danger-rgb), 0.4);
+    border-radius: 20px;
+    animation: fadeInDown 0.3s ease;
+    z-index: var(--z-warning); 
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translate(-50%, -10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+/* #endregion */
+
+/* #region 5: Widget Alanı (Slotlar ve Katmanlar) */
+
+/* #region 1. GENEL WIDGET KASASI (Ortak Altyapı) */
+.widgets { background-color: transparent; border: none; padding: 0; grid-column: 2/3; grid-row: 1/4; display: flex; flex-direction: column; gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem); position: relative; z-index: var(--z-banner); }
+.widget-slot { 
+    flex: 1; 
+    min-height: 0; 
+    position: relative; 
+    display: flex; 
+    flex-direction: column; 
+    background-color: var(--bg-box); 
+    border: 1px solid rgba(var(--white-rgb), 0.08); 
+    border-radius: clamp(10px, 1vw + 6px, 16px); 
+    z-index: var(--z-base);     
+    transition: border-color 0.2s ease; 
+}
+.widget-slot:hover { border-color: rgba(var(--theme-rgb), 0.4); } 
+.widget-slot.is-active,
+.widget-slot.is-closing {z-index: var(--z-dropdown); }
+
+.widget-slot.is-active {border-color: rgba(var(--theme-rgb), 0.8); }
+.widget-view-layer { width: 100%; flex: 1; border-radius: inherit; }
+.widget-placeholder { width: 100%; height: 100%; border-radius: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(var(--white-rgb), 0.3); font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+.widget-link { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; border-radius: inherit; cursor: pointer; container-type: size; container-name: widgetcard; }
+/* #endregion */
+
+/* #region 2. AÇILAN POP-UP (OVERLAY) ALTYAPISI */
+.widget-overlay { position: absolute; top: 50%; left: 50%; width: max(100%, 420px); max-width: 90vw; min-height: 180px; padding: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--bg-box); border: 1px solid rgba(var(--theme-rgb), 1); border-radius: clamp(10px, 1vw + 6px, 16px); opacity: 0; pointer-events: none; z-index: var(--z-widget-pop); transform: translate(-50%, -50%) scale(0.95); transition: opacity 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.widget-slot.is-active .widget-overlay { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+/* #endregion */
+
+/* #region 3. WIDGET MODÜLÜ: MONKEYTYPE */
+
+/* --- ÖN YÜZ (KAPAK) - 3 Parçalı Yapı --- */
+.mt-front-view { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    width: 100%; 
+    height: 100%; 
+    padding: 15px 25px; 
+    border-radius: inherit; 
+}
+
+/* 1. Sol Kısım (İkon ve İsim) */
+.mt-front-left { 
+    flex: 1.2; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 8px; 
+    min-width: 0; 
+}
+
+/* Ayraç (Dik Çizgi) */
+.mt-front-divider { 
+    width: 2px; 
+    height: 50px; 
+    background-color: rgba(var(--white-rgb), 0.15); 
+    border-radius: 2px; 
+    margin: 0 15px;
+    flex-shrink: 0;
+}
+
+/* 2. Sağ Kısım (İstatistikler) */
+.mt-front-right { 
+    flex: 2; 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    min-width: 0; 
+    gap: 10px; /* Sayıların birbirine girmesini kesin olarak engeller */
+}
+
+/* Kullanıcı İsmi (Link, 3 Nokta ve Alt Çizgi Yapısı) */
+.mt-front-username { 
+    font-family: var(--font-primary); 
+    font-size: 0.85rem; 
+    font-weight: 700; 
+    color: rgb(var(--white-rgb)); 
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    width: 100%;
+    max-width: 110px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    text-align: center;
+    padding-bottom: 4px;
+    border-bottom: 2px solid rgba(var(--white-rgb), 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.mt-front-username:hover {
+    color: var(--mt-yellow, #e2b714);
+    border-bottom-color: var(--mt-yellow, #e2b714);
+    text-shadow: 0 0 10px rgba(226, 183, 20, 0.6);
+}
+
+/* --- ARKA YÜZ (AÇIK DURUM / GRID) --- */
+.mt-expanded-container { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 20px; /* Ortadaki boşluğu biraz kıstık, kenarlara yer kalsın */
+    width: 100%; 
+    padding: 0 10px; /* Kenarlara yapışmasını engelleyecek nefes payı */
+}
+
+/* Eksik olan hayati sınıf: Her iki tarafın kutuyu eşit bölmesini sağlar */
+.mt-expanded-half {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.mt-expanded-container .mt-front-divider { 
+    height: 110px; 
+    margin: 0;
+}
+
+.mt-grid-2x2 { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    grid-template-rows: 1fr 1fr; 
+    gap: 24px 15px; /* Satır ve sütunlar arası boşluk dengelendi */
+    width: 100%;
+    max-width: 200px; /* Çok fazla esneyip kenarlara yapışmasını kesin olarak engeller */
+}
+
+.mt-expanded-footer { 
+    text-align: center; 
+    color: var(--mt-yellow, #e2b714); /* Renk sarı yapıldı */
+    opacity: 0.7; /* Göz yormaması ve arka plan gibi durması için saydamlık eklendi */
+    font-family: var(--font-primary); 
+    font-weight: 500; /* 800'den 500'e inceltildi */
+    font-size: 1.6rem; 
+    letter-spacing: 2px; 
+    margin-top: 30px; 
+    pointer-events: none; 
+}
+
+/* --- İSTATİSTİK TİPOGRAFİSİ (ORTAK) --- */
+.mt-stat-item { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 2px; 
+    flex-shrink: 0; 
+}
+
+.mt-stat-label { 
+    font-family: var(--font-primary); 
+    font-size: 0.65rem; 
+    color: rgba(var(--white-rgb), 0.5); 
+    text-transform: uppercase; 
+    font-weight: 500; /* 600'den 500'e inceltildi */
+    margin-bottom: 2px; 
+    white-space: nowrap; 
+}
+
+.mt-stat-value { 
+    font-family: var(--font-mono); 
+    font-size: 2rem; 
+    font-weight: 500; /* 700'den 500'e inceltildi */
+    color: rgb(var(--white-rgb)); 
+    line-height: 1; 
+}
+
+.mt-stat-percent { 
+    font-family: var(--font-primary); 
+    font-size: 0.65rem; 
+    color: rgba(var(--white-rgb), 0.4); 
+    font-weight: 400; /* 600'den 400'e inceltildi */
+    margin-top: 2px; 
+}
+
+/* Mobilde Ön Yüzü Toparlama */
+@container widgetcard (max-width: 299px) {
+    .mt-front-view { gap: 10px; padding: 10px; }
+    .mt-front-right { gap: 10px; flex: 1.5; }
+    .mt-stat-value { font-size: 1.5rem; }
+    .mt-stat-label { font-size: 0.55rem; }
+    .mt-front-username { font-size: 0.75rem; }
+    .mt-front-divider { margin: 0 5px; }
+}
+/* #endregion */
+
+/* #region 4. WIDGET SATIRIÇI (INLINE) DÜZENLEME ARAYÜZÜ */
+.widget-edit-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: none; border-radius: inherit; z-index: 5; background-color: var(--bg-box); }
+.widget-ghost-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; border: 2px dashed rgba(var(--theme-rgb), 0.3); border-radius: inherit; cursor: pointer; color: rgba(var(--theme-rgb), 0.6); transition: all 0.2s ease; }
+.widget-ghost-slot:hover { border-color: rgba(var(--theme-rgb), 0.8); color: rgb(var(--white-rgb)); background-color: rgba(var(--theme-rgb), 0.05); }
+.widget-inline-edit { display: flex; align-items: center; width: 100%; height: 100%; border-radius: inherit; padding: 10px 15px; }
+.widget-edit-left { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; min-width: 65px; }
+.widget-type-select { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.widget-type-icon { width: 48px; height: 48px; border-radius: 12px; background-color: var(--accent-orange); margin-bottom: 4px; display: flex; align-items: center; justify-content: center; }
+.widget-type-icon.mt-brand { background-color: var(--mt-yellow, #e2b714); }
+.widget-type-icon.mt-brand::after { content: 'mt'; font-family: var(--font-mono); color: var(--mt-dark, #111); font-size: 1.5rem; font-weight: 800; margin-top: -2px; }
+.widget-type-label { font-family: var(--font-primary); font-size: 0.65rem; font-weight: 600; color: #ffffff; letter-spacing: 0.5px; }
+.widget-edit-divider { width: 2px; height: 45px; background-color: rgba(var(--white-rgb), 0.2); border-radius: 2px; margin: 0 15px; }
+.widget-edit-right { flex: 1; position: relative; display: flex; align-items: center; }
+.widget-username-input { width: 100%; height: 32px; border-radius: 16px; border: none; padding: 0 15px; font-family: var(--font-primary); font-size: 0.85rem; font-weight: 600; color: #111; outline: none; }
+.widget-inline-delete { position: absolute; right: -5px; top: -25px; background: rgba(var(--color-danger-rgb), 0.2); color: var(--color-danger-light); border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s ease; }
+.widget-inline-delete:hover { background: rgba(var(--color-danger-rgb), 0.9); color: #fff; transform: scale(1.1); }
+/* #endregion */
+
+/* #endregion */
+
+/* #region 6: İçerik Alanı (Sekmeler, Grid ve Kartlar) */
+
+/* -- ANA İÇERİK SÜTUNU -- */
+.content {
+    grid-column: 3 / 5;
+    grid-row: 1 / 4;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    min-height: 0;
+}
+
+/* -- SEKME (TAB) ALANI -- */
+.content-tabs-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+    flex-shrink: 0;
+}
+
+.content-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+}
+
+.tab {
+    background-color: transparent;
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    color: rgba(var(--theme-rgb), 0.7);
+    border-radius: 999px;
+    height: clamp(30px, 2vw + 0.8rem, 36px);
+    padding: 0 20px;
+    font-family: var(--font-primary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.8);
+    background-color: rgba(var(--theme-rgb), 0.05);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+
+.tab.active { 
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.9);
+    background-color: rgba(var(--theme-rgb), 0.15);
+    box-shadow: 0 0 15px rgba(var(--theme-rgb), 0.2);
+}
+
+/* Sekme Yanındaki Kategori Ekleme Butonu (+) */
+.add-content-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(30px, 2vw + 0.8rem, 36px);
+    height: clamp(30px, 2vw + 0.8rem, 36px);
+    background-color: transparent;
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    border-radius: 999px;
+    color: rgba(var(--theme-rgb), 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-content-btn .plus-icon {
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1;
+    color: inherit;
+    transition: none;
+}
+
+.add-content-btn:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.8);
+    background-color: rgba(var(--theme-rgb), 0.05);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+
+.add-content-btn:disabled {
+    cursor: not-allowed;
+    color: rgba(var(--theme-rgb), 0.25);
+    border-color: rgba(var(--theme-rgb), 0.15);
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* -- İÇERİK GÖVDESİ VE IZGARA (GRID) -- */
+/* NOT: Container-type ile iç responsive ölçüleri buradan hesaplanır */
+.content-body {
+    container-type: size;
+    container-name: contentgrid;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden; 
+    padding: 15px 12px 20px 12px; /* Kartın esneme payı */
+    margin: -15px -12px -20px -12px; /* Dışarıdan görünmez alan açma hilesi */
+}
+
+.content-grid {
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 25.3cqh);
+    align-content: flex-start;
+    justify-content: flex-start;
+    column-gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem);
+    row-gap: 7cqh;
+}
+
+/* -- STANDART İÇERİK KARTI -- */
+.content-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.content-card:hover {
+    transform: translateY(-2px);
+}
+
+.card-thumb {
+    position: relative;
+    border-radius: clamp(10px, 0.8vw + 6px, 18px);
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-thumb img {
+    display: block;
+    width: 25.3cqh;
+    height: 36cqh;
+    background-color: var(--accent-orange);
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.content-card:hover .card-thumb {
+    border-color: rgba(var(--theme-rgb), 0.6);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+}
+
+.content-card:hover .card-thumb img {
+    transform: scale(1.08);
+}
+
+.card-label {
+    margin-top: 2cqh;
+    height: 8.5cqh;
+    font-size: 4cqh;
+    line-height: 1.1;
+    color: rgba(var(--white-rgb), 0.5);
+    text-align: center;
+    font-weight: 500;
+    transition: color 0.3s ease;    
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical; 
+    overflow: hidden;
+}
+
+.content-card:hover .card-label {
+    color: rgba(var(--white-rgb), 0.95);
+}
+
+/* -- KART SİLME BUTONU (Düzenleme Modu) -- */
+.card-delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(13, 17, 23, 0.75);
+    backdrop-filter: blur(2px);
+    color: rgba(var(--white-rgb), 0.85);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.9);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    z-index: 2;
+}
+
+.card-delete-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.content-card:hover .card-delete-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.card-delete-btn:hover {
+    background-color: rgba(var(--color-danger-rgb), 0.85);
+}
+
+.card-delete-btn.confirm-delete {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+    background-color: rgba(var(--color-danger-rgb), 0.9);
+    color: rgb(var(--white-rgb));
+}
+
+.card-delete-btn.confirm-delete:hover {
+    background-color: rgba(190, 40, 40, 0.95); /* Kırmızının daha koyusu */
+}
+
+/* -- YENİ KART EKLEME SLOTU (Düzenleme Modu) -- */
+.content-card.empty-add-card {
+    opacity: 0.7;
+}
+
+.content-card.empty-add-card:hover {
+    opacity: 1;
+}
+
+.content-card.empty-add-card .card-thumb.dashed-thumb {
+    background-color: transparent;
+    border: 2px dashed rgba(var(--theme-rgb), 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 36cqh; 
+    border-radius: clamp(10px, 0.8vw + 6px, 18px);
+}
+
+.content-card.empty-add-card:hover .card-thumb.dashed-thumb {
+    border-color: rgba(var(--theme-rgb), 0.7);
+    background-color: rgba(var(--theme-rgb), 0.05);
+    transform: scale(1.03);
+}
+
+.content-card.empty-add-card .plus-icon {
+    font-size: 3rem;
+    color: rgba(var(--theme-rgb), 0.5);
+    font-weight: 300;
+    transition: color 0.3s ease;
+}
+
+.content-card.empty-add-card:hover .plus-icon {
+    color: rgb(var(--white-rgb));
+}
+/* Sürüklenen (Tutulan) Kartın Görünümü */
+.content-card.is-dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+    border: 2px dashed rgba(var(--theme-rgb), 0.8);
+    border-radius: clamp(10px, 0.8vw + 6px, 18px);
+    z-index: 100;
+}
+
+/* Sürükleme esnasında iç elemanların fare olaylarını engelle (Pürüzsüz taşıma için şart) */
+.content-card.is-dragging * {
+    pointer-events: none;
+}
+
+/* #endregion */
+
+/* #region 7: Modallar ve Ekran Katmanları (Arama & Giriş & Ayarlar) */
+
+/* ==========================================
+   ORTAK MODAL KURALLARI VE ARKA PLAN
+   ========================================== */
+.search-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+}
+
+.search-modal,
+.auth-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+/* Modalların z-indexleri değişkenlerle yönetilir */
+.search-modal { z-index: var(--z-modal); }
+.auth-modal { z-index: var(--z-modal-top); } /* Auth her şeyin üstündedir */
+
+.search-modal.is-open,
+.auth-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ==========================================
+   ORTAK INPUT VE KAPATMA YAPILARI
+   ========================================== */
+.search-input {
+    flex: 1;
+    height: 40px;
+    padding: 0 16px;
+    background-color: rgba(var(--white-rgb), 0.04);
+    border: 1px solid rgba(var(--theme-rgb), 0.25);
+    border-radius: 999px;
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input::placeholder { color: rgba(var(--white-rgb), 0.35); }
+.search-input:focus {
+    border-color: rgba(var(--theme-rgb), 0.8);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.15);
+}
+
+.search-modal-close {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: rgba(var(--white-rgb), 0.5);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.search-modal-close:hover {
+    color: rgb(var(--white-rgb));
+    background-color: rgba(var(--white-rgb), 0.08);
+}
+
+/* ==========================================
+   1. ARAMA MODALI (Search)
+   ========================================== */
+.search-modal-box {
+    position: relative;
+    width: min(480px, 90vw);
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    border-radius: clamp(12px, 1vw + 8px, 18px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    gap: 14px;
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.25s ease;
+}
+
+.search-modal.is-open .search-modal-box { transform: translateY(0) scale(1); }
+
+.search-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* Arama Sonuçları Izgarası */
+.search-results {
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 12px;
+    padding-right: 4px;
+}
+
+.search-results::-webkit-scrollbar { width: 4px; }
+.search-results::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.3);
+    border-radius: 10px;
+}
+
+.search-hint,
+.search-empty,
+.search-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: rgba(var(--white-rgb), 0.4);
+    font-size: 0.8rem;
+    padding: 20px 0;
+}
+
+.search-result-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.search-result-thumb {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-result-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.search-result-card:hover .search-result-thumb {
+    border-color: rgba(var(--theme-rgb), 0.7);
+    box-shadow: 0 0 10px rgba(var(--theme-rgb), 0.2);
+}
+
+.search-result-label {
+    font-size: 0.7rem;
+    text-align: center;
+    color: rgba(var(--white-rgb), 0.7);
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+
+/* ==========================================
+   2. KİMLİK DOĞRULAMA VE AYARLAR MODALI (Auth)
+   ========================================== */
+.auth-modal-box {
+    position: relative;
+    width: min(380px, 90vw);
+    background-color: var(--bg-box);
+    border: 1px solid rgba(var(--theme-rgb), 0.3);
+    border-radius: clamp(12px, 1vw + 8px, 18px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.25s ease;
+}
+
+.auth-modal.is-open .auth-modal-box { transform: translateY(0) scale(1); }
+
+.auth-modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgb(var(--white-rgb));
+    flex: 1;
+}
+
+/* Modal İçi Form ve Düzenleme Yapıları */
+.auth-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+    
+.auth-form-container::-webkit-scrollbar { width: 4px; }
+.auth-form-container::-webkit-scrollbar-track { background: transparent; }
+.auth-form-container::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-rgb), 0.3);
+    border-radius: 10px;
+}
+
+.auth-form-container .search-input { width: 100%; }
+
+/* Ayarlar İçi Kategori Başlıkları (Eski Region'dan geldi) */
+.edit-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(var(--theme-rgb), 1);
+    letter-spacing: 0.05em;
+    margin-top: 10px;
+    margin-bottom: -6px;
+    text-transform: uppercase;
+}
+
+/* Link Düzenleme Inputları (Eski Region'dan geldi) */
+.link-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.link-input-group .search-input:first-child { flex: 1; }
+.link-input-group .search-input:nth-child(2) { flex: 2; }
+
+.remove-link-btn {
+    background: rgba(var(--color-danger-rgb), 0.15);
+    color: var(--color-danger-light);
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.remove-link-btn:hover {
+    background: rgba(var(--color-danger-rgb), 0.3);
+    color: rgb(var(--white-rgb));
+    transform: scale(1.1);
+}
+
+/* Onay ve Çıkış Butonları */
+.auth-submit-btn {
+    width: 100%;
+    height: 40px;
+    margin-top: 6px;
+    background-color: rgba(var(--theme-rgb), 0.15);
+    border: 1px solid rgba(var(--theme-rgb), 0.4);
+    border-radius: 999px; 
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-submit-btn:hover {
+    background-color: rgba(var(--theme-rgb), 0.25);
+    box-shadow: 0 0 12px rgba(var(--theme-rgb), 0.2);
+}
+
+.auth-submit-btn.logout-btn {
+    background-color: rgba(var(--color-danger-rgb), 0.15);
+    border-color: rgba(var(--color-danger-rgb), 0.4);
+    color: var(--color-danger-light);
+}
+
+.auth-submit-btn.logout-btn:hover {
+    background-color: rgba(var(--color-danger-rgb), 0.25);
+    box-shadow: 0 0 12px rgba(var(--color-danger-rgb), 0.2);
+}
+
+.auth-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: rgba(var(--white-rgb), 0.5);
+}
+
+.auth-switch-btn {
+    background: transparent;
+    border: none;
+    color: rgba(var(--theme-rgb), 0.9);
+    font-family: var(--font-primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+}
+
+.auth-switch-btn:hover { color: rgb(var(--white-rgb)); }
+
+.auth-status-text {
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba(var(--white-rgb), 0.7);
+    line-height: 1.5;
+}
+
+/* ==========================================
+   DIŞ ARAYÜZ (HEADER) KONTROLLERİ
+   ========================================== */
+/* Sağ Üstteki Giriş/Düzenle Tetikleyici Butonu */
+.auth-trigger-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: auto; 
+    height: 36px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(22, 27, 34, 0.4);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 999px;
+    color: rgba(var(--white-rgb), 0.6);
+    cursor: pointer;
+    z-index: var(--z-banner); /* Banner ile aynı hizada kalmalı */
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-trigger-btn .login-text {
+    font-family: var(--font-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.auth-trigger-btn:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-rgb), 0.5);
+    background-color: rgba(var(--theme-rgb), 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--theme-rgb), 0.1);
+}
+
+.auth-error-box {
+    background-color: rgba(var(--color-danger-rgb), 0.1);
+    border: 1px solid rgba(var(--color-danger-rgb), 0.3);
+    color: var(--color-danger-light);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-align: center;
+    margin: 4px 0;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.minimal-footer {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-primary);
+    font-size: 0.65rem;
+    color: rgba(var(--white-rgb), 0.2);
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    z-index: var(--z-inner-overlay);
+}
+/* ==========================================================================
+   GLOBAL EDIT MODU VE İŞLEM ÇUBUĞU
+   ========================================================================== */
+
+/* ==========================================
+   DÜZENLEME BUTONU (Settings Trigger)
+   ========================================== */
+.settings-action-btn {
+    position: absolute;
+    top: 24px;
+    right: 140px; /* Giriş butonuyla çakışmaması için mesafe */
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(22, 27, 34, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 50%; /* Tam yuvarlak kurgu */
+    cursor: pointer;
+    z-index: var(--z-banner);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0;
+}
+
+.settings-action-btn svg {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    opacity: 0.7;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    color: rgb(var(--white-rgb));
+}
+
+.settings-action-btn:hover {
+    background-color: rgba(var(--theme-rgb), 0.15);
+    border-color: rgba(var(--theme-rgb), 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--theme-rgb), 0.15);
+}
+
+.settings-action-btn:hover img {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Düzenleme Modu Aktifken */
+body.global-edit-mode .settings-action-btn {
+    background-color: var(--mt-yellow, #e2b714);
+    border-color: var(--mt-yellow, #e2b714);
+    box-shadow: 0 0 15px rgba(226, 183, 20, 0.4);
+    transform: scale(1.05);
+}
+
+body.global-edit-mode .settings-action-btn svg {
+    opacity: 1;
+    filter: brightness(0); /* PNG ikonunu sarı arka planda siyah ve net yapar */
+    animation: spin-slow 4s linear infinite;
+}
+
+/* İşlem Çubuğu (Floating Action Bar) - Varsayılan Olarak Aşağıda Saklı */
+.edit-action-bar {
+    position: fixed;
+    bottom: -100px; /* Ekranın dışında sakla */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 24px;
+    border-radius: 100px;
+    z-index: var(--z-modal-top, 600); /* En üstte olsun */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: max-content;
+    max-width: 90%;
+}
+
+/* Değişiklik Olduğunda Çubuk Yukarı Çıkar */
+body.has-unsaved-changes .edit-action-bar {
+    bottom: 30px;
+}
+
+.edit-bar-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.edit-status-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.edit-action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+#settings-trigger-btn {
+    right: 140px; 
+}
+
+.cancel-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.save-btn {
+    background-color: var(--color-success, #2ea043);
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: #3fb950;
+    box-shadow: 0 0 10px rgba(46, 160, 67, 0.4);
+}
+
+/* 
+  VİZYON HAZIRLIĞI: 
+  Edit modunda görünmesini veya gizlenmesini istediğimiz 
+  genel objeler için pratik yardımcı sınıflar 
+*/
+.edit-only { display: none; }
+body.global-edit-mode .edit-only { display: block; }
+
+.view-only { display: block; }
+body.global-edit-mode .view-only { display: none; }
+
+/* ==========================================================================
+   AŞAMA 4 - BÖLÜM 1: DÜZENLEME ARAÇLARININ GİZLENMESİ VE GÖSTERİLMESİ
+   ========================================================================== */
+
+/* 1. NORMAL DURUM: Sayfa sahibi olsa bile tüm düzenleme araçlarını zorla gizle */
+.banner-edit-overlay,
+.pfp-edit-overlay,
+#inline-edit-trigger,
+#inline-add-link-btn,
+.card-delete-btn,
+#add-content-btn,
+#add-widget-btn,
+#edit-widget-btn,
+.link-delete-badge {
+    display: none !important; 
+}
+
+/* 2. DÜZENLEME MODU AKTİF: Butonları kendi display türlerine göre zorla göster */
+body.global-edit-mode #inline-edit-trigger,
+body.global-edit-mode #inline-add-link-btn,
+body.global-edit-mode .card-delete-btn,
+body.global-edit-mode #add-content-btn,
+body.global-edit-mode #edit-widget-btn {
+    display: flex !important;
+}
+
+body.global-edit-mode #add-widget-btn,
+body.global-edit-mode .link-delete-badge {
+    display: block !important;
+}
+
+/* 3. CMS (YÖNETİM) GÖRÜNÜMÜ: Medya alanları hover kararma efekti */
+body.global-edit-mode .banner-edit-overlay,
+body.global-edit-mode .pfp-edit-overlay {
+    display: flex !important;
+    opacity: 1 !important; 
+    background: rgba(0, 0, 0, 0.1); 
+    border-radius: inherit; 
+    transition: background-color 0.4s ease; 
+}
+
+body.global-edit-mode .banner-edit-overlay:hover,
+body.global-edit-mode .pfp-edit-overlay:hover {
+    background: rgba(0, 0, 0, 0.40);
+    backdrop-filter: blur(1px);
+}
+/* ==========================================================================
+   HAYALET YUVA (YENİ İÇERİK EKLEME POSTERİ)
+   ========================================================================== */
+.ghost-add-slot {
+    width: 25.3cqh; /* Diğer afişlerle birebir aynı genişlik */
+    height: 36cqh;  /* Diğer afişlerle birebir aynı yükseklik */
+    border: 2px dashed rgba(var(--theme-rgb), 0.3);
+    border-radius: clamp(10px, 0.8vw + 6px, 18px);
+    display: none; /* Sadece edit modunda flex olacak */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.2s ease;
+    margin-top: 0;
+}
+
+body.global-edit-mode .ghost-add-slot {
+    display: flex !important;
+}
+
+.ghost-add-slot:hover {
+    border-color: rgba(var(--theme-rgb), 0.8);
+    background: rgba(var(--theme-rgb), 0.05);
+    transform: scale(1.03); /* Hover efekti diğer kartlara benzesin */
+}
+
+/* Sadece koca bir artı ikonu */
+.ghost-add-slot svg {
+    width: 48px;
+    height: 48px;
+    color: rgba(var(--theme-rgb), 0.5);
+    transition: color 0.2s ease;
+}
+
+.ghost-add-slot:hover svg {
+    color: rgb(var(--white-rgb));
+}
+/* ==========================================================================
+   DİNAMİK KATEGORİ (SEKME) YÖNETİMİ VE SİLME İKONU
+   ========================================================================== */
+
+/* 1. Kategori Ekle (+) Butonunu Düzenleme Modunda Göster */
+body.global-edit-mode #add-content-btn {
+    display: flex !important; 
+}
+
+/* 2. Sekme Hover ve Silme İkonu (Absolute) */
+body.global-edit-mode .tab {
+    position: relative;
+    overflow: visible; /* İkonun dışarı taşmasına izin ver */
+}
+
+.tab-delete-badge {
+    position: absolute;
+    right: -6px; /* Sağ üst köşeden dışarı taşır */
+    top: -6px;   /* Sağ üst köşeden dışarı taşır */
+    background: rgba(var(--color-danger-rgb), 0.9);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0; /* Normalde görünmez */
+    transform: scale(0.8);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* Sekmenin üzerine gelince çarpıyı göster */
+body.global-edit-mode .tab:hover .tab-delete-badge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.tab-delete-badge:hover {
+    background: rgb(var(--color-danger-rgb));
+    transform: scale(1.2) !important; /* İkonun üstüne gelince biraz daha büyüsün */
+}
+
+/* 3. Hiç Kategori Yoksa Çıkacak Boş Ekran */
+.empty-categories-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    color: rgba(var(--white-rgb), 0.4);
+    gap: 10px;
+    font-size: 0.9rem;
+}
+/* ==========================================================================
+   TOAST BİLDİRİMİ (BAŞARILI KAYIT MESAJI)
+   ========================================================================== */
+.toast-notification {
+    position: fixed;
+    bottom: -100px; /* Başlangıçta ekran dışında saklı */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-success, #2ea043);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 9999;
+    transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+
+.toast-notification.show {
+    bottom: 30px; /* Aktifleşince yukarı fırlar */
+}
+/* #endregion */
+
+/* #region Responsive Tasarım (Mobil Uyum - Faz 4) */
+@media (max-width: 480px) {
+    body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* 1. BANNER VE GİRİŞ: %60 Küçültüldü ve Tepeye Sabitlendi */
+    .banner {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 80px !important; /* Eskiden ~200px'di, ince bir şerit oldu */
+        min-height: unset !important;
+        z-index: var(--z-mobile-nav);
+    }
+
+    .auth-trigger-btn {
+        position: fixed;
+        top: 20px; /* Banner'ın ortasına hizalı */
+        right: 20px;
+        z-index: var(--z-mobile-btn);
+    }
+
+    /* Sabitlenen banner içeriklerin üstünü örtmesin diye padding-top eklendi */
+    .container {
+        display: flex; 
+        flex-direction: column;
+        padding-top: 100px; /* 80px banner + 20px nefes boşluğu */
+        gap: 20px;
+        padding-bottom: 30px;
+        height: auto;
+    }
+
+    .profile, .content, .widgets {
+        width: 100%;
+        height: auto !important; 
+        min-height: unset;
+        padding: 5vw;
+    }
+
+    .profile { order: 1; }
+    .content { order: 2; }
+    .widgets { order: 3; }
+
+    /* ==========================================
+       İÇERİK KARTLARI (Yatay Kaydırmalı Şerit)
+       ========================================== */
+    .content-body {
+        container-type: normal;
+        flex: none;
+        height: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 15px;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-rows: repeat(2, minmax(190px, max-content));
+        grid-auto-columns: 105px;
+        column-gap: 12px;
+        row-gap: 16px; 
+        align-items: start;
+    }
+
+    .card { height: auto !important; }
+    .card-thumb { width: 105px; height: 150px; }
+    .card-label {
+        font-size: 0.75rem; 
+        margin-top: 6px; 
+        line-height: 1.3;
+        
+        /* Metni tam 2 satırda kısıtlar */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        
+        height: 2.6em; /* Tam olarak 2 satırın yüksekliğine sabitliyoruz */
+        white-space: normal;
+    }
+    .card-delete-btn { opacity: 1; transform: scale(1); width: 28px; height: 28px; top: -6px; right: -6px; }
+
+/* ==========================================
+       MODÜL 2: WIDGET'LAR (Taşma ve Çökme Çözümü)
+       ========================================== */
+    .widgets {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .widget-slot {
+        flex: none;
+        height: auto !important; 
+        min-height: 120px; /* Kutuya nefes aldırıyoruz */
+        position: relative;
+        z-index: 1;
+        width: 100%;
+    }
+
+    /* İŞTE ASIL SUÇLU BURADA: Mobilde container-type'ı sıfırlamalıyız! */
+    .widget-link {
+        container-type: normal !important; /* Yükseklik çökmesini engeller */
+        height: auto !important;
+        min-height: 120px;
+        padding: 15px 0; /* İçeriği kutunun ortasında tutar */
+    }
+
+    /* 1. KAPALI DURUM: Kesin 2x2 Izgara */
+    .stat-card {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(2, auto) !important;
+        gap: 15px 5px !important; /* Satırlar arasına boşluk eklendi */
+        height: auto !important;
+        padding: 10px !important;
+        align-content: center !important;
+    }
+    
+    .stat-label, .stat-percent { font-size: 0.65rem !important; }
+    .stat-value { font-size: 1.1rem !important; }
+
+    .widget-slot:hover, 
+    .widget-slot:active {
+        z-index: var(--z-inner-overlay);
+    }
+
+    /* 2. AÇILAN DURUM (OVERLAY): Sadece aşağı doğru büyür */
+    .widget-overlay {
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        height: auto; 
+        min-height: 160px; 
+        transform-origin: top center;
+        transform: scale(0.95);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .widget-slot:hover .widget-overlay {
+        transform: scale(1);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* 3. AÇILAN İÇERİK DÜZENİ */
+    .mt-hover-layout {
+        flex-direction: column !important; 
+        gap: 15px !important;
+        padding: 15px !important;
+    }
+
+    .mt-profile-section {
+        width: 100%;
+        flex: none !important;
+        flex-direction: row !important; 
+        justify-content: flex-start !important;
+    }
+
+    .mt-divider {
+        display: none !important; 
+    }
+
+    .mt-stats-section {
+        width: 100% !important;
+        flex: none !important;
+        padding: 0 !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 12px !important;
+    }
+
+    .mt-stat-label, .mt-stat-percent { font-size: 0.65rem !important; }
+    .mt-stat-value { font-size: 1.2rem !important; }
+}
+/* #endregion */

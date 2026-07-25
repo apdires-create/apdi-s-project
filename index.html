@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apdi - Archive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="landing-screen" class="landing-screen" style="display: none;">
+        <div class="landing-box">
+            <h1 class="landing-title">apdi's project</h1>
+            <p id="landing-form-title" class="landing-subtitle">Arşivini oluşturmaya başla.</p>
+            
+            <div class="auth-form-container">
+                <div class="input-group" id="landing-username-group" style="display: none;">
+                    <input type="text" id="landing-username" class="search-input" placeholder="Kullanıcı Adı (Örn: apdi)" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <input type="email" id="landing-email" class="search-input" placeholder="E-posta" autocomplete="email">
+                </div>
+                <div class="input-group">
+                    <input type="password" id="landing-password" class="search-input" placeholder="Şifre">
+                </div>
+                <!-- Hata Kutusu -->
+                <div class="auth-error-box" style="display: none;"></div>
+                
+                <button id="landing-submit-btn" class="auth-submit-btn">Giriş Yap</button>
+                
+                <div class="auth-switch">
+                    <span id="landing-switch-text">Hesabın yok mu?</span>
+                    <button id="landing-switch-action" class="auth-switch-btn">Kayıt Ol</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="not-found-screen" class="landing-screen" style="display: none;">
+        <div class="landing-box">
+            <h1 class="landing-title" style="font-size: 4rem; color: rgba(255, 136, 0, 0.8);">404</h1>
+            <p class="landing-subtitle" style="font-size: 1rem; margin-top: 0;">Bu kullanıcıya ait bir arşiv bulunamadı.</p>
+            <button onclick="window.location.href=window.location.pathname" class="auth-submit-btn" style="margin-top: 15px;">Ana Sayfaya Dön</button>
+        </div>
+    </div>
+    <div id="app-wrapper" style="display: none;">
+        <div class="banner">
+            <!-- Placeholder Linki: Buraya kendi ImgBB linkini yapıştıracaksın -->
+            <img src="https://i.ibb.co/RTNFJZXT/banner-placeholder.png" alt="Banner" class="banner-image" id="banner-img">
+            
+            <div class="banner-edit-overlay" id="banner-edit-overlay" style="display: none;">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                <span>Banner'ı Değiştir</span>
+            </div>
+            
+            <input type="file" id="banner-file-input" accept="image/*" style="display: none;">
+        </div>
+        <div class="container">
+                <div class="box profile">
+                    <div class="profile-header">
+                        <div class="profile-image" style="position: relative;">
+                            <img src="https://i.ibb.co/8gvf4SNF/pfp-placeholder.png" alt="Profil" id="pfp-img">
+                            <div class="pfp-edit-overlay" id="pfp-edit-overlay" style="display: none;">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                </svg>
+                            </div>
+                            <input type="file" id="pfp-file-input" accept="image/*" style="display: none;">
+                        </div>
+                        
+                        <!-- TERTEMİZ İSİM ALANI (İkonlar silindi) -->
+                        <div class="profile-name-wrapper">
+                            <h1 class="profile-name" id="inline-name">-</h1>
+                        </div>
+                    </div>
+                    
+                    <h2 class="profile-title ghost-text" id="inline-title">Ünvan Ekle (Örn: Designer)</h2>
+                    <p class="profile-bio ghost-text" id="inline-bio">Kendinden bahset, arşivini tanıt...</p>
+                    
+                    <div class="profile-links" id="profile-links-container">
+                        <button id="inline-add-link-btn" class="dashed-add-btn" style="display: none;">+ Yeni Link</button>
+                    </div>
+                </div>
+
+                <div class="box widgets" id="widgets-container">
+
+                </div>
+
+                <div class="box content">
+                    <div class="content-tabs-row">
+                        <div class="content-tabs" id="content-tabs"></div>
+                        <button class="add-content-btn" id="add-content-btn" type="button" title="Yeni Ekle">
+                            <span class="plus-icon">+</span>
+                        </button>
+                    </div>
+
+                    <div class="content-body">
+                        <div class="content-grid" id="content-grid">
+                            
+                            <div class="content-card empty-add-card" id="inline-add-content-card" style="display: none;">
+                                <div class="card-thumb dashed-thumb">
+                                    <span class="plus-icon">+</span>
+                                </div>
+                                <p class="card-label ghost-text">Yeni Ekle</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <div class="search-modal" id="search-modal">
+            <div class="search-modal-backdrop" id="search-modal-backdrop"></div>
+            <div class="search-modal-box">
+                <div class="search-modal-header">
+                    <input type="text" id="search-input" class="search-input" placeholder="İsim ara..." autocomplete="off">
+                    <button class="search-modal-close" id="search-modal-close" type="button">&times;</button>
+                </div>
+                <div class="search-results" id="search-results">
+                    <p class="search-hint">Aramak istediğin ismi yaz.</p>
+                </div>
+            </div>
+        </div>
+        <button id="auth-trigger-btn" class="auth-trigger-btn" title="Giriş / Ayarlar">
+        <span class="login-text" id="auth-trigger-text">Giriş Yap</span>
+        </button>
+        <button id="settings-trigger-btn" class="settings-action-btn" style="display: none;" title="Düzenleme Modu">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="settings-svg-icon">
+        <line x1="4" y1="21" x2="4" y2="14"></line>
+        <line x1="4" y1="10" x2="4" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12" y2="3"></line>
+        <line x1="20" y1="21" x2="20" y2="16"></line>
+        <line x1="20" y1="12" x2="20" y2="3"></line>
+        <line x1="1" y1="14" x2="7" y2="14"></line>
+        <line x1="9" y1="8" x2="15" y2="8"></line>
+        <line x1="17" y1="16" x2="23" y2="16"></line>
+    </svg>
+        </button>
+        <div id="auth-modal" class="auth-modal">
+            <div class="search-modal-backdrop" id="auth-modal-backdrop"></div>
+            <div class="auth-modal-box">
+                <div class="search-modal-header">
+                    <h3 class="auth-modal-title" id="auth-title">Giriş Yap</h3>
+                    <button class="search-modal-close" id="auth-modal-close">&times;</button>
+                </div>
+
+                <div id="auth-form-container" class="auth-form-container">
+                    <div class="input-group" id="auth-username-group" style="display: none;">
+                        <input type="text" id="auth-username" class="search-input" placeholder="Kullanıcı Adı (Örn: apdi)">
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="auth-email" class="search-input" placeholder="E-posta">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="auth-password" class="search-input" placeholder="Şifre">
+                    </div>
+                    <div id="auth-error-box" class="auth-error-box" style="display: none;"></div>
+                    <button id="auth-submit-btn" class="auth-submit-btn">Giriş Yap</button>
+                    
+                    <div class="auth-switch">
+                        <span id="auth-switch-text">Hesabın yok mu?</span>
+                        <button id="auth-switch-action" class="auth-switch-btn">Kayıt Ol</button>
+                    </div>
+                </div>
+
+                <div id="auth-logged-in-view" class="auth-logged-in-view" style="display: none;">
+                    <p class="auth-status-text">Şu anda <strong><span id="auth-current-user"></span></strong> olarak giriş yapmış durumdasın.</p>
+                    <button id="auth-logout-btn" class="auth-submit-btn logout-btn">Güvenli Çıkış Yap</button>
+                </div>
+            </div>
+        </div>
+        <div id="link-modal" class="auth-modal">
+            <div class="search-modal-backdrop" id="link-modal-backdrop"></div>
+            <div class="auth-modal-box" style="width: min(350px, 90vw);">
+                <div class="search-modal-header">
+                    <h3 class="auth-modal-title">Yeni Link Ekle</h3>
+                    <button class="search-modal-close" id="link-modal-close">&times;</button>
+                </div>
+                <div class="auth-form-container">
+                    <div class="input-group">
+                        <input type="text" id="link-name-input" class="search-input" placeholder="Görünen Ad (Örn: Twitter)" maxlength="15">
+                    </div>
+                    <div class="input-group">
+                        <input type="url" id="link-url-input" class="search-input" placeholder="URL (Örn: x.com/apdi)">
+                    </div>
+                    <div id="link-error-box" class="auth-error-box" style="display: none;"></div>
+                    <button id="link-submit-btn" class="auth-submit-btn">Ekle</button>
+                </div>
+            </div>
+        </div>
+        <div id="category-modal" class="auth-modal">
+            <div class="search-modal-backdrop" id="category-modal-backdrop"></div>
+            <div class="auth-modal-box" style="width: min(400px, 90vw);">
+                <div class="search-modal-header">
+                    <h3 class="auth-modal-title">Yeni Kategori Ekle</h3>
+                    <button class="search-modal-close" id="category-modal-close">&times;</button>
+                </div>
+                <div class="auth-form-container">
+                    <div class="input-group">
+                        <input type="text" id="category-name-input" class="search-input" placeholder="Görünen İsim (Örn: Başyapıtlar)" maxlength="20">
+                    </div>
+                    
+                    <p class="edit-section-title">İçerik Türü Altyapısı</p>
+                    <div class="input-group">
+                        <select id="category-type-select" class="search-input" style="appearance: none; cursor: pointer; background-color: rgba(255,255,255,0.04);">
+                            <option value="dizi" style="background-color: #161b22;">Filmler ve Diziler</option>
+                            <option value="anime" style="background-color: #161b22;">Animeler</option>
+                            <option value="oyun" style="background-color: #161b22;">Oyunlar</option>
+                        </select>
+                    </div>
+
+                    <div id="category-error-box" class="auth-error-box" style="display: none;"></div>
+                    <button id="category-submit-btn" class="auth-submit-btn" style="margin-top: 10px;">Ekle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="confirm-modal" class="auth-modal">
+            <div class="search-modal-backdrop" id="confirm-modal-backdrop"></div>
+            <div class="auth-modal-box" style="width: min(350px, 90vw); text-align: center; gap: 10px;">
+                <h3 class="auth-modal-title" style="text-align: center; font-size: 1.1rem; color: #ffb8b8;">Emin misin?</h3>
+                <p id="confirm-modal-text" style="font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 15px;">Bu işlemi geri alamazsın.</p>
+                <div style="display: flex; gap: 10px;">
+                    <button id="confirm-cancel-btn" class="auth-submit-btn" style="background: rgba(255,255,255,0.1); border-color: transparent;">İptal</button>
+                    <button id="confirm-ok-btn" class="auth-submit-btn logout-btn">Sil</button>
+                </div>
+            </div>
+    </div>
+    <div id="toast-notification" class="toast-notification">Değişiklikler kaydedildi!</div>
+    <div id="edit-action-bar" class="edit-action-bar">
+        <div class="edit-bar-content">
+            <span class="edit-status-text">Değişiklikler yapıldı...</span>
+            <div class="edit-action-buttons">
+                <button id="edit-cancel-btn" class="edit-btn cancel-btn">Sıfırla</button>
+                <button id="edit-save-btn" class="edit-btn save-btn">Onayla</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
