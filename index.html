@@ -7,36 +7,110 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apdi - Archive</title>
+    <title>Nook</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="landing-screen" class="landing-screen" style="display: none;">
-        <div class="landing-box">
-            <h1 class="landing-title">apdi's project</h1>
-            <p id="landing-form-title" class="landing-subtitle">Arşivini oluşturmaya başla.</p>
+    <div id="starfield"></div>
+    <div id="landing-screen" class="landing-screen">
+        
+        <!-- 1. SABİT ÜST MENÜ (Absolute) -->
+        <nav class="landing-navbar">
+            <div class="nav-brand">
+                <div class="nav-logo-box">N</div>
+                <span class="nav-brand-text">Nook</span>
+            </div>
             
-            <div class="auth-form-container">
-                <div class="input-group" id="landing-username-group" style="display: none;">
-                    <input type="text" id="landing-username" class="search-input" placeholder="Kullanıcı Adı (Örn: apdi)" autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <input type="email" id="landing-email" class="search-input" placeholder="E-posta" autocomplete="email">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="landing-password" class="search-input" placeholder="Şifre">
-                </div>
-                <!-- Hata Kutusu -->
-                <div class="auth-error-box" style="display: none;"></div>
+            <div class="nav-links">
+                <a href="#">About</a>
+                <a href="#">Explore</a>
+                <a href="#">Features</a>
+            </div>
+            
+            <div class="nav-actions">
+                <!-- Giriş Yapmamış Kullanıcı İçin -->
+                <button id="hero-login-btn" class="nav-login-btn">Log in</button>
                 
-                <button id="landing-submit-btn" class="auth-submit-btn">Giriş Yap</button>
-                
-                <div class="auth-switch">
-                    <span id="landing-switch-text">Hesabın yok mu?</span>
-                    <button id="landing-switch-action" class="auth-switch-btn">Kayıt Ol</button>
+                <!-- YENİ: Giriş Yapmış Kullanıcı Menüsü (Başlangıçta Gizli) -->
+                <div id="nav-user-menu" class="nav-user-menu" style="display: none;">
+                    <button class="nav-user-trigger" id="nav-user-trigger">
+                        <img src="https://i.ibb.co/8gvf4SNF/pfp-placeholder.png" alt="Profil" id="nav-user-pfp" class="nav-user-pfp">
+                        <span id="nav-user-name" class="nav-user-name">Kullanıcı</span>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="nav-dropdown" id="nav-dropdown">
+                        <a href="#" id="nav-go-profile" class="nav-dropdown-item">Sayfam</a>
+                        <button id="nav-logout-btn" class="nav-dropdown-item text-danger">Çıkış Yap</button>
+                    </div>
                 </div>
             </div>
+        </nav>
+
+        <div class="landing-hero">
+            
+            <div class="hero-left">
+                <h1 class="hero-title">Nook</h1>
+                <p class="hero-subtitle">
+                    Your very own corner on the internet — rank the shows you love, pin the games you're grinding, and hand people a page that's actually <strong>you</strong>.
+                </p>
+                <button class="hero-cta-btn" id="hero-start-btn">
+                    Get your Nook 
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="hero-right">
+                
+                <div class="tilted-visual-wrapper">
+                    
+                    <!-- Dönen İç Mekanizma -->
+                    <div class="flip-card-inner" id="hero-flip-card">
+                        
+                        <!-- ÖN YÜZ: Dinamik Profil Kartı -->
+                        <div class="flip-card-front" id="flip-front-trigger" style="cursor: pointer;" title="Giriş yapmak için tıkla">
+                            <div class="nook-profile-card nook-profile-card--md" data-nook-card data-nook-key="hero-card"></div>
+                        </div>
+
+                        <!-- ARKA YÜZ: Giriş ve Kayıt Formu -->
+                        <div class="flip-card-back">
+                            <div class="landing-box" id="main-landing-box">
+                                
+                                <!-- Arkaya dönüş (kapatma) butonu -->
+                                <button class="landing-box-close" id="flip-back-btn">&times;</button>
+                                
+                                <h1 id="landing-main-title" class="landing-title">Nook</h1>
+                                
+                                <div class="auth-form-container">
+                                    <div class="input-group" id="landing-username-group">
+                                        <input type="text" id="landing-username" class="search-input" placeholder="Kullanıcı Adı (Örn: apdi)" autocomplete="off">
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="email" id="landing-email" class="search-input" placeholder="E-posta" autocomplete="email">
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="password" id="landing-password" class="search-input" placeholder="Şifre">
+                                    </div>
+                                    <div class="auth-error-box" style="display: none;"></div>
+                                    
+                                    <button id="landing-submit-btn" class="auth-submit-btn">Giriş Yap</button>
+                                    
+                                    <div class="auth-switch">
+                                        <span id="landing-switch-text">Hesabın yok mu?</span>
+                                        <button id="landing-switch-action" class="auth-switch-btn">Kayıt Ol</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        
         </div>
+        
     </div>
     <div id="not-found-screen" class="landing-screen" style="display: none;">
         <div class="landing-box">
@@ -46,6 +120,9 @@
         </div>
     </div>
     <div id="app-wrapper" style="display: none;">
+        <a href="/" class="app-home-btn" title="Ana Sayfaya Dön">
+            <div class="app-home-logo">N</div>
+        </a>
         <div class="banner">
             <!-- Placeholder Linki: Buraya kendi ImgBB linkini yapıştıracaksın -->
             <img src="https://i.ibb.co/RTNFJZXT/banner-placeholder.png" alt="Banner" class="banner-image" id="banner-img">
@@ -83,6 +160,8 @@
                     <h2 class="profile-title ghost-text" id="inline-title">Ünvan Ekle (Örn: Designer)</h2>
                     <p class="profile-bio ghost-text" id="inline-bio">Kendinden bahset, arşivini tanıt...</p>
                     
+                    <div id="edit-color-picker-container" class="edit-only"></div>
+
                     <div class="profile-links" id="profile-links-container">
                         <button id="inline-add-link-btn" class="dashed-add-btn" style="display: none;">+ Yeni Link</button>
                     </div>
@@ -125,6 +204,9 @@
                 </div>
             </div>
         </div>
+        <button onclick="window.location.href=window.location.pathname" id="home-trigger-btn" class="home-trigger-btn" title="Ana Sayfaya Dön">
+            <span class="home-logo-n">N</span>
+        </button>
         <button id="auth-trigger-btn" class="auth-trigger-btn" title="Giriş / Ayarlar">
         <span class="login-text" id="auth-trigger-text">Giriş Yap</span>
         </button>
@@ -216,6 +298,37 @@
 
                     <div id="category-error-box" class="auth-error-box" style="display: none;"></div>
                     <button id="category-submit-btn" class="auth-submit-btn" style="margin-top: 10px;">Ekle</button>
+                </div>
+            </div>
+        </div>        
+        <div id="widget-selection-modal" class="auth-modal">
+            <div class="search-modal-backdrop" id="widget-modal-backdrop"></div>
+            <div class="auth-modal-box" style="width: min(400px, 90vw);">
+                <div class="search-modal-header">
+                    <h3 class="auth-modal-title">Widget Ekle</h3>
+                    <button class="search-modal-close" id="widget-modal-close">&times;</button>
+                </div>
+                
+                <div class="widget-selection-grid">
+                    <!-- Aktif Widget: Monkeytype -->
+                    <button class="widget-select-btn" data-type="monkeytype">
+                        <div class="widget-type-icon mt-brand" style="margin-bottom: 0; width: 40px; height: 40px;"></div>
+                        <div class="widget-select-info">
+                            <span class="widget-select-title">Monkeytype</span>
+                            <span class="widget-select-desc">Canlı klavye hız istatistikleri</span>
+                        </div>
+                    </button>
+                    
+                    <!-- İlerisi İçin Hazırlık (Pasif Widgetlar) -->
+                    <button class="widget-select-btn disabled" disabled>
+                        <div class="widget-type-icon" style="background-color: #1db954; margin-bottom: 0; width: 40px; height: 40px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.24 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.84.24 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.239.54-.959.72-1.56.3z"/></svg>
+                        </div>
+                        <div class="widget-select-info">
+                            <span class="widget-select-title">Spotify <span style="font-size: 0.65rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 10px; margin-left: 5px;">Yakında</span></span>
+                            <span class="widget-select-desc">Şu an çalan müzik ve favoriler</span>
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>

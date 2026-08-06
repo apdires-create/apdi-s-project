@@ -8,13 +8,79 @@ const KULLANICI_ADI = urlParams.get('user');
 
 let siteVerisi = {
     profil_sahibi_id: null, 
+    primary_color: null, /* YENİ: Renk hafızası buraya eklendi */
     profil_metinleri_ve_linkler: null,
     profil_gorselleri: null,
     linkler: [],
     widgetlar: [],
-    icerik: [],
+    icerik: {},
     monkeytype_skorlari: null
 };
+
+function hexToHSL(hex) {
+    if (!hex) return { h: 32, s: 100, l: 50 }; // Varsayılan Nook Turuncusu
+    let r = parseInt(hex.slice(1, 3), 16) / 255;
+    let g = parseInt(hex.slice(3, 5), 16) / 255;
+    let b = parseInt(hex.slice(5, 7), 16) / 255;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+        let d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+    return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+function generatePalette(hex) {
+    const { h, s } = hexToHSL(hex);
+    const steps = { 50: 95, 100: 88, 300: 68, 500: 50, 700: 34, 900: 16 };
+    const palette = {};
+    for (const [key, l] of Object.entries(steps)) {
+        palette[key] = `hsl(${h.toFixed(1)}, ${s.toFixed(1)}%, ${l}%)`;
+    }
+    return palette;
+}
+
+function getContrastText(hex) {
+    if (!hex) return '#0b0d10';
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.55 ? '#0b0d10' : '#ffffff';
+}
+
+function temaRenkleriniGuncelle(secilenRenk) {
+    if (!secilenRenk) return;
+    const palette = generatePalette(secilenRenk);
+    const root = document.documentElement;
+    
+    Object.entries(palette).forEach(([step, color]) => {
+        root.style.setProperty(`--accent-${step}`, color);
+    });
+    root.style.setProperty('--accent-500', secilenRenk);
+    root.style.setProperty('--accent-text', getContrastText(secilenRenk));
+}
+
+function hexToHSL(hex) {
+    if (!hex) return { h: 32, s: 100, l: 50 }; // Nook turuncusu varsayılan
+    let r = 0, g = 0, b = 0;
+    if (hex.length === 4) { r = parseInt(hex[1] + hex[1], 16); g = parseInt(hex[2] + hex[2], 16); b = parseInt(hex[3] + hex[3], 16); } 
+    else if (hex.length === 7) { r = parseInt(hex.substring(1, 3), 16); g = parseInt(hex.substring(3, 5), 16); b = parseInt(hex.substring(5, 7), 16); }
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) { case r: h = (g - b) / d + (g < b ? 6 : 0); break; case g: h = (b - r) / d + 2; break; case b: h = (r - g) / d + 4; break; } h /= 6;
+    }
+    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
 
 let aktifKullaniciOturumu = null;
 let isOwner = false;
@@ -229,8 +295,8 @@ function authModaliniBaslat() {
 }
 
 function landingEkraniniBaslat() {
-    const title = document.getElementById('landing-form-title');
-    const usernameGroup = document.getElementById('landing-username-group');
+    const landingBox = document.getElementById('main-landing-box');
+    const mainTitle = document.getElementById('landing-main-title');
     const usernameInput = document.getElementById('landing-username');
     const emailInput = document.getElementById('landing-email');
     const passwordInput = document.getElementById('landing-password');
@@ -241,17 +307,41 @@ function landingEkraniniBaslat() {
     let isLandingLoginMode = true;
     if (!submitBtn) return;
 
+    // Başlık Varyasyonları (İstediğin gibi doldurabilirsin)
+    const loginBasliklari = [
+        "Nook'a Dön",
+        "Kendi Köşene Geç",
+        "Tekrar Hoş Geldin",
+        "Kaldığın Yerden"
+    ];
+
+    const registerBasliklari = [
+        "Kendi Köşeni Yarat",
+        "Dijital Denize Açıl",
+        "Bir Nook İnşa Et",
+        "Kendine Bir Alan Aç"
+    ];
+
+    const rastgeleBaslikSec = (dizi) => dizi[Math.floor(Math.random() * dizi.length)];
+
+    // Başlangıç başlığını ayarla
+    mainTitle.textContent = rastgeleBaslikSec(loginBasliklari);
+
     switchBtn.addEventListener('click', () => {
         isLandingLoginMode = !isLandingLoginMode;
+        
         if (isLandingLoginMode) {
-            title.textContent = 'Arşivini oluşturmaya başla.';
-            usernameGroup.style.display = 'none';
+            // GİRİŞ MODUNA DÖNÜŞ
+            landingBox.classList.remove('register-mode');
+            mainTitle.textContent = rastgeleBaslikSec(loginBasliklari);
             submitBtn.textContent = 'Giriş Yap';
             switchText.textContent = 'Hesabın yok mu?';
             switchBtn.textContent = 'Kayıt Ol';
+            usernameInput.value = ''; // Çıkarken temizle
         } else {
-            title.textContent = 'Yeni Arşiv Oluştur';
-            usernameGroup.style.display = 'block';
+            // KAYIT MODUNA GEÇİŞ
+            landingBox.classList.add('register-mode');
+            mainTitle.textContent = rastgeleBaslikSec(registerBasliklari);
             submitBtn.textContent = 'Kayıt Ol';
             switchText.textContent = 'Zaten hesabın var mı?';
             switchBtn.textContent = 'Giriş Yap';
@@ -281,6 +371,7 @@ function landingEkraniniBaslat() {
         submitBtn.disabled = false;
         submitBtn.textContent = isLandingLoginMode ? 'Giriş Yap' : 'Kayıt Ol';
     });
+    
     passwordInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') { e.preventDefault(); submitBtn.click(); }
     });
@@ -296,16 +387,31 @@ async function tumVerileriCek() {
             body: JSON.stringify({ kullanici_adi: KULLANICI_ADI })
         });
 
-        if (!response.ok) throw new Error(`HTTP Hatası: ${response.status}`);
+        let data, profil;
 
-        const data = await response.json();
-        const profil = data.profil;
+        // GÜVENLİK AĞI: Eğer Edge Function 400 hatası verip çökerse, veriyi direkt Supabase'den çek!
+        if (!response.ok) {
+            console.warn(`Edge Function Hatası (${response.status}). Güvenlik ağı devrede, veri doğrudan çekiliyor...`);
+            const { data: fallbackData, error: fallbackError } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('kullanici_adi', KULLANICI_ADI)
+                .single();
+
+            if (fallbackError || !fallbackData) throw new Error("Hesap bulunamadı.");
+            profil = fallbackData;
+            data = { canli_widget_verileri: null };
+        } else {
+            data = await response.json();
+            profil = data.profil;
+        }
         
         if (!profil || Object.keys(profil).length === 0) {
             document.getElementById('app-wrapper').style.display = 'none';
             document.getElementById('not-found-screen').style.display = 'flex';
             return; 
         }
+
         siteVerisi.profil_sahibi_id = profil.auth_id;
         
         if (aktifKullaniciOturumu && siteVerisi.profil_sahibi_id === aktifKullaniciOturumu.user.id) {
@@ -316,6 +422,10 @@ async function tumVerileriCek() {
         }
 
         siteVerisi.profil_metinleri_ve_linkler = profil.profil_metinleri_ve_linkler; 
+        
+        // YENİ: Rengi artık profildeki metin objesinin içinden okuyoruz
+        siteVerisi.primary_color = profil.primary_color || '#ff8800';
+
         siteVerisi.linkler = profil.profil_metinleri_ve_linkler?.linkler || [];
         siteVerisi.profil_gorselleri = profil.profil_gorselleri;
         siteVerisi.widgetlar = profil.widgetlar || [];
@@ -462,6 +572,11 @@ const WidgetEngine = {
             slot.className = 'widget-slot';
             slot.dataset.index = i;
 
+            if (typeof isOwner !== 'undefined' && isOwner && widgetData) {
+                slot.setAttribute('draggable', 'true');
+                slot.classList.add('is-draggable');
+            }
+
             const viewLayer = document.createElement('div');
             viewLayer.className = 'widget-view-layer view-only';
             
@@ -552,6 +667,10 @@ const WidgetEngine = {
 };
 
 function ekraniCiz() {
+    const secilenRenk = siteVerisi.primary_color || '#ff8800'; 
+    temaRenkleriniGuncelle(secilenRenk);
+
+    
     const metinVeLinkler = siteVerisi.profil_metinleri_ve_linkler || {};
     const bannerEl = document.getElementById('banner-img');
     const pfpEl = document.getElementById('pfp-img');
@@ -624,32 +743,7 @@ function ekraniCiz() {
             addLinkBtn.style.display = isOwner ? 'flex' : 'none';
         }
     }
-    function getMonkeytypeViewHTML(username) {
-    return `
-    <div class="widget-link" id="mt-widget-${username}">
-        <div class="stat-card">
-            <div class="stat-item" data-words="10"><span class="stat-label">10 words</span><span class="stat-value">-</span><span class="stat-percent">-%</span></div>
-            <div class="stat-item" data-words="25"><span class="stat-label">25 words</span><span class="stat-value">-</span><span class="stat-percent">-%</span></div>
-            <div class="stat-item" data-words="50"><span class="stat-label">50 words</span><span class="stat-value">-</span><span class="stat-percent">-%</span></div>
-            <div class="stat-item" data-words="100"><span class="stat-label">100 words</span><span class="stat-value">-</span><span class="stat-percent">-%</span></div>
-        </div>
-        <div class="widget-overlay">
-            <div class="mt-hover-layout">
-                <div class="mt-profile-section">
-                    <div class="mt-logo-box"><span class="mt-logo-text">mt</span></div>
-                    <a href="https://monkeytype.com/profile/${username}" target="_blank" class="mt-user-link">${username}</a>
-                </div>
-                <div class="mt-divider"></div>
-                <div class="mt-stats-section">
-                    <div class="mt-stat-item" data-words="10"><span class="mt-stat-label">10 words</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                    <div class="mt-stat-item" data-words="25"><span class="mt-stat-label">25 words</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                    <div class="mt-stat-item" data-words="50"><span class="mt-stat-label">50 words</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                    <div class="mt-stat-item" data-words="100"><span class="mt-stat-label">100 words</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                </div>
-            </div>
-        </div>
-    </div>`;
-}
+
     WidgetEngine.ciz();
     sekmeleriVeIcerikleriHazirla();
 }
@@ -853,6 +947,242 @@ function toastGoster(mesaj) {
     // 3 Saniye sonra kendi kendine kapanır
     setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
+
+function starfieldOlustur() {
+    const field = document.getElementById('starfield');
+    if (!field) return;
+    
+    const count = window.innerWidth < 700 ? 60 : 130;
+    for (let i = 0; i < count; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 2 + 0.6;
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.top = (Math.random() * 100) + '%';
+        s.style.left = (Math.random() * 100) + '%';
+        s.style.setProperty('--dur', (3 + Math.random() * 4) + 's');
+        s.style.setProperty('--delay', (Math.random() * 4) + 's');
+        field.appendChild(s);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // ... senin mevcut DOMContentLoaded kodların ...
+    starfieldOlustur(); 
+});
+// #endregion
+
+// #region 4: LANDING PAGE DİNAMİK PROFİL KARTI MİMARİSİ
+(function () {
+    const NOOK_PROFILES = [
+        {name: "Luna", role: "Professional Backlog Ignorer", bio: "Currently pretending I'll finish Hollow Knight before buying another indie game. My Steam wishlist has become its own ecosystem.", links: ["Steam", "Backloggd", "GitHub"], avatar: "linear-gradient(160deg,#7fdcff,#5b6bff)", accent: "#7fdcff"},
+        {name: "Kite", role: "Chronic Tab Hoarder", bio: "137 browser tabs open, 4 of them are things I actually need. The rest are just... company, I guess.", links: ["GitHub", "Letterboxd"], avatar: "linear-gradient(160deg,#ffb26b,#f2795c)", accent: "#ffb26b"},
+        {name: "Mira", role: "Part-Time Main Character", bio: "Ranks anime openings more seriously than actual life decisions. Currently three rewatches deep into Frieren.", links: ["AniList", "Spotify", "Twitch"], avatar: "linear-gradient(160deg,#c98bff,#7a5cff)", accent: "#c98bff"},
+        {name: "Dex", role: "Undefeated at Losing Save Files", bio: "Lost 40 hours of a Stardew Valley save to a coffee spill. Rebuilt the farm out of spite. It's better now.", links: ["Steam", "itch.io", "GitHub"], avatar: "linear-gradient(160deg,#8fe38f,#3fae6a)", accent: "#8fe38f"},
+        {name: "Sable", role: "Freelance Vibes Consultant", bio: "Designs interfaces, then spends four hours picking the border-radius. It's a whole personality now.", links: ["Dribbble", "Behance", "GitHub"], avatar: "linear-gradient(160deg,#ff9ecf,#c15cff)", accent: "#ff9ecf"},
+        {name: "Rook", role: "Amateur Speedrunner, Professional Rage Quitter", bio: "PB is 12:04. Personal worst is throwing the controller across the room at 11:58. Working on both.", links: ["Twitch", "YouTube"], avatar: "linear-gradient(160deg,#ffd166,#f2a93b)", accent: "#ffd166"},
+        {name: "Wren", role: "Self-Appointed Playlist Curator", bio: "Makes a new playlist for every mood, every season, and one specifically for 'walking home in the rain thinking about anime.'", links: ["Spotify", "Letterboxd"], avatar: "linear-gradient(160deg,#6be7d4,#3f9ea8)", accent: "#6be7d4"},
+        {name: "Nyx", role: "Full-Time Manga Chapter Refresher", bio: "Checks for new chapters every day at 9am like it's a job. Technically it kind of is now.", links: ["AniList", "GitHub", "Bionluk"], avatar: "linear-gradient(160deg,#a29bfe,#6c5ce7)", accent: "#a29bfe"},
+        {name: "Ash", role: "Certified Overthinker of Character Builds", bio: "Spent longer theorycrafting a Baldur's Gate 3 party comp than actually playing the game. No regrets.", links: ["Steam", "GitHub"], avatar: "linear-gradient(160deg,#ff8a65,#d84315)", accent: "#ff8a65"},
+        {name: "Yuki", role: "Backyard Astronomer, Indoor Cat", bio: "Owns a telescope. Has used it twice. Mostly just likes knowing it's there, like a very expensive houseplant.", links: ["GitHub", "Letterboxd", "Spotify"], avatar: "linear-gradient(160deg,#89c4f4,#3468c0)", accent: "#89c4f4"}
+    ];
+
+    const STORAGE_PREFIX = "nook_last_profile__";
+
+    function pickRandomIndex(poolLength, excludeIndex) {
+        if (poolLength <= 1) return 0;
+        let index;
+        do { index = Math.floor(Math.random() * poolLength); } while (index === excludeIndex);
+        return index;
+    }
+
+    function getLastIndex(key) {
+        try {
+            const raw = window.localStorage.getItem(STORAGE_PREFIX + key);
+            return raw === null ? -1 : parseInt(raw, 10);
+        } catch (e) { return -1; }
+    }
+
+    function setLastIndex(key, index) {
+        try { window.localStorage.setItem(STORAGE_PREFIX + key, String(index)); } catch (e) {}
+    }
+
+    function initials(name) { return name.trim().charAt(0).toUpperCase(); }
+
+    function render(container, profile) {
+    // Profilin kendi accent rengi yoksa Nook'un orijinal kehribar rengini kullanır
+    const liveAccent = profile.accent || "var(--amber-2)";
+    container.style.setProperty('--nook-accent-live', liveAccent);
+
+    container.innerHTML = `
+    <div class="nook-card__body">
+        <div class="nook-card__avatar" style="background:${profile.avatar}">
+        ${initials(profile.name)}
+        </div>
+        <div class="nook-card__name">${profile.name}</div>
+        
+        <!-- Ünvan rengi dinamik değişkenden çekiliyor ve başına ikonik nokta eklendi -->
+        <div class="nook-card__role" style="color: var(--nook-accent-live);">
+            <span style="opacity: 0.5; margin-right: 4px;">•</span>${profile.role}
+        </div>
+        
+        <div class="nook-card__bio">${profile.bio}</div>
+        <div class="nook-card__links">
+        ${profile.links.map(l => `<span class="nook-card__chip">${l}</span>`).join("")}
+        </div>
+    </div>
+    `;
+}
+
+    function mount(container) {
+        const key = container.dataset.nookKey || "global";
+        const lastIndex = getLastIndex(key);
+        const nextIndex = pickRandomIndex(NOOK_PROFILES.length, lastIndex);
+        setLastIndex(key, nextIndex);
+        render(container, NOOK_PROFILES[nextIndex]);
+    }
+
+    function mountAll() { document.querySelectorAll("[data-nook-card]").forEach(mount); }
+
+    window.NookProfileCard = { mountAll, mount, profiles: NOOK_PROFILES };
+    document.addEventListener("DOMContentLoaded", mountAll);
+})();
+// #endregion
+
+// #region 5: LANDING PAGE 3D FLIP KONTROLÜ
+document.addEventListener('DOMContentLoaded', () => {
+    const flipCardInner = document.getElementById('hero-flip-card');
+    const visualWrapper = document.querySelector('.tilted-visual-wrapper');
+    
+    // Tetikleyici Butonlar
+    const btnLogin = document.getElementById('hero-login-btn'); 
+    const btnStart = document.getElementById('hero-start-btn'); // Hero sol taraftaki start butonu
+    const btnFrontCard = document.getElementById('flip-front-trigger'); // Profil kartının kendisine tıklamak
+    const btnCloseBack = document.getElementById('flip-back-btn'); // Formun içindeki X butonu
+
+    // Döndürme ve Düzleştirme Fonksiyonu
+    const toggleFlip = (e) => {
+        if(e) e.stopPropagation();
+        
+        // İç kartı 180 derece çevir
+        if(flipCardInner) flipCardInner.classList.toggle('is-flipped');
+        
+        // Dış kasayı düzleştir ve büyüt
+        if(visualWrapper) visualWrapper.classList.toggle('is-flat');
+    };
+
+    // Dinleyicileri Ekle
+    if(btnLogin) btnLogin.addEventListener('click', toggleFlip);
+    if(btnStart) btnStart.addEventListener('click', toggleFlip);
+    if(btnFrontCard) btnFrontCard.addEventListener('click', toggleFlip);
+    if(btnCloseBack) btnCloseBack.addEventListener('click', toggleFlip);
+});
+// #endregion
+
+// #region 6: AUTH FORM KONTROLÜ
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elementlerini Seçiyoruz
+    const landingBox = document.getElementById('main-landing-box');
+    const submitBtn = document.getElementById('landing-submit-btn');
+    const switchBtn = document.getElementById('landing-switch-action');
+    const switchText = document.getElementById('landing-switch-text');
+    const errorBox = document.querySelector('.auth-error-box');
+
+    // 1. KAYIT / GİRİŞ MODU DEĞİŞTİRİCİ
+    if (switchBtn && landingBox) {
+        switchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            landingBox.classList.toggle('register-mode');
+            
+            // Mod değiştiğinde buton ve uyarı metinlerini ayarla
+            if (landingBox.classList.contains('register-mode')) {
+                switchText.textContent = "Zaten hesabın var mı?";
+                switchBtn.textContent = "Giriş Yap";
+                submitBtn.textContent = "Kayıt Ol";
+            } else {
+                switchText.textContent = "Hesabın yok mu?";
+                switchBtn.textContent = "Kayıt Ol";
+                submitBtn.textContent = "Giriş Yap";
+            }
+            
+            // Modlar arası geçişte hataları ve kilitleri temizle
+            errorBox.classList.remove('is-visible');
+            submitBtn.classList.remove('is-locked');
+        });
+    }
+
+    // 2. BUTON SPAM KORUMASI VE HATA YÖNETİMİ (Debounce)
+    let spamTimer; // Sayacı hafızada tutacağımız değişken
+
+    if (submitBtn && errorBox) {
+        submitBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // SİHİRLİ KISIM: Kullanıcı butona her bastığında önceki sayacı çöpe atar.
+            // Böylece süre sürekli baştan başlar (Spam cezası).
+            clearTimeout(spamTimer);
+
+            // Hata mesajını yaz, kutuyu aç ve butonu kilitle
+            errorBox.textContent = "E-posta ve şifre zorunludur!"; // Burayı backend'den gelen hataya göre dinamik yapabilirsin
+            errorBox.classList.add('is-visible');
+            submitBtn.classList.add('is-locked');
+
+            // Kullanıcı 1 saniye (1000ms) boyunca HİÇ TIKLAMADAN durursa kilidi aç
+            spamTimer = setTimeout(() => {
+                errorBox.classList.remove('is-visible');
+                submitBtn.classList.remove('is-locked');
+            }, 800);
+        });
+    }
+});
+// #endregion
+
+// #region 7. RENK SEÇİCİ (HSV/RGB) MATEMATİK MOTORLARI
+function hexToRgb(hex) {
+    return {
+        r: parseInt(hex.slice(1, 3), 16),
+        g: parseInt(hex.slice(3, 5), 16),
+        b: parseInt(hex.slice(5, 7), 16)
+    };
+}
+
+function rgbToHex(r, g, b) {
+    const toHex = (n) => Math.round(Math.max(0, Math.min(255, n))).toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function rgbToHsv(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d !== 0) {
+        switch (max) {
+            case r: h = ((g - b) / d) % 6; break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+        if (h < 0) h += 360;
+    }
+    return { h, s: (max === 0 ? 0 : d / max) * 100, v: max * 100 };
+}
+
+function hsvToRgb(h, s, v) {
+    s /= 100; v /= 100;
+    const c = v * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = v - c;
+    let r, g, b;
+    if (h < 60) { r = c; g = x; b = 0; }
+    else if (h < 120) { r = x; g = c; b = 0; }
+    else if (h < 180) { r = 0; g = c; b = x; }
+    else if (h < 240) { r = 0; g = x; b = c; }
+    else if (h < 300) { r = x; g = 0; b = c; }
+    else { r = c; g = 0; b = x; }
+    return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 };
+}
 // #endregion
 
 // #endregion
@@ -955,15 +1285,60 @@ const EditManager = {
 
         async kaydet() {
             if (!EditManager.state.hasUnsavedChanges) return;
+
+            // ============================================================
+            // YENİ: VİDGET GÜVENLİK KONTROLÜ (Boş widget kaydetmeyi engelle)
+            // ============================================================
+            if (siteVerisi.widgetlar && siteVerisi.widgetlar.length > 0) {
+                let bosWidgetVarMi = false;
+                
+                siteVerisi.widgetlar.forEach((widget, index) => {
+                    if (widget && widget.ayarlar) {
+                        // Eğer içi boş bir alan varsa (Gelecekte diğer widget türleri için de burası genişletilebilir)
+                        if (!widget.ayarlar.kullanici || widget.ayarlar.kullanici.trim() === '') {
+                            bosWidgetVarMi = true;
+                            
+                            // Ekrandaki o spesifik boş widget kutusunu bul
+                            const container = document.getElementById('widgets-container');
+                            if (container) {
+                                const slot = container.querySelector(`.widget-slot[data-index="${index}"]`);
+                                if (slot) {
+                                    // CSS'te zaten var olan sarsılma ve kırmızı olma animasyonunu ekle
+                                    slot.classList.add('shake-box-animation');
+                                    
+                                    // Animasyon bitince class'ı temizle ki tekrar hata yaparsa yine titreyebilsin
+                                    setTimeout(() => slot.classList.remove('shake-box-animation'), 400);
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Eğer boş widget bulunduysa, işlemi burada kes (Sunucuya gitme)
+                if (bosWidgetVarMi) {
+                    toastGoster("Lütfen eklediğiniz widget'ı doldurun veya silin!");
+                    
+                    // İşlem çubuğundaki butonu tekrar aktif et ki kullanıcı düzelttikten sonra basabilsin
+                    const saveBtn = document.getElementById('edit-save-btn');
+                    if(saveBtn) {
+                        saveBtn.classList.add('shake-box-animation');
+                        setTimeout(() => saveBtn.classList.remove('shake-box-animation'), 400);
+                    }
+                    return; 
+                }
+            }
+            // ============================================================
+
             const saveBtn = document.getElementById('edit-save-btn');
             saveBtn.textContent = "İşleniyor...";
             saveBtn.disabled = true;
 
             try {
-                // 1. Supabase'e güncel veriyi gönderiyoruz
+                // Supabase'e güncel veriyi gönderiyoruz
                 const { error } = await supabaseClient
                     .from('profiles')
                     .update({
+                        primary_color: siteVerisi.primary_color,
                         profil_metinleri_ve_linkler: siteVerisi.profil_metinleri_ve_linkler,
                         profil_gorselleri: siteVerisi.profil_gorselleri,
                         widgetlar: siteVerisi.widgetlar,
@@ -971,24 +1346,19 @@ const EditManager = {
                     })
                     .eq('auth_id', siteVerisi.profil_sahibi_id);
 
-                if (error) throw error; // Eğer Supabase tarafında bir hata çıkarsa yakala
+                if (error) throw error; 
 
-                // 2. İşlem başarılıysa yeni yedeği al
                 EditManager.state.orijinalVeri = JSON.parse(JSON.stringify(siteVerisi));
-                
-                // 3. Moddan tam çıkış yap
                 this.sifirla(true);
                 
-                // 4. Arayüzü eski haline getir ve bildirimi yolla
                 saveBtn.textContent = "Onayla";
                 saveBtn.disabled = false;
                 toastGoster("Değişiklikler başarıyla kaydedildi!");
 
             } catch (err) {
                 console.error("Veritabanı Kayıt Hatası:", err);
-                alert("Kayıt sırasında bir hata oluştu: " + err.message);
+                toastGoster("Kayıt sırasında bir hata oluştu!"); 
                 
-                // Hata olsa bile butonu tekrar aktif et ki kullanıcı tekrar deneyebilsin
                 saveBtn.textContent = "Onayla";
                 saveBtn.disabled = false;
             }
@@ -1360,11 +1730,118 @@ const EditManager = {
 
     // #region 4. WIDGET YÖNETİMİ
     Widget: {
-        baslat() {
+        modalBaslat() {
+            const modal = document.getElementById('widget-selection-modal');
+            const closeBtn = document.getElementById('widget-modal-close');
+            const backdrop = document.getElementById('widget-modal-backdrop');
+            const buttons = document.querySelectorAll('.widget-select-btn:not(.disabled)');
+
+            if (!modal) return;
+
+            const modaliKapat = () => modal.classList.remove('is-open');
+
+            if (closeBtn) closeBtn.addEventListener('click', modaliKapat);
+            if (backdrop) backdrop.addEventListener('click', modaliKapat);
+
+            // Her bir widget butonuna tıklama olayı
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const type = btn.dataset.type;
+                    if (!siteVerisi.widgetlar) siteVerisi.widgetlar = [];
+                    
+                    // 1. Seçilen türü array'in sonuna ekle
+                    siteVerisi.widgetlar.push({ tur: type, ayarlar: { kullanici: '' } });
+                    
+                    // 2. Önbelleği temizle (eski veriler bulaşmasın)
+                    if(type === 'monkeytype') siteVerisi.monkeytype_skorlari = null;
+                    
+                    // 3. Ekranı çiz ve state'i uyar
+                    WidgetEngine.ciz();
+                    EditManager.Global.degisiklikYapildi();
+                    
+                    // 4. Kullanıcının yazabilmesi için inputa odaklan
+                    setTimeout(() => {
+                        const newIndex = siteVerisi.widgetlar.length - 1;
+                        const container = document.getElementById('widgets-container');
+                        const newInput = container.querySelector(`.widget-slot[data-index="${newIndex}"] .widget-username-input`);
+                        if (newInput) newInput.focus();
+                    }, 50);
+
+                    // İşlem bitince modalı kapat
+                    modaliKapat();
+                });
+            });
+        },
+
+        surukleBirakSisteminiKur() {
             const container = document.getElementById('widgets-container');
             if (!container) return;
 
-            // Delegasyon ile tıklamaları dinle (Artıya veya Çarpıya basılması)
+            container.addEventListener('dragstart', (e) => {
+                if (!EditManager.state.isGlobalEditActive) { e.preventDefault(); return; }
+                const slot = e.target.closest('.widget-slot');
+                
+                // Sadece is-draggable sınıfı olanlar (dolu widgetlar) sürüklenebilir
+                if (!slot || !slot.classList.contains('is-draggable')) { e.preventDefault(); return; }
+                
+                slot.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', slot.dataset.index); 
+            });
+
+            container.addEventListener('dragover', (e) => {
+                if (!EditManager.state.isGlobalEditActive) return;
+                e.preventDefault();
+
+                const draggingSlot = container.querySelector('.is-dragging');
+                if (!draggingSlot) return;
+
+                const targetSlot = e.target.closest('.widget-slot:not(.is-dragging)');
+                if (targetSlot) {
+                    const box = targetSlot.getBoundingClientRect();
+                    // Widget'lar alt alta dizildiği için Y eksenini (yukarı/aşağı) kontrol ediyoruz
+                    const offset = e.clientY - box.top;
+                    
+                    if (offset > box.height / 2) {
+                        targetSlot.after(draggingSlot);
+                    } else {
+                        targetSlot.before(draggingSlot);
+                    }
+                }
+            });
+
+            container.addEventListener('dragend', (e) => {
+                if (!EditManager.state.isGlobalEditActive) return;
+                const draggingSlot = e.target.closest('.widget-slot');
+                if (draggingSlot) draggingSlot.classList.remove('is-dragging');
+
+                // DOM'daki GÜNCEL sıralamayı oku (Sadece dolu olanları baz al)
+                const guncelSira = [...container.querySelectorAll('.widget-slot.is-draggable')];
+                
+                // Eski indeksleri okuyarak yeni bir array oluştur
+                const yeniWidgetDizisi = guncelSira.map(slot => {
+                    const oldIndex = parseInt(slot.dataset.index);
+                    return siteVerisi.widgetlar[oldIndex];
+                });
+
+                // Eğer bir yer değiştirme olduysa State'i güncelle ve kaydet çubuğunu tetikle
+                if (JSON.stringify(siteVerisi.widgetlar) !== JSON.stringify(yeniWidgetDizisi)) {
+                    siteVerisi.widgetlar = yeniWidgetDizisi;
+                    EditManager.Global.degisiklikYapildi();
+                }
+                
+                // Sıralama değişmese bile (Örn: Yanlışlıkla boş yuvaya sürüklendiyse) DOM'u temizlemek için tekrar çiz
+                WidgetEngine.ciz(); 
+            });
+        },
+
+        baslat() {
+            this.modalBaslat();
+            this.surukleBirakSisteminiKur();
+            
+            const container = document.getElementById('widgets-container');
+            if (!container) return;
+
             container.addEventListener('click', (e) => {
                 if (!EditManager.state.isGlobalEditActive) return;
 
@@ -1374,33 +1851,22 @@ const EditManager = {
 
                 // 1. Yeni Ekle (+)'ya tıklandıysa (Hayalet yuva)
                 if (e.target.closest('.widget-ghost-slot')) {
-                    if (!siteVerisi.widgetlar) siteVerisi.widgetlar = [];
-                    // O belirli yuvaya (index) boş bir monkeytype widget'ı ata
-                    siteVerisi.widgetlar[index] = { tur: 'monkeytype', ayarlar: { kullanici: '' } };
-                    
-                    WidgetEngine.ciz(); // Yuvanın forma dönüşmesi için çizdir
-                    
-                    // Çizdikten sonra kullanıcının hemen yazabilmesi için input'a odaklan
-                    setTimeout(() => {
-                        const newInput = container.querySelector(`.widget-slot[data-index="${index}"] .widget-username-input`);
-                        if (newInput) newInput.focus();
-                    }, 50);
-                    EditManager.Global.degisiklikYapildi();
+                    // YENİ: Artık direkt oluşturmuyor, modalı açıyor!
+                    const modal = document.getElementById('widget-selection-modal');
+                    if (modal) modal.classList.add('is-open');
                 }
 
                 // 2. Sil (Çarpı) butonuna tıklandıysa
                 if (e.target.closest('.widget-inline-delete')) {
-                    // Splice KULLANMIYORUZ! Yuvayı sıfırlıyoruz.
-                    siteVerisi.widgetlar[index] = null; 
-                    WidgetEngine.ciz(); // Formun tekrar hayalet yuvaya dönüşmesi için çizdir
+                    siteVerisi.widgetlar.splice(index, 1);
+                    siteVerisi.monkeytype_skorlari = null; 
+                    WidgetEngine.ciz(); 
                     EditManager.Global.degisiklikYapildi();
                 }
             });
 
-            // Input alanlarına yazı yazıldıkça anlık state güncellemesi
             container.addEventListener('input', (e) => {
                 if (!EditManager.state.isGlobalEditActive) return;
-                
                 const input = e.target.closest('.widget-username-input');
                 if (input) {
                     const slot = input.closest('.widget-slot');
@@ -1486,7 +1952,168 @@ const EditManager = {
 
             EditManager.state.tempProfileLinks = [...(metinler.linkler || [])];
             this.renderLinks();
+            
+            const colorContainer = document.getElementById('edit-color-picker-container');
+            if (colorContainer) {
+                const savedHex = (siteVerisi.primary_color || '#ff8800').toLowerCase();
+                
+                // Başlangıç HSV değerini hesapla
+                const initRgb = hexToRgb(savedHex);
+                let currentHsv = rgbToHsv(initRgb.r, initRgb.g, initRgb.b);
+
+                colorContainer.innerHTML = `
+                    <div class="nook-picker-wrapper">
+                        <p class="edit-section-title" style="margin-top:0; margin-bottom: 10px;">Tema Rengi</p>
+
+                        <div class="nook-custom-row">
+                            <button type="button" class="nook-color-trigger" id="colorTrigger" style="background-color: ${savedHex};" title="Rengi Değiştir"></button>
+                            <input type="text" id="hexInput" class="search-input nook-hex-input" value="${savedHex.toUpperCase()}" maxlength="7" spellcheck="false">
+
+                            <!-- Açılır Özel Seçici (Popup) -->
+                            <div class="nook-picker-popup" id="pickerPopup" hidden>
+                                <div class="nook-sv-square" id="svSquare">
+                                    <div class="nook-sv-cursor" id="svCursor"></div>
+                                </div>
+                                <div class="nook-hue-slider" id="hueSlider">
+                                    <div class="nook-hue-cursor" id="hueCursor"></div>
+                                </div>
+                                <button type="button" class="nook-eyedropper-btn" id="eyedropperBtn" title="Ekrandan renk seç">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>
+                                    </svg>
+                                    Ekrandan seç
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // --- DOM ELEMANLARI ---
+                const hexInput = document.getElementById('hexInput');
+                const colorTrigger = document.getElementById('colorTrigger');
+                const pickerPopup = document.getElementById('pickerPopup');
+                const svSquare = document.getElementById('svSquare');
+                const svCursor = document.getElementById('svCursor');
+                const hueSlider = document.getElementById('hueSlider');
+                const hueCursor = document.getElementById('hueCursor');
+
+                // --- GÜNCELLEME MOTORU ---
+                const sistemeRengiUygula = (hex) => {
+                    const cleanHex = hex.toLowerCase();
+                    siteVerisi.primary_color = cleanHex;
+                    EditManager.Profile.anlikKaydet();
+                    temaRenkleriniGuncelle(cleanHex);
+
+                    hexInput.value = cleanHex.toUpperCase();
+                    colorTrigger.style.backgroundColor = cleanHex;
+                };
+
+                // --- GÖRSEL PICKER KONTROLLERİ ---
+                const positionCursorsFromHsv = () => {
+                    svCursor.style.left = currentHsv.s + '%';
+                    svCursor.style.top = (100 - currentHsv.v) + '%';
+                    hueCursor.style.left = (currentHsv.h / 360) * 100 + '%';
+                };
+
+                const setSquareBaseColor = () => {
+                    svSquare.style.backgroundColor = `hsl(${currentHsv.h}, 100%, 50%)`;
+                };
+
+                const commitColorFromHsv = () => {
+                    const { r, g, b } = hsvToRgb(currentHsv.h, currentHsv.s, currentHsv.v);
+                    sistemeRengiUygula(rgbToHex(r, g, b));
+                };
+
+                const pointerRatio = (e, el) => {
+                    const rect = el.getBoundingClientRect();
+                    const x = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
+                    const y = Math.min(Math.max(e.clientY - rect.top, 0), rect.height);
+                    return { x: x / rect.width, y: y / rect.height };
+                };
+
+                const attachDrag = (el, onMove) => {
+                    el.addEventListener('pointerdown', (e) => {
+                        el.setPointerCapture(e.pointerId);
+                        onMove(e);
+                        const move = (ev) => onMove(ev);
+                        const up = () => {
+                            el.removeEventListener('pointermove', move);
+                            el.removeEventListener('pointerup', up);
+                        };
+                        el.addEventListener('pointermove', move);
+                        el.addEventListener('pointerup', up);
+                    });
+                };
+
+                attachDrag(svSquare, (e) => {
+                    const { x, y } = pointerRatio(e, svSquare);
+                    currentHsv.s = x * 100;
+                    currentHsv.v = (1 - y) * 100;
+                    positionCursorsFromHsv();
+                    commitColorFromHsv();
+                });
+
+                attachDrag(hueSlider, (e) => {
+                    const { x } = pointerRatio(e, hueSlider);
+                    currentHsv.h = x * 360;
+                    setSquareBaseColor();
+                    positionCursorsFromHsv();
+                    commitColorFromHsv();
+                });
+
+                // --- POPUP AÇ/KAPAT ---
+                const closePicker = () => pickerPopup.hidden = true;
+                const outsideClickCloser = (e) => {
+                    if (!pickerPopup.contains(e.target) && e.target !== colorTrigger) closePicker();
+                };
+
+                colorTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (pickerPopup.hidden) {
+                        pickerPopup.hidden = false;
+                        setSquareBaseColor();
+                        positionCursorsFromHsv();
+                        document.addEventListener('click', outsideClickCloser);
+                    } else {
+                        closePicker();
+                        document.removeEventListener('click', outsideClickCloser);
+                    }
+                });
+
+                // --- HEX İNPUT ---
+                hexInput.addEventListener('input', (e) => {
+                    let val = e.target.value.trim();
+                    if (!val.startsWith('#')) val = '#' + val;
+                    if (/^#[0-9A-Fa-f]{6}$/i.test(val)) {
+                        const { r, g, b } = hexToRgb(val);
+                        currentHsv = rgbToHsv(r, g, b);
+                        setSquareBaseColor();
+                        positionCursorsFromHsv();
+                        sistemeRengiUygula(val);
+                    }
+                });
+
+                // --- DAMLALIK (EYEDROPPER API) ---
+                const eyedropperBtn = document.getElementById('eyedropperBtn');
+                if (typeof window.EyeDropper === 'undefined') {
+                    eyedropperBtn.style.display = 'none';
+                } else {
+                    eyedropperBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        try {
+                            const result = await new window.EyeDropper().open();
+                            const hex = result.sRGBHex;
+                            const { r, g, b } = hexToRgb(hex);
+                            currentHsv = rgbToHsv(r, g, b);
+                            setSquareBaseColor();
+                            positionCursorsFromHsv();
+                            sistemeRengiUygula(hex);
+                        } catch (err) {} 
+                    });
+                }
+            }
         },
+        
         anlikKaydet() {
             // Sadece taslağa (siteVerisi) yazar ve çubuğu tetikler. DB'ye henüz gitmez.
             const newName = document.getElementById('edit-in-name').value.trim();
@@ -1577,17 +2204,60 @@ const EditManager = {
 document.addEventListener('DOMContentLoaded', async () => {
     await oturumuKontrolEt(); 
     
-    // Geçerli bir parametre yoksa ama oturum açıksa, profil sahibinin sayfasına yönlendir.
+    // Geçerli bir parametre yoksa ama oturum açıksa, Landing Page'de Kullanıcı Menüsünü göster.
     if (!KULLANICI_ADI && aktifKullaniciOturumu) {
         const { data: profileData } = await supabaseClient
             .from('profiles')
-            .select('kullanici_adi')
+            .select('kullanici_adi, profil_gorselleri, profil_metinleri_ve_linkler')
             .eq('auth_id', aktifKullaniciOturumu.user.id)
             .single();
 
         if (profileData && profileData.kullanici_adi) {
-            window.location.href = `?user=${profileData.kullanici_adi}`;
-            return; 
+            // Giriş butonunu gizle, Profil menüsünü göster
+            const loginBtn = document.getElementById('hero-login-btn');
+            const userMenu = document.getElementById('nav-user-menu');
+            
+            if(loginBtn) loginBtn.style.display = 'none';
+            if(userMenu) userMenu.style.display = 'block';
+
+            // Veritabanından gelen PP ve İsmi navbar'a bas
+            const pfp = profileData.profil_gorselleri?.pfp_url || 'https://i.ibb.co/8gvf4SNF/pfp-placeholder.png';
+            const name = profileData.profil_metinleri_ve_linkler?.gorunen_isim || profileData.kullanici_adi;
+            
+            const pfpEl = document.getElementById('nav-user-pfp');
+            const nameEl = document.getElementById('nav-user-name');
+            const profileLink = document.getElementById('nav-go-profile');
+            
+            if(pfpEl) pfpEl.src = pfp;
+            if(nameEl) nameEl.textContent = name;
+            // Hesabım linkini kullanıcının kendi arşivine bağla
+            if(profileLink) profileLink.href = `?user=${profileData.kullanici_adi}`;
+            
+            // Dropdown Aç/Kapat (Toggle) İşlevi
+            const trigger = document.getElementById('nav-user-trigger');
+            const dropdown = document.getElementById('nav-dropdown');
+            
+            if(trigger && dropdown) {
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('is-open');
+                });
+                
+                // Menü dışına tıklanınca kapat
+                document.addEventListener('click', (e) => {
+                    if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.remove('is-open');
+                    }
+                });
+            }
+            
+            // Çıkış Yap Butonu İşlevi
+            const logoutBtn = document.getElementById('nav-logout-btn');
+            if(logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    await sistemdenCikisYap(); // Supabase'den çıkış yapar ve sayfayı yeniler
+                });
+            }
         }
     }
 
@@ -1595,11 +2265,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!KULLANICI_ADI) {
         document.getElementById('app-wrapper').style.display = 'none';
         document.getElementById('landing-screen').style.display = 'flex';
+        
+        // YENİ: Landing Page'de yıldızlar görünür kalsın
+        const starfield = document.getElementById('starfield');
+        if (starfield) starfield.style.display = 'block'; 
+        
         landingEkraniniBaslat();
     } else {
         // Kullanıcı adı varsa Ana Uygulamayı başlat
         document.getElementById('landing-screen').style.display = 'none';
         document.getElementById('app-wrapper').style.display = 'block';
+        
+        // YENİ: Profil sayfasında o sarı ışık huzmesi gitsin, temamız düzgün çalışsın
+        const starfield = document.getElementById('starfield');
+        if (starfield) starfield.style.display = 'none';
         
         WidgetEngine.etkilesimBaslat(); // Herkese açık etkileşim (Hover vb.)
         authModaliniBaslat();    // Oturum açma modalı
