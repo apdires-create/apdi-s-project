@@ -6,10 +6,10 @@ const SUPABASE_ANON_KEY = 'sb_publishable_t5LYrH03nWrL1-tzhhXV4g_UF77mEAy';
 const urlParams = new URLSearchParams(window.location.search);
 const KULLANICI_ADI = urlParams.get('user');
 const SABIT_KATEGORILER = {
-    'film': 'Filmler',
-    'dizi': 'Diziler',
-    'anime': 'Animeler',
-    'oyun': 'Oyunlar'
+    'film': { ad: 'Filmler', ikon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>` },
+    'dizi': { ad: 'Diziler', ikon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>` },
+    'anime': { ad: 'Animeler', ikon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>` },
+    'oyun': { ad: 'Oyunlar', ikon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 12h4"></path><path d="M8 10v4"></path><circle cx="15" cy="13" r="1"></circle><circle cx="18" cy="11" r="1"></circle></svg>` }
 };
 
 let siteVerisi = {
@@ -476,6 +476,7 @@ const WidgetEngine = {
             id: 'monkeytype',
             renderView: (ayarlar) => {
                 const username = ayarlar.kullanici || '';
+                const guvenliUsername = username.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
                 return `
                 <div class="widget-link" data-type="monkeytype" data-username="${username}">
                     <!-- YENİ ÖN YÜZ (KAPALI) -->
@@ -812,6 +813,20 @@ function ekraniCiz() {
     }
 }
 
+function getLinkIcon(url) {
+    if (!url) return '';
+    try {
+        // Linkin içinden sadece ana site adını (domain) ayıklar (Örn: letterboxd.com)
+        const domain = new URL(url).hostname;
+        
+        // Google Favicon API ile sitenin orijinal logosunu 64px kalitesinde çeker
+        return `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" alt="Site İkonu">`;
+    } catch (e) {
+        // Eğer geçersiz bir URL girilirse, sistem çökmesin diye varsayılan zincir SVG'sini verir
+        return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
+    }
+}
+
 function sekmeleriVeIcerikleriHazirla() {
     const tabsContainer = document.getElementById('content-tabs');
     if (!tabsContainer) return;
@@ -820,19 +835,16 @@ function sekmeleriVeIcerikleriHazirla() {
     const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
     let kategoriler = metinler.kategoriler;
 
-    // Eğer veritabanında hiç kategori listesi yoksa, varsayılanları (eski sistemi) kur
     if (!kategoriler) {
         kategoriler = [];
         metinler.kategoriler = kategoriler;
         siteVerisi.profil_metinleri_ve_linkler = metinler;
     }
 
-    // Aktif kategori kontrolü (Eğer silindiyse veya ilk kez giriliyorsa ilkine odaklan)
     if (!kategoriler.find(k => k.id === aktifKategoriId)) {
         aktifKategoriId = kategoriler.length > 0 ? kategoriler[0].id : null;
     }
 
-    // Arama API'si (Search) için kategorilerin arama türlerini (film, anime vs) state'e kaydet
     EditManager.state.KATEGORI_ARAMA_TURU = {};
 
     kategoriler.forEach((kat) => {
@@ -840,9 +852,16 @@ function sekmeleriVeIcerikleriHazirla() {
 
         const btn = document.createElement('button');
         btn.className = `tab ${kat.id === aktifKategoriId ? 'active' : ''}`; 
-        btn.innerHTML = `<span>${kat.ad}</span>`;
         
-        // DÜZENLEME MODU: Kategorinin içine çarpı ikonunu koy
+        let iconHtml = '';
+        if (kat.url) {
+            btn.classList.add('has-link');
+            // Yeni fonksiyondan gelen IMG veya SVG etiketini doğrudan basıyoruz
+            iconHtml = `<span class="tab-link-icon">${getLinkIcon(kat.url)}</span>`;
+        }
+        
+        btn.innerHTML = `${iconHtml}<span class="tab-text">${kat.ad}</span>`;
+        
         if (isOwner) {
             const delBtn = document.createElement('span');
             delBtn.className = 'tab-delete-badge edit-only';
@@ -852,7 +871,6 @@ function sekmeleriVeIcerikleriHazirla() {
                 e.stopPropagation(); 
                 if (!EditManager.state.isGlobalEditActive) return;
                 
-                // YENİ: Tarayıcı alert'ü yerine kendi özel onay modalımızı kullanıyoruz
                 ozelOnayAl(`"${kat.ad}" kategorisini ve içindeki tüm afişleri silmek istediğine emin misin?`, () => {
                     metinler.kategoriler = kategoriler.filter(k => k.id !== kat.id);
                     delete siteVerisi.icerik[kat.id]; 
@@ -864,12 +882,33 @@ function sekmeleriVeIcerikleriHazirla() {
             btn.appendChild(delBtn);
         }
         
+        let cooldownTimer;
+        
+        if (kat.id === aktifKategoriId && kat.url) {
+            cooldownTimer = setTimeout(() => btn.classList.add('link-ready'), 100); 
+        }
+        
         btn.addEventListener('click', () => {
-            if (kat.id === aktifKategoriId) return;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (kat.id === aktifKategoriId) {
+                if (kat.url && btn.classList.contains('link-ready')) {
+                    if (!EditManager.state.isGlobalEditActive) { 
+                        window.open(kat.url, '_blank');
+                    }
+                }
+                return; 
+            }
+            
+            document.querySelectorAll('.tab').forEach(t => {
+                t.classList.remove('active', 'link-ready'); 
+            });
+            
             btn.classList.add('active');
             aktifKategoriId = kat.id;
             kartlariGriddeListele(siteVerisi.icerik[kat.id] || []);
+            
+            if (aktifKategoriId === kat.id) { 
+                        btn.classList.add('link-ready');
+                    }
         });
         tabsContainer.appendChild(btn);
     });
@@ -879,8 +918,6 @@ function sekmeleriVeIcerikleriHazirla() {
     if (kategoriler.length === 0) {
         contentGrid.classList.add('is-empty-grid');
         
-        // YENİ: DOM'da bu bloklar zaten varsa (düzenleme moduna gir-çık yapılıyorsa) 
-        // içini bir daha ezip animasyonu baştan tetikleme!
         const alreadyRendered = contentGrid.querySelector('.prompt-block') || contentGrid.querySelector('.empty-state-block');
         
         if (!alreadyRendered) {
@@ -892,7 +929,6 @@ function sekmeleriVeIcerikleriHazirla() {
                     { text: "Favori stand-up ve podcastlerini derle...", btn: "Derle" }
                 ];
 
-                // YENİ: Sayfa yenilenene kadar aynı metni aklında tutar (Tutarlılık için)
                 if (typeof window.currentPromptIndex === 'undefined') {
                     window.currentPromptIndex = Math.floor(Math.random() * ownerMessages.length);
                 }
@@ -910,7 +946,6 @@ function sekmeleriVeIcerikleriHazirla() {
                     </div>
                 `;
 
-                // Buton Dinleyicisi
                 setTimeout(() => {
                     const ctaBtn = document.getElementById('empty-state-cta-btn');
                     if (ctaBtn) {
@@ -919,10 +954,8 @@ function sekmeleriVeIcerikleriHazirla() {
                                 EditManager.Global.toggleEditMode();
                             }
                             const catModal = document.getElementById('category-modal');
-                            const catNameInput = document.getElementById('category-name-input');
                             if (catModal) {
                                 catModal.classList.add('is-open');
-                                setTimeout(() => { if (catNameInput) catNameInput.focus(); }, 50);
                             }
                         });
                     }
@@ -935,7 +968,6 @@ function sekmeleriVeIcerikleriHazirla() {
                     "Kullanıcı bu köşeyi şimdilik boş tutmayı tercih ediyor."
                 ];
                 
-                // Ziyaretçi mesajını da sabitliyoruz
                 if (typeof window.currentVisitorPromptIndex === 'undefined') {
                     window.currentVisitorPromptIndex = Math.floor(Math.random() * visitorMessages.length);
                 }
@@ -1534,23 +1566,34 @@ const EditManager = {
             const catCloseBtn = document.getElementById('category-modal-close');
             const catSubmitBtn = document.getElementById('category-submit-btn');
             const catErrorBox = document.getElementById('category-error-box');
-            
-            // YENİ: Seçenek butonlarını yakalıyoruz
-            const optionBtns = document.querySelectorAll('.category-option-btn');
-            let secilenTur = 'film'; // Varsayılan değer
+            const gridContainer = document.getElementById('custom-category-select');
+            const catUrlInput = document.getElementById('category-url-input');
 
-            if (!addCategoryBtn || !catModal) return;
+            if (!addCategoryBtn || !catModal || !gridContainer) return;
+
+            // Butonları JS ile Dinamik Çiz
+            if (gridContainer.children.length === 0) {
+                Object.entries(SABIT_KATEGORILER).forEach(([key, data]) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-option-btn';
+                    btn.type = 'button';
+                    btn.dataset.value = key;
+                    btn.innerHTML = `${data.ikon}<span>${data.ad}</span>`;
+                    gridContainer.appendChild(btn);
+                });
+            }
+
+            const optionBtns = gridContainer.querySelectorAll('.category-option-btn');
+            let secilenTur = 'film'; 
 
             const modaliKapat = () => catModal.classList.remove('is-open');
 
-            // Modalı Açma
             addCategoryBtn.addEventListener('click', () => {
                 if (!EditManager.state.isGlobalEditActive) return;
                 
                 catErrorBox.style.display = 'none';
-                
-                // Modalı açarken varsayılan olarak Film seçili gelsin
                 secilenTur = 'film';
+                
                 optionBtns.forEach(b => {
                     b.classList.remove('active');
                     if(b.dataset.value === 'film') b.classList.add('active');
@@ -1559,28 +1602,21 @@ const EditManager = {
                 catModal.classList.add('is-open');
             });
 
-            // YENİ: Seçenek butonlarına tıklama (Radyo butonu mantığı)
             optionBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    // Tümünden active sınıfını sil
                     optionBtns.forEach(b => b.classList.remove('active'));
-                    // Sadece tıklanana active ekle
                     btn.classList.add('active');
-                    // Seçilen değeri hafızaya al
                     secilenTur = btn.dataset.value;
                 });
             });
 
-            // Kapatma Tetikleyicileri
             catCloseBtn.addEventListener('click', modaliKapat);
             catBackdrop.addEventListener('click', modaliKapat);
 
-            // Yeni Kategori Kaydetme
             catSubmitBtn.addEventListener('click', () => {
                 const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
                 const kategoriler = metinler.kategoriler || [];
                 
-                // Kategori zaten eklenmiş mi kontrolü
                 if (kategoriler.find(k => k.id === secilenTur)) {
                     catErrorBox.textContent = "Bu kategori zaten arşivinizde mevcut.";
                     catErrorBox.style.display = 'block';
@@ -1588,12 +1624,18 @@ const EditManager = {
                     setTimeout(() => catErrorBox.classList.remove('shake-box-animation'), 400);
                     return;
                 }
+
+                // URL kontrolü ve kaydı
+                let girilenUrl = catUrlInput ? catUrlInput.value.trim() : "";
+                if (girilenUrl && !girilenUrl.startsWith('http')) {
+                    girilenUrl = 'https://' + girilenUrl;
+                }
                 
-                // Doğrudan sabit sistem ID'si ve başlığını kaydediyoruz
                 kategoriler.push({ 
                     id: secilenTur, 
-                    ad: SABIT_KATEGORILER[secilenTur], 
-                    tur: secilenTur 
+                    ad: SABIT_KATEGORILER[secilenTur].ad, 
+                    tur: secilenTur,
+                    url: girilenUrl 
                 });
                 
                 metinler.kategoriler = kategoriler;
@@ -1602,6 +1644,8 @@ const EditManager = {
                 
                 aktifKategoriId = secilenTur; 
                 
+                if(catUrlInput) catUrlInput.value = ''; // Inputu temizle
+
                 EditManager.Global.degisiklikYapildi();
                 sekmeleriVeIcerikleriHazirla();
                 modaliKapat();
@@ -1643,10 +1687,19 @@ const EditManager = {
                     sonuclar.forEach(sonuc => {
                         const cardEl = document.createElement('div');
                         cardEl.className = 'search-result-card';
-                        cardEl.innerHTML = `
-                            <div class="search-result-thumb"><img src="${sonuc.gorsel_url || 'Images/placeholder.jpg'}"></div>
-                            <p class="search-result-label">${sonuc.baslik}</p>
-                        `;
+
+                        const thumbDiv = document.createElement('div');
+                        thumbDiv.className = 'search-result-thumb';
+                        const imgEl = document.createElement('img');
+                        imgEl.src = sonuc.gorsel_url || 'Images/placeholder.jpg';
+                        thumbDiv.appendChild(imgEl);
+
+                        const labelEl = document.createElement('p');
+                        labelEl.className = 'search-result-label';
+                        labelEl.textContent = sonuc.baslik;
+
+                        cardEl.appendChild(thumbDiv);
+                        cardEl.appendChild(labelEl);
                         
                         cardEl.addEventListener('click', () => {
                             if (!aktifKategoriId) return;

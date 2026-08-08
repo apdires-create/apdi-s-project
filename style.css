@@ -1989,6 +1989,67 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     transform: scale(1.15);
 }
 
+/* ==========================================
+   KATEGORİ SEKMESİ BAĞLANTI (LINK) ANİMASYONLARI
+   ========================================== */
+.tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible; /* Silme butonu taşabilsin diye visible kalmalı */
+}
+
+/* Kategori isminin altındaki çizgi (Başlangıçta sıfır genişlik) */
+.tab.has-link::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transform: translateX(-50%);
+    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 2px;
+}
+
+/* İkonun Başlangıç Durumu (Gizli ve Genişliği Sıfır) */
+.tab-link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: width 0.4s ease, opacity 0.4s ease, margin-right 0.4s ease;
+}
+
+.tab-link-icon svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.tab-link-icon img {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    border-radius: 50%; /* İkonlar daha temiz ve modern dursun diye yuvarlak yapıyoruz */
+    object-fit: contain;
+}
+
+/* COOLDOWN BİTİNCE (Link Hazır Durumu) */
+.tab.active.link-ready::after {
+    width: calc(100% - 40px); /* Kenarlardan biraz boşluk bırakarak altını çizer */
+}
+
+.tab.active.link-ready .tab-link-icon {
+    width: 14px;
+    opacity: 1;
+    margin-right: 6px;
+}
+
 /* #endregion */
 
 /* #region 7: Modallar ve Ekran Katmanları (Arama & Giriş & Ayarlar) */
