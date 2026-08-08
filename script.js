@@ -5,6 +5,12 @@ const SUPABASE_URL = 'https://acvpjytvkfxbsuiivqir.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_t5LYrH03nWrL1-tzhhXV4g_UF77mEAy';
 const urlParams = new URLSearchParams(window.location.search);
 const KULLANICI_ADI = urlParams.get('user');
+const SABIT_KATEGORILER = {
+    'film': 'Filmler',
+    'dizi': 'Diziler',
+    'anime': 'Animeler',
+    'oyun': 'Oyunlar'
+};
 
 let siteVerisi = {
     profil_sahibi_id: null, 
@@ -145,7 +151,9 @@ async function sistemeGirisYap(email, password) {
     if (profileData && profileData.kullanici_adi) {
         window.location.href = `?user=${profileData.kullanici_adi}`;
     } else {
-        window.location.reload(); 
+        await supabaseClient.auth.signOut();
+        authHataGoster("Bu hesaba ait bir arşiv bulunamadı veya silinmiş. Lütfen yeniden kayıt olun.");
+        return false;
     }
     return true;
 }
@@ -289,6 +297,30 @@ function authModaliniBaslat() {
         logoutBtn.textContent = 'Çıkış yapılıyor...';
         await sistemdenCikisYap();
     });
+
+    const deleteAccountBtn = document.getElementById('auth-delete-account-btn');
+
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', () => {
+            ozelOnayAl("Tüm arşivini ve hesabını kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.", async () => {
+                
+                deleteAccountBtn.disabled = true;
+                deleteAccountBtn.textContent = 'Siliniyor...';
+                
+                // SQL Editor'de oluşturduğumuz fonksiyonu doğrudan tetikliyoruz
+                const { error } = await supabaseClient.rpc('delete_user_account');
+                
+                if (error) {
+                    authHataGoster("Hesap silinirken bir hata oluştu: " + error.message);
+                    deleteAccountBtn.disabled = false;
+                    deleteAccountBtn.textContent = 'Hesabımı Kalıcı Olarak Sil';
+                } else {
+                    await sistemdenCikisYap(); 
+                }
+            });
+        });
+    }
+
     passwordInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') { e.preventDefault(); submitBtn.click(); }
     });
@@ -673,16 +705,28 @@ function ekraniCiz() {
     
     const metinVeLinkler = siteVerisi.profil_metinleri_ve_linkler || {};
     const bannerEl = document.getElementById('banner-img');
+    const bannerContainer = document.querySelector('.banner');
     const pfpEl = document.getElementById('pfp-img');
 
     if (siteVerisi.profil_gorselleri) {
+        // Banner Kontrolü
         if (siteVerisi.profil_gorselleri.banner_url && siteVerisi.profil_gorselleri.banner_url.trim() !== "") {
-            if (bannerEl) bannerEl.src = siteVerisi.profil_gorselleri.banner_url;
-        } else { if (bannerEl) bannerEl.src = "https://i.ibb.co/RTNFJZXT/banner-placeholder.png"; }
+            if (bannerEl) {
+                bannerEl.src = siteVerisi.profil_gorselleri.banner_url;
+                bannerEl.style.display = 'block';
+            }
+            if (bannerContainer) bannerContainer.classList.remove('no-banner');
+        } else { 
+            if (bannerEl) bannerEl.style.display = 'none';
+            if (bannerContainer) bannerContainer.classList.add('no-banner');
+        }
 
+        // Profil Fotoğrafı Kontrolü
         if (siteVerisi.profil_gorselleri.pfp_url && siteVerisi.profil_gorselleri.pfp_url.trim() !== "") {
             if (pfpEl) pfpEl.src = siteVerisi.profil_gorselleri.pfp_url;
-        } else { if (pfpEl) pfpEl.src = "https://i.ibb.co/8gvf4SNF/pfp-placeholder.png"; }
+        } else { 
+            if (pfpEl) pfpEl.src = "https://i.ibb.co/8gvf4SNF/pfp-placeholder.png"; 
+        }
     }
 
     const isimEl = document.getElementById('inline-name');
@@ -745,7 +789,27 @@ function ekraniCiz() {
     }
 
     WidgetEngine.ciz();
+    
     sekmeleriVeIcerikleriHazirla();
+    if (typeof isOwner !== 'undefined' && isOwner) {
+        const ayarlarBtn = document.getElementById('settings-trigger-btn');
+        if (ayarlarBtn) {
+            const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
+            const kategoriler = metinler.kategoriler || [];
+            const aciklama = metinler.aciklama || '';
+            const unvan = metinler.unvan || '';
+            const widgetlar = siteVerisi.widgetlar || [];
+            
+            // Eğer sayfa tamamen boşsa animasyonu başlat, değilse temizle
+            const profilBosMu = kategoriler.length === 0 && widgetlar.length === 0 && !aciklama && !unvan;
+            
+            if (profilBosMu && !(typeof EditManager !== 'undefined' && EditManager.state.isGlobalEditActive)) {
+                ayarlarBtn.classList.add('pulse-attention');
+            } else {
+                ayarlarBtn.classList.remove('pulse-attention');
+            }
+        }
+    }
 }
 
 function sekmeleriVeIcerikleriHazirla() {
@@ -757,12 +821,8 @@ function sekmeleriVeIcerikleriHazirla() {
     let kategoriler = metinler.kategoriler;
 
     // Eğer veritabanında hiç kategori listesi yoksa, varsayılanları (eski sistemi) kur
-    if (!kategoriler || kategoriler.length === 0) {
-        kategoriler = [
-            { id: 'animeler', ad: 'Animeler', tur: 'anime' }, 
-            { id: 'diziler', ad: 'Diziler', tur: 'dizi' }, 
-            { id: 'oyunlar', ad: 'Oyunlar', tur: 'oyun' }
-        ];
+    if (!kategoriler) {
+        kategoriler = [];
         metinler.kategoriler = kategoriler;
         siteVerisi.profil_metinleri_ve_linkler = metinler;
     }
@@ -815,14 +875,81 @@ function sekmeleriVeIcerikleriHazirla() {
     });
 
     const contentGrid = document.getElementById('content-grid');
+    
     if (kategoriler.length === 0) {
-        // HİÇ KATEGORİ YOKSA ÇIKACAK GÖRÜNTÜ
-        contentGrid.innerHTML = `
-            <div class="empty-categories-state">
-                <span style="font-size: 2rem;">🗂️</span>
-                <p>Henüz bir arşiv kategorisi oluşturulmamış.</p>
-            </div>`;
+        contentGrid.classList.add('is-empty-grid');
+        
+        // YENİ: DOM'da bu bloklar zaten varsa (düzenleme moduna gir-çık yapılıyorsa) 
+        // içini bir daha ezip animasyonu baştan tetikleme!
+        const alreadyRendered = contentGrid.querySelector('.prompt-block') || contentGrid.querySelector('.empty-state-block');
+        
+        if (!alreadyRendered) {
+            if (typeof isOwner !== 'undefined' && isOwner) {
+                const ownerMessages = [
+                    { text: "Seni zorlayan favori oyunlarını paylaş...", btn: "Paylaş" },
+                    { text: "En sevdiğin anime sekanslarını sırala...", btn: "Sırala" },
+                    { text: "GFX vizyonuna ilham veren yapımları sergile...", btn: "Sergile" },
+                    { text: "Favori stand-up ve podcastlerini derle...", btn: "Derle" }
+                ];
+
+                // YENİ: Sayfa yenilenene kadar aynı metni aklında tutar (Tutarlılık için)
+                if (typeof window.currentPromptIndex === 'undefined') {
+                    window.currentPromptIndex = Math.floor(Math.random() * ownerMessages.length);
+                }
+                const secilenMesaj = ownerMessages[window.currentPromptIndex];
+
+                contentGrid.innerHTML = `
+                    <div class="prompt-block">
+                        <div class="prompt-pill">
+                            <span class="prompt-text">${secilenMesaj.text}</span>
+                        </div>
+                        <button class="prompt-btn" id="empty-state-cta-btn">
+                            <span>${secilenMesaj.btn}</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                        </button>
+                    </div>
+                `;
+
+                // Buton Dinleyicisi
+                setTimeout(() => {
+                    const ctaBtn = document.getElementById('empty-state-cta-btn');
+                    if (ctaBtn) {
+                        ctaBtn.addEventListener('click', () => {
+                            if (typeof EditManager !== 'undefined' && !EditManager.state.isGlobalEditActive) {
+                                EditManager.Global.toggleEditMode();
+                            }
+                            const catModal = document.getElementById('category-modal');
+                            const catNameInput = document.getElementById('category-name-input');
+                            if (catModal) {
+                                catModal.classList.add('is-open');
+                                setTimeout(() => { if (catNameInput) catNameInput.focus(); }, 50);
+                            }
+                        });
+                    }
+                }, 0);
+
+            } else {
+                const visitorMessages = [
+                    "Bu alan şimdilik sadece sahibine özel.",
+                    "Burada henüz sergilenecek bir arşiv yok.",
+                    "Kullanıcı bu köşeyi şimdilik boş tutmayı tercih ediyor."
+                ];
+                
+                // Ziyaretçi mesajını da sabitliyoruz
+                if (typeof window.currentVisitorPromptIndex === 'undefined') {
+                    window.currentVisitorPromptIndex = Math.floor(Math.random() * visitorMessages.length);
+                }
+                const rastgeleMesaj = visitorMessages[window.currentVisitorPromptIndex];
+                
+                contentGrid.innerHTML = `
+                    <div class="empty-state-block visitor-mode">
+                        <span class="empty-state-text">${rastgeleMesaj}</span>
+                    </div>
+                `;
+            }
+        }
     } else {
+        contentGrid.classList.remove('is-empty-grid');
         kartlariGriddeListele(siteVerisi.icerik[aktifKategoriId] || []);
     }
 }
@@ -1199,7 +1326,7 @@ const EditManager = {
         isProfileEditing: false,
         tempProfileLinks: [],
         aramaZamanlayici: null,
-        KATEGORI_ARAMA_TURU: { animeler: 'anime', diziler: 'dizi', oyunlar: 'oyun' }
+        KATEGORI_ARAMA_TURU: { animeler: 'anime', diziler: 'dizi', filmler: 'film', oyunlar: 'oyun' }
     },
     // #endregion
 
@@ -1406,9 +1533,11 @@ const EditManager = {
             const catBackdrop = document.getElementById('category-modal-backdrop');
             const catCloseBtn = document.getElementById('category-modal-close');
             const catSubmitBtn = document.getElementById('category-submit-btn');
-            const catNameInput = document.getElementById('category-name-input');
-            const catTypeSelect = document.getElementById('category-type-select');
             const catErrorBox = document.getElementById('category-error-box');
+            
+            // YENİ: Seçenek butonlarını yakalıyoruz
+            const optionBtns = document.querySelectorAll('.category-option-btn');
+            let secilenTur = 'film'; // Varsayılan değer
 
             if (!addCategoryBtn || !catModal) return;
 
@@ -1418,12 +1547,28 @@ const EditManager = {
             addCategoryBtn.addEventListener('click', () => {
                 if (!EditManager.state.isGlobalEditActive) return;
                 
-                catNameInput.value = '';
-                catTypeSelect.value = 'dizi'; // Varsayılan
                 catErrorBox.style.display = 'none';
                 
+                // Modalı açarken varsayılan olarak Film seçili gelsin
+                secilenTur = 'film';
+                optionBtns.forEach(b => {
+                    b.classList.remove('active');
+                    if(b.dataset.value === 'film') b.classList.add('active');
+                });
+                
                 catModal.classList.add('is-open');
-                setTimeout(() => catNameInput.focus(), 50);
+            });
+
+            // YENİ: Seçenek butonlarına tıklama (Radyo butonu mantığı)
+            optionBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Tümünden active sınıfını sil
+                    optionBtns.forEach(b => b.classList.remove('active'));
+                    // Sadece tıklanana active ekle
+                    btn.classList.add('active');
+                    // Seçilen değeri hafızaya al
+                    secilenTur = btn.dataset.value;
+                });
             });
 
             // Kapatma Tetikleyicileri
@@ -1432,25 +1577,30 @@ const EditManager = {
 
             // Yeni Kategori Kaydetme
             catSubmitBtn.addEventListener('click', () => {
-                const katAd = catNameInput.value.trim();
-                const aramaTuru = catTypeSelect.value;
-
-                if (!katAd) {
-                    catErrorBox.textContent = "Kategori adı boş bırakılamaz.";
-                    catErrorBox.style.display = 'block';
-                    return;
-                }
-
                 const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
                 const kategoriler = metinler.kategoriler || [];
-                const yeniId = 'kat_' + Date.now(); 
                 
-                kategoriler.push({ id: yeniId, ad: katAd, tur: aramaTuru });
+                // Kategori zaten eklenmiş mi kontrolü
+                if (kategoriler.find(k => k.id === secilenTur)) {
+                    catErrorBox.textContent = "Bu kategori zaten arşivinizde mevcut.";
+                    catErrorBox.style.display = 'block';
+                    catErrorBox.classList.add('shake-box-animation');
+                    setTimeout(() => catErrorBox.classList.remove('shake-box-animation'), 400);
+                    return;
+                }
+                
+                // Doğrudan sabit sistem ID'si ve başlığını kaydediyoruz
+                kategoriler.push({ 
+                    id: secilenTur, 
+                    ad: SABIT_KATEGORILER[secilenTur], 
+                    tur: secilenTur 
+                });
+                
                 metinler.kategoriler = kategoriler;
                 siteVerisi.profil_metinleri_ve_linkler = metinler;
-                siteVerisi.icerik[yeniId] = []; 
+                if (!siteVerisi.icerik[secilenTur]) siteVerisi.icerik[secilenTur] = []; 
                 
-                aktifKategoriId = yeniId; 
+                aktifKategoriId = secilenTur; 
                 
                 EditManager.Global.degisiklikYapildi();
                 sekmeleriVeIcerikleriHazirla();
