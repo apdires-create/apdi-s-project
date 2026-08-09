@@ -89,6 +89,7 @@ function hexToHSL(hex) {
 }
 
 let aktifKullaniciOturumu = null;
+let aktifKullaniciAdi = null;
 let isOwner = false;
 const MAKS_ICERIK_SAYISI = 12;
 let aktifKategoriId = null;
@@ -108,6 +109,16 @@ async function oturumuKontrolEt() {
     if (!supabaseClient) return;
     const { data: { session } } = await supabaseClient.auth.getSession();
     aktifKullaniciOturumu = session;
+    
+    // YENİ: Oturum varsa, veritabanından kullanıcının kendi sayfa adını bul ve kaydet
+    if (session) {
+        const { data } = await supabaseClient
+            .from('profiles')
+            .select('kullanici_adi')
+            .eq('auth_id', session.user.id)
+            .single();
+        if (data) aktifKullaniciAdi = data.kullanici_adi;
+    }
 }
 
 function authHataGoster(mesaj) {
@@ -222,12 +233,6 @@ function authModaliniBaslat() {
     const switchBtn = document.getElementById('auth-switch-action');
 
     if (!triggerBtn || !modal) return;
-    
-    if (aktifKullaniciOturumu && triggerText) {
-        triggerText.textContent = "Çıkış Yap";
-    } else if (triggerText) {
-        triggerText.textContent = "Giriş Yap";
-    }
 
     const modaliAc = () => {
         modal.classList.add('is-open');
@@ -246,7 +251,16 @@ function authModaliniBaslat() {
 
     const modaliKapat = () => { modal.classList.remove('is-open'); authHataTemizle(); };
 
-    triggerBtn.addEventListener('click', modaliAc);
+    triggerBtn.addEventListener('click', () => {
+        // YENİ: Giriş yapmışız ama başkasının profilindeysek, modalı açmak yerine kendi profilimize ışınla
+        if (aktifKullaniciOturumu && !isOwner && aktifKullaniciAdi) {
+            window.location.href = `?user=${aktifKullaniciAdi}`;
+            return;
+        }
+        
+        // Kendi sayfamızdaysak veya giriş yapmamışsak normal şekilde modalı aç
+        modaliAc();
+    });
     closeBtn.addEventListener('click', modaliKapat);
     backdrop.addEventListener('click', modaliKapat);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('is-open')) modaliKapat(); });
@@ -445,12 +459,23 @@ async function tumVerileriCek() {
         }
 
         siteVerisi.profil_sahibi_id = profil.auth_id;
-        
+
         if (aktifKullaniciOturumu && siteVerisi.profil_sahibi_id === aktifKullaniciOturumu.user.id) {
             isOwner = true; 
             document.body.classList.add('is-owner'); 
         } else {
             isOwner = false; 
+        }
+
+        // Ziyaretçi vs. Sahip durumuna göre sağ üstteki butonun metnini dinamik belirliyoruz
+        const authTriggerText = document.getElementById('auth-trigger-text');
+        if (authTriggerText) {
+            if (aktifKullaniciOturumu) {
+                // Giriş yapmış ama başkasının sayfasındaysa "Sayfama Dön", kendi sayfasındaysa "Çıkış Yap"
+                authTriggerText.textContent = isOwner ? "Çıkış Yap" : "Sayfama Dön";
+            } else {
+                authTriggerText.textContent = "Giriş Yap";
+            }
         }
 
         siteVerisi.profil_metinleri_ve_linkler = profil.profil_metinleri_ve_linkler; 
@@ -476,22 +501,16 @@ const WidgetEngine = {
             id: 'monkeytype',
             renderView: (ayarlar) => {
                 const username = ayarlar.kullanici || '';
-                const guvenliUsername = username.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
                 return `
                 <div class="widget-link" data-type="monkeytype" data-username="${username}">
-                    <!-- YENİ ÖN YÜZ (KAPALI) -->
                     <div class="mt-front-view">
-                        <!-- 1. Bölüm (İkon ve İsim - Daha Büyük) -->
                         <div class="mt-front-left">
                             <div class="widget-type-icon mt-brand"></div>
-                            <!-- İsme tıklandığında widget'ın açılmasını engellemek için stopPropagation ekledik -->
                             <a href="https://monkeytype.com/profile/${username}" target="_blank" onclick="event.stopPropagation()" class="mt-front-username" title="${username}">${username || 'Bilinmiyor'}</a>
                         </div>
                         
-                        <!-- Ayraç (Dik Çizgi) -->
                         <div class="mt-front-divider"></div>
                         
-                        <!-- 2. ve 3. Bölüm (İstatistikler) -->
                         <div class="mt-front-right">
                             <div class="mt-stat-item front-stat" data-front-mode="words" data-front-amount="10">
                                 <span class="mt-stat-label">10 WORDS</span>
@@ -504,32 +523,6 @@ const WidgetEngine = {
                                 <span class="mt-stat-percent">-%</span>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- YENİ İSTATİSTİK PANELİ (AÇIK) -->
-                    <div class="widget-overlay">
-                        <div class="mt-expanded-container">
-                            <!-- Sol Taraf (Words) -->
-                            <div class="mt-expanded-half">
-                                <div class="mt-grid-2x2">
-                                    <div class="mt-stat-item" data-mode="words" data-amount="10"><span class="mt-stat-label">10 WORDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                                    <div class="mt-stat-item" data-mode="words" data-amount="25"><span class="mt-stat-label">25 WORDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                                    <div class="mt-stat-item" data-mode="words" data-amount="50"><span class="mt-stat-label">50 WORDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                                    <div class="mt-stat-item" data-mode="words" data-amount="100"><span class="mt-stat-label">100 WORDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                                </div>
-                            </div>
-                            <div class="mt-front-divider"></div>
-                            <!-- Sağ Taraf (Time) -->
-                            <div class="mt-expanded-half">
-                                <div class="mt-grid-2x2">
-                                    <div class="mt-stat-item" data-mode="time" data-amount="15"><span class="mt-stat-label">15 SECONDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                                    <div class="mt-stat-item" data-mode="time" data-amount="30"><span class="mt-stat-label">30 SECONDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                                    <div class="mt-stat-item" data-mode="time" data-amount="60"><span class="mt-stat-label">60 SECONDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                                    <div class="mt-stat-item" data-mode="time" data-amount="120"><span class="mt-stat-label">120 SECONDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-expanded-footer">monkeytype</div>
                     </div>
                 </div>`;
             },
@@ -544,7 +537,7 @@ const WidgetEngine = {
                     <div class="widget-edit-divider"></div>
                     <div class="widget-edit-right">
                         <input type="text" class="widget-username-input" placeholder="Kullanıcı Adı" value="${ayarlar.kullanici || ''}">
-                        <button class="widget-inline-delete" title="Kaldır">&times;</button>
+                        <button class="widget-inline-delete" title="Kaldır">${SIL_IKONU_SVG}</button>
                     </div>
                 </div>`;
             },
@@ -576,18 +569,9 @@ const WidgetEngine = {
                 ['10', '25', '50', '100'].forEach(m => veriyiEkranaBas('words', m));
             },            
             onClick: (slot, widgetLink, isOverlayClick) => {
-                if (slot.classList.contains('is-active')) {
-                    if (isOverlayClick) {
-                        const username = widgetLink.dataset.username;
-                        if (username) window.open(`https://monkeytype.com/profile/${username}`, '_blank');
-                        slot.classList.remove('is-active'); 
-                    } else {
-                        slot.classList.remove('is-active');
-                    }
-                } else {
-                    document.querySelectorAll('.widget-slot.is-active').forEach(w => w.classList.remove('is-active'));
-                    slot.classList.add('is-active');
-                }
+                // Tıklanınca pop-up açmak yerine doğrudan yeni sekmede profiline yolla
+                const username = widgetLink.dataset.username;
+                if (username) window.open(`https://monkeytype.com/profile/${username}`, '_blank');
             }
         }
     },
@@ -702,6 +686,8 @@ const WidgetEngine = {
 function ekraniCiz() {
     const secilenRenk = siteVerisi.primary_color || '#ff8800'; 
     temaRenkleriniGuncelle(secilenRenk);
+    const colorTrigger = document.getElementById('colorTrigger');
+    if (colorTrigger) colorTrigger.style.backgroundColor = secilenRenk;
 
     
     const metinVeLinkler = siteVerisi.profil_metinleri_ve_linkler || {};
@@ -2136,8 +2122,27 @@ const EditManager = {
                     if (modal) modal.classList.add('is-open');
                 }
 
-                // 2. Sil (Çarpı) butonuna tıklandıysa
+                // 2. Sil (Çarpı) butonuna tıklandıysa (Fareyle uzaklaşınca iptal olan onay)
                 if (e.target.closest('.widget-inline-delete')) {
+                    const silBtn = e.target.closest('.widget-inline-delete');
+
+                    // İlk Tıklama: Onay İste
+                    if (!silBtn.classList.contains('confirm-delete')) {
+                        silBtn.classList.add('confirm-delete');
+                        silBtn.innerHTML = TIK_IKONU_SVG;
+                        silBtn.title = 'Silmek için tekrar tıkla';
+                        
+                        // Fare üzerinden çekilince (mouseleave) iptal et ve normale dön
+                        silBtn.addEventListener('mouseleave', function revertDelete() {
+                            silBtn.classList.remove('confirm-delete');
+                            silBtn.innerHTML = SIL_IKONU_SVG;
+                            silBtn.title = 'Kaldır';
+                        }, { once: true }); // once: true ile bu dinleyici bir kere çalıştıktan sonra kendini imha eder
+                        
+                        return;
+                    }
+
+                    // İkinci Tıklama (Fareyi çekmeden hemen basarsa): Gerçekten Sil
                     siteVerisi.widgetlar.splice(index, 1);
                     siteVerisi.monkeytype_skorlari = null; 
                     WidgetEngine.ciz(); 
@@ -2232,168 +2237,7 @@ const EditManager = {
 
             EditManager.state.tempProfileLinks = [...(metinler.linkler || [])];
             this.renderLinks();
-            
-            const colorContainer = document.getElementById('edit-color-picker-container');
-            if (colorContainer) {
-                const savedHex = (siteVerisi.primary_color || '#ff8800').toLowerCase();
-                
-                // Başlangıç HSV değerini hesapla
-                const initRgb = hexToRgb(savedHex);
-                let currentHsv = rgbToHsv(initRgb.r, initRgb.g, initRgb.b);
-
-                colorContainer.innerHTML = `
-                    <div class="nook-picker-wrapper">
-                        <p class="edit-section-title" style="margin-top:0; margin-bottom: 10px;">Tema Rengi</p>
-
-                        <div class="nook-custom-row">
-                            <button type="button" class="nook-color-trigger" id="colorTrigger" style="background-color: ${savedHex};" title="Rengi Değiştir"></button>
-                            <input type="text" id="hexInput" class="search-input nook-hex-input" value="${savedHex.toUpperCase()}" maxlength="7" spellcheck="false">
-
-                            <!-- Açılır Özel Seçici (Popup) -->
-                            <div class="nook-picker-popup" id="pickerPopup" hidden>
-                                <div class="nook-sv-square" id="svSquare">
-                                    <div class="nook-sv-cursor" id="svCursor"></div>
-                                </div>
-                                <div class="nook-hue-slider" id="hueSlider">
-                                    <div class="nook-hue-cursor" id="hueCursor"></div>
-                                </div>
-                                <button type="button" class="nook-eyedropper-btn" id="eyedropperBtn" title="Ekrandan renk seç">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>
-                                    </svg>
-                                    Ekrandan seç
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                // --- DOM ELEMANLARI ---
-                const hexInput = document.getElementById('hexInput');
-                const colorTrigger = document.getElementById('colorTrigger');
-                const pickerPopup = document.getElementById('pickerPopup');
-                const svSquare = document.getElementById('svSquare');
-                const svCursor = document.getElementById('svCursor');
-                const hueSlider = document.getElementById('hueSlider');
-                const hueCursor = document.getElementById('hueCursor');
-
-                // --- GÜNCELLEME MOTORU ---
-                const sistemeRengiUygula = (hex) => {
-                    const cleanHex = hex.toLowerCase();
-                    siteVerisi.primary_color = cleanHex;
-                    EditManager.Profile.anlikKaydet();
-                    temaRenkleriniGuncelle(cleanHex);
-
-                    hexInput.value = cleanHex.toUpperCase();
-                    colorTrigger.style.backgroundColor = cleanHex;
-                };
-
-                // --- GÖRSEL PICKER KONTROLLERİ ---
-                const positionCursorsFromHsv = () => {
-                    svCursor.style.left = currentHsv.s + '%';
-                    svCursor.style.top = (100 - currentHsv.v) + '%';
-                    hueCursor.style.left = (currentHsv.h / 360) * 100 + '%';
-                };
-
-                const setSquareBaseColor = () => {
-                    svSquare.style.backgroundColor = `hsl(${currentHsv.h}, 100%, 50%)`;
-                };
-
-                const commitColorFromHsv = () => {
-                    const { r, g, b } = hsvToRgb(currentHsv.h, currentHsv.s, currentHsv.v);
-                    sistemeRengiUygula(rgbToHex(r, g, b));
-                };
-
-                const pointerRatio = (e, el) => {
-                    const rect = el.getBoundingClientRect();
-                    const x = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
-                    const y = Math.min(Math.max(e.clientY - rect.top, 0), rect.height);
-                    return { x: x / rect.width, y: y / rect.height };
-                };
-
-                const attachDrag = (el, onMove) => {
-                    el.addEventListener('pointerdown', (e) => {
-                        el.setPointerCapture(e.pointerId);
-                        onMove(e);
-                        const move = (ev) => onMove(ev);
-                        const up = () => {
-                            el.removeEventListener('pointermove', move);
-                            el.removeEventListener('pointerup', up);
-                        };
-                        el.addEventListener('pointermove', move);
-                        el.addEventListener('pointerup', up);
-                    });
-                };
-
-                attachDrag(svSquare, (e) => {
-                    const { x, y } = pointerRatio(e, svSquare);
-                    currentHsv.s = x * 100;
-                    currentHsv.v = (1 - y) * 100;
-                    positionCursorsFromHsv();
-                    commitColorFromHsv();
-                });
-
-                attachDrag(hueSlider, (e) => {
-                    const { x } = pointerRatio(e, hueSlider);
-                    currentHsv.h = x * 360;
-                    setSquareBaseColor();
-                    positionCursorsFromHsv();
-                    commitColorFromHsv();
-                });
-
-                // --- POPUP AÇ/KAPAT ---
-                const closePicker = () => pickerPopup.hidden = true;
-                const outsideClickCloser = (e) => {
-                    if (!pickerPopup.contains(e.target) && e.target !== colorTrigger) closePicker();
-                };
-
-                colorTrigger.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (pickerPopup.hidden) {
-                        pickerPopup.hidden = false;
-                        setSquareBaseColor();
-                        positionCursorsFromHsv();
-                        document.addEventListener('click', outsideClickCloser);
-                    } else {
-                        closePicker();
-                        document.removeEventListener('click', outsideClickCloser);
-                    }
-                });
-
-                // --- HEX İNPUT ---
-                hexInput.addEventListener('input', (e) => {
-                    let val = e.target.value.trim();
-                    if (!val.startsWith('#')) val = '#' + val;
-                    if (/^#[0-9A-Fa-f]{6}$/i.test(val)) {
-                        const { r, g, b } = hexToRgb(val);
-                        currentHsv = rgbToHsv(r, g, b);
-                        setSquareBaseColor();
-                        positionCursorsFromHsv();
-                        sistemeRengiUygula(val);
-                    }
-                });
-
-                // --- DAMLALIK (EYEDROPPER API) ---
-                const eyedropperBtn = document.getElementById('eyedropperBtn');
-                if (typeof window.EyeDropper === 'undefined') {
-                    eyedropperBtn.style.display = 'none';
-                } else {
-                    eyedropperBtn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        try {
-                            const result = await new window.EyeDropper().open();
-                            const hex = result.sRGBHex;
-                            const { r, g, b } = hexToRgb(hex);
-                            currentHsv = rgbToHsv(r, g, b);
-                            setSquareBaseColor();
-                            positionCursorsFromHsv();
-                            sistemeRengiUygula(hex);
-                        } catch (err) {} 
-                    });
-                }
-            }
         },
-        
         anlikKaydet() {
             // Sadece taslağa (siteVerisi) yazar ve çubuğu tetikler. DB'ye henüz gitmez.
             const newName = document.getElementById('edit-in-name').value.trim();
@@ -2559,12 +2403,145 @@ const EditManager = {
     },
     // #endregion
 
+    // #region 5.5. TEMA RENGİ SEÇİCİ
+    ThemePicker: {
+        baslat() {
+            const hexInput = document.getElementById('hexInput');
+            const colorTrigger = document.getElementById('colorTrigger');
+            const pickerPopup = document.getElementById('pickerPopup');
+            const svSquare = document.getElementById('svSquare');
+            const svCursor = document.getElementById('svCursor');
+            const hueSlider = document.getElementById('hueSlider');
+            const hueCursor = document.getElementById('hueCursor');
+
+            if (!colorTrigger || !pickerPopup) return;
+
+            let currentHsv = { h: 32, s: 100, v: 100 };
+
+            const sistemeRengiUygula = (hex) => {
+                const cleanHex = hex.toLowerCase();
+                siteVerisi.primary_color = cleanHex;
+                EditManager.Profile.anlikKaydet(); // Sadece değişikliği bildirmek için kullanıyoruz
+                temaRenkleriniGuncelle(cleanHex);
+
+                hexInput.value = cleanHex.toUpperCase();
+                colorTrigger.style.backgroundColor = cleanHex;
+            };
+
+            const positionCursorsFromHsv = () => {
+                svCursor.style.left = currentHsv.s + '%';
+                svCursor.style.top = (100 - currentHsv.v) + '%';
+                hueCursor.style.left = (currentHsv.h / 360) * 100 + '%';
+            };
+
+            const setSquareBaseColor = () => {
+                svSquare.style.backgroundColor = `hsl(${currentHsv.h}, 100%, 50%)`;
+            };
+
+            const commitColorFromHsv = () => {
+                const { r, g, b } = hsvToRgb(currentHsv.h, currentHsv.s, currentHsv.v);
+                sistemeRengiUygula(rgbToHex(r, g, b));
+            };
+
+            const pointerRatio = (e, el) => {
+                const rect = el.getBoundingClientRect();
+                const x = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
+                const y = Math.min(Math.max(e.clientY - rect.top, 0), rect.height);
+                return { x: x / rect.width, y: y / rect.height };
+            };
+
+            const attachDrag = (el, onMove) => {
+                el.addEventListener('pointerdown', (e) => {
+                    el.setPointerCapture(e.pointerId);
+                    onMove(e);
+                    const move = (ev) => onMove(ev);
+                    const up = () => {
+                        el.removeEventListener('pointermove', move);
+                        el.removeEventListener('pointerup', up);
+                    };
+                    el.addEventListener('pointermove', move);
+                    el.addEventListener('pointerup', up);
+                });
+            };
+
+            attachDrag(svSquare, (e) => {
+                const { x, y } = pointerRatio(e, svSquare);
+                currentHsv.s = x * 100;
+                currentHsv.v = (1 - y) * 100;
+                positionCursorsFromHsv();
+                commitColorFromHsv();
+            });
+
+            attachDrag(hueSlider, (e) => {
+                const { x } = pointerRatio(e, hueSlider);
+                currentHsv.h = x * 360;
+                setSquareBaseColor();
+                positionCursorsFromHsv();
+                commitColorFromHsv();
+            });
+
+            const closePicker = () => pickerPopup.hidden = true;
+            const outsideClickCloser = (e) => {
+                if (!pickerPopup.contains(e.target) && e.target !== colorTrigger) closePicker();
+            };
+
+            colorTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (pickerPopup.hidden) {
+                    const savedHex = (siteVerisi.primary_color || '#ff8800').toLowerCase();
+                    const initRgb = hexToRgb(savedHex);
+                    currentHsv = rgbToHsv(initRgb.r, initRgb.g, initRgb.b);
+                    hexInput.value = savedHex.toUpperCase();
+                    
+                    pickerPopup.hidden = false;
+                    setSquareBaseColor();
+                    positionCursorsFromHsv();
+                    document.addEventListener('click', outsideClickCloser);
+                } else {
+                    closePicker();
+                    document.removeEventListener('click', outsideClickCloser);
+                }
+            });
+
+            hexInput.addEventListener('input', (e) => {
+                let val = e.target.value.trim();
+                if (!val.startsWith('#')) val = '#' + val;
+                if (/^#[0-9A-Fa-f]{6}$/i.test(val)) {
+                    const { r, g, b } = hexToRgb(val);
+                    currentHsv = rgbToHsv(r, g, b);
+                    setSquareBaseColor();
+                    positionCursorsFromHsv();
+                    sistemeRengiUygula(val);
+                }
+            });
+
+            const eyedropperBtn = document.getElementById('eyedropperBtn');
+            if (typeof window.EyeDropper === 'undefined') {
+                eyedropperBtn.style.display = 'none';
+            } else {
+                eyedropperBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    try {
+                        const result = await new window.EyeDropper().open();
+                        const hex = result.sRGBHex;
+                        const { r, g, b } = hexToRgb(hex);
+                        currentHsv = rgbToHsv(r, g, b);
+                        setSquareBaseColor();
+                        positionCursorsFromHsv();
+                        sistemeRengiUygula(hex);
+                    } catch (err) {} 
+                });
+            }
+        }
+    },
+    // #endregion
+
     // #region 6. ANA BAŞLATICI (Sadece Sahipse Çalışır)
     init() {
         if (!isOwner) return; 
         
         this.Global.baslat();
-
+        this.ThemePicker.baslat();
         this.Content.baslat();
         this.Media.baslat();
         this.Widget.baslat();

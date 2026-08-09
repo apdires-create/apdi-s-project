@@ -1,8 +1,6 @@
 /* #region 1: Temel Yapı ve Değişkenler */
 :root {
-    /* ============================================================
-       1a. PRIMITIVES (Boya Tüpleri - Sadece Varsayılan Tema İçin)
-       ============================================================ */
+    /* 1a. PRIMITIVES (Boya Tüpleri - Sadece Varsayılan Tema İçin) */
     --white-rgb: 255, 255, 255;
     --taupe-500-rgb: 182, 168, 159; /* Eski temanın ana karakteri */
     --orange-500-rgb: 255, 136, 0;
@@ -15,14 +13,14 @@
     --amber-300: #ffcd7a;
     --amber-600: #c97e1f;
     --purple-glow: 120, 140, 255; 
+    --blue-500: #5ca8ff;
 
-    /* ============================================================
-       1b. SEMANTIC / SİSTEM RENKLERİ
-       ============================================================ */
+    /* 1b. SEMANTIC / SİSTEM RENKLERİ */
     --color-danger-rgb: var(--red-500-rgb);
     --color-danger-light: var(--red-200);
     --color-success: var(--green-500);
     --color-success-light: var(--green-400);
+    --color-link: var(--blue-500);
 
     /* ============================================================
        1c. THEME LAYER (JS'in Hükmedeceği Oyun Alanı - V1)
@@ -40,6 +38,10 @@
     
     --theme-bg-base: color-mix(in srgb, var(--accent-500) 3%, #060709);       
     --theme-bg-panel: color-mix(in srgb, var(--accent-500) 8%, #0d0f14);
+
+    /* YENİ: Global Input (Metin Kutusu) Arka Plan ve Çerçeveleri */
+    --theme-bg-input: rgba(255, 255, 255, 0.04);
+    --theme-border-input: rgba(var(--theme-secondary-rgb), 0.25);
     
     /* Göz yormayan pastel ikincil renk */
     --theme-secondary: hsl(var(--primary-h, 32), 25%, 65%);
@@ -1328,11 +1330,6 @@ body.is-owner .ghost-text:hover {
 .widget-link { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; border-radius: inherit; cursor: pointer; container-type: size; container-name: widgetcard; }
 /* #endregion */
 
-/* #region 2. AÇILAN POP-UP (OVERLAY) ALTYAPISI */
-.widget-overlay { position: absolute; top: 50%; left: 50%; width: max(100%, 420px); max-width: 90vw; min-height: 180px; padding: 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: var(--theme-bg-panel); border: 1px solid rgba(var(--theme-secondary-rgb), 1); border-radius: clamp(10px, 1vw + 6px, 16px); opacity: 0; pointer-events: none; z-index: var(--z-widget-pop); transform: translate(-50%, -50%) scale(0.95); transition: opacity 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.widget-slot.is-active .widget-overlay { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
-/* #endregion */
-
 /* #region 3. WIDGET MODÜLÜ: MONKEYTYPE */
 
 /* --- ÖN YÜZ (KAPAK) - 3 Parçalı Yapı --- */
@@ -1391,28 +1388,10 @@ body.is-owner .ghost-text:hover {
     overflow: hidden; 
     text-overflow: ellipsis;
     text-align: center;
-    padding-bottom: 4px;
-    border-bottom: 2px solid rgba(var(--white-rgb), 0.2);
     transition: all var(--transition-base);
     position: relative;
     z-index: 10;
     cursor: pointer;
-}
-
-.mt-front-username:hover {
-    color: var(--mt-yellow, #e2b714);
-    border-bottom-color: var(--mt-yellow, #e2b714);
-    text-shadow: 0 0 10px rgba(226, 183, 20, 0.6);
-}
-
-/* --- ARKA YÜZ (AÇIK DURUM / GRID) --- */
-.mt-expanded-container { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: var(--space-xl); /* Ortadaki boşluğu biraz kıstık, kenarlara yer kalsın */
-    width: 100%; 
-    padding: 0 10px; /* Kenarlara yapışmasını engelleyecek nefes payı */
 }
 
 /* Eksik olan hayati sınıf: Her iki tarafın kutuyu eşit bölmesini sağlar */
@@ -1506,10 +1485,79 @@ body.is-owner .ghost-text:hover {
 .widget-type-icon.mt-brand::after { content: 'mt'; font-family: var(--font-mono); color: var(--mt-dark, #111); font-size: 1.5rem; font-weight: var(--fw-extrabold); margin-top: -2px; }
 .widget-type-label { font-family: var(--font-primary); font-size: 0.65rem; font-weight: var(--fw-semibold); color: #ffffff; letter-spacing: 0.5px; }
 .widget-edit-divider { width: 2px; height: 45px; background-color: rgba(var(--white-rgb), 0.2); border-radius: 2px; margin: 0 15px; }
-.widget-edit-right { flex: 1; position: relative; display: flex; align-items: center; }
-.widget-username-input { width: 100%; height: 32px; border-radius: 16px; border: none; padding: 0 15px; font-family: var(--font-primary); font-size: 0.85rem; font-weight: var(--fw-semibold); color: #111; outline: none; }
-.widget-inline-delete { position: absolute; right: -5px; top: -25px; background: rgba(var(--color-danger-rgb), 0.2); color: var(--color-danger-light); border: none; border-radius: var(--radius-circle); width: 20px; height: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all var(--transition-fast); }
-.widget-inline-delete:hover { background: rgba(var(--color-danger-rgb), 0.9); color: #fff; transform: scale(1.1); }
+/* Input'u Root Değişkenlerine Bağlama */
+.widget-username-input { 
+    width: 100%; 
+    height: 32px; 
+    border-radius: var(--radius-pill); 
+    background-color: var(--theme-bg-input); 
+    border: 1px solid var(--theme-border-input); 
+    padding: 0 15px; 
+    font-family: var(--font-primary); 
+    font-size: 0.85rem; 
+    font-weight: var(--fw-semibold); 
+    color: rgb(var(--white-rgb)); 
+    outline: none; 
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.widget-username-input:focus {
+    border-color: rgba(var(--theme-secondary-rgb), 0.8);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Daha Belirgin Silme Butonu */
+.widget-inline-delete { 
+    position: absolute; 
+    top: 8px; 
+    right: 8px; 
+    width: 28px; 
+    height: 28px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    border-radius: var(--radius-circle); 
+    border: 1px solid rgba(var(--color-danger-rgb), 0.4); 
+    background-color: rgba(20, 24, 32, 0.85); 
+    backdrop-filter: blur(4px); 
+    color: var(--color-danger-light); 
+    cursor: pointer; 
+    opacity: 0; 
+    pointer-events: none; 
+    transform: scale(0.9); 
+    transition: all var(--transition-fast); 
+    z-index: 10; 
+}
+
+.widget-inline-delete svg {
+    width: 16px;
+    height: 16px;
+}
+
+.widget-edit-layer:hover .widget-inline-delete { 
+    opacity: 1; 
+    pointer-events: auto; 
+    transform: scale(1); 
+}
+
+.widget-inline-delete:hover { 
+    background-color: rgba(var(--color-danger-rgb), 0.85); 
+    color: rgb(var(--white-rgb)); 
+    border-color: rgba(var(--color-danger-rgb), 0.85);
+}
+
+/* 2 Aşamalı Onay Durumu İçin Animasyonlu Class */
+.widget-inline-delete.confirm-delete {
+    background-color: rgba(var(--color-danger-rgb), 0.95);
+    color: rgb(var(--white-rgb));
+    border-color: rgb(var(--color-danger-rgb));
+    animation: pulse-danger 0.8s infinite alternate;
+}
+
+@keyframes pulse-danger {
+    from { box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0.4); }
+    to { box-shadow: 0 0 0 6px rgba(var(--color-danger-rgb), 0); }
+}
 /* #endregion */
 
 /* #region 5. WIDGET SEÇİM MENÜSÜ */
@@ -1693,7 +1741,22 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 
 /* COOLDOWN BİTİNCE (Link Hazır Durumu) */
 .tab.active.link-ready::after {
-    width: calc(100% - 40px); /* Kenarlardan biraz boşluk bırakarak altını çizer */
+    width: calc(100% - 40px);
+}
+
+.tab.has-link.active.link-ready:hover {
+    color: var(--color-link);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--color-link) 50%, transparent);
+}
+
+.tab.has-link.active.link-ready:hover::after {
+    background-color: var(--color-link);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--color-link) 50%, transparent);
+}
+
+.tab.has-link.active.link-ready:hover .tab-link-icon svg {
+    color: var(--color-link);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-link) 50%, transparent));
 }
 
 /* İkonun Başlangıç Durumu (Gizli ve Genişliği Sıfır) */
@@ -2774,65 +2837,60 @@ body.global-edit-mode .tab:hover .tab-edit-badge {
 /* #endregion */
 
 /* #region 7.11: NOOK COLOR PICKER (TEMA SEÇİCİ) */
-.nook-picker-wrapper {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+
+/* 1. Global Wrapper ve Açılma Animasyonu */
+.global-color-picker-wrapper {
+    position: absolute;
+    top: 24px;
+    right: 140px;
+    z-index: var(--z-banner);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(0);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Tetikleyici ve Hex */
-.nook-custom-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
+body.global-edit-mode .global-color-picker-wrapper {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-48px); /* Butonun soluna kayar */
 }
 
+/* 2. Tetikleyici Buton (Dış Renk Küresi) */
 .nook-color-trigger {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-circle); 
+    border: 2px solid rgba(255, 255, 255, 0.15); /* Temiz çerçeve */
     cursor: pointer;
-    flex-shrink: 0;
     padding: 0;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-    transition: transform var(--transition-fast), border-color var(--transition-fast);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5); /* Sadece dış gölge */
+    transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .nook-color-trigger:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
     border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.6);
 }
 
-.nook-hex-input {
-    width: 100px !important;
-    height: 36px !important;
-    margin: 0 !important;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    text-align: center;
-    border-radius: 10px !important;
-}
-
-/* POPUP (Açılır Seçici) */
+/* 3. Açılır Seçici (Popup) Kasa */
 .nook-picker-popup {
     position: absolute;
-    bottom: calc(100% + 15px); /* YENİ: Menüyü butonun üstüne iter */
-    left: -5px; /* Butonla sol kenarı tatlı bir şekilde hizalar */
+    top: calc(100% + 15px); 
+    right: 0; /* Sağ kenara hizalar, ekrandan taşmasını önler */
     width: 240px;
     background: var(--theme-bg-panel);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 15px;
-    /* Gölgeyi aşağı değil, yukarı vuracak şekilde çevirdik */
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.6); 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6); 
     z-index: var(--z-modal-top);
 }
 
 .nook-picker-popup[hidden] { display: none; }
 
-/* Doygunluk ve Parlaklık Karesi (SV Square) */
+/* 4. Doygunluk ve Parlaklık Karesi (SV Square) */
 .nook-sv-square {
     position: relative;
     width: 100%;
@@ -2856,7 +2914,7 @@ body.global-edit-mode .tab:hover .tab-edit-badge {
     pointer-events: none;
 }
 
-/* Renk Şeridi (Hue Slider) */
+/* 5. Renk Şeridi (Hue Slider) */
 .nook-hue-slider {
     position: relative;
     width: 100%;
@@ -2879,30 +2937,47 @@ body.global-edit-mode .tab:hover .tab-edit-badge {
     pointer-events: none;
 }
 
-/* Damlalık Butonu */
+/* 6. Alt Satır Düzeni (Hex ve Damlalık) */
+.nook-picker-bottom-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    align-items: center;
+}
+
+/* Damlalık (Color Picker) Butonu - SOLA ALINDI */
 .nook-eyedropper-btn {
+    order: -1; /* SİHİRLİ DOKUNUŞ: HTML'i değiştirmeden butonu sola zorlar */
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 100%;
-    margin-top: 15px;
-    padding: 10px;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     color: rgba(255, 255, 255, 0.8);
-    font-family: var(--font-primary);
-    font-size: 0.8rem;
-    font-weight: 600;
     cursor: pointer;
     transition: all var(--transition-fast);
+    padding: 0; 
 }
 
 .nook-eyedropper-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
     border-color: var(--accent-500);
+}
+
+/* Hex Input Düzeni */
+.nook-hex-input {
+    width: 100% !important; 
+    height: 36px !important;
+    margin: 0 !important;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    text-align: center;
+    border-radius: 8px !important;
 }
 /* #endregion */
 
