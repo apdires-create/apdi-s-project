@@ -250,19 +250,21 @@ body {
     padding: var(--space-xl);
 }
 
+/* GLOBAL SCROLLBAR TASARIMI */
+
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
 }
 ::-webkit-scrollbar-track {
     background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(182, 168, 159, 0.15); /* Temanın soluk rengi */
+    background: rgba(var(--theme-secondary-rgb), 0.3);
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(182, 168, 159, 0.4);
+    background: rgba(var(--theme-secondary-rgb), 0.6);
 }
 
 /* #endregion */
@@ -883,7 +885,7 @@ body.is-owner .banner:hover .banner-edit-overlay {
 
 /* #region 4: Profil Alanı (Görünüm ve Düzenleme) */
 
-/* -- ANA KUTU VE BAŞLIK -- */
+/* #region 4.1: Kapsayıcı ve Başlık (Layout & Header) */
 .profile {
     grid-column: 1 / 2;
     grid-row: 1 / 4;
@@ -898,8 +900,9 @@ body.is-owner .banner:hover .banner-edit-overlay {
     align-items: center;
     gap: 1rem;
 }
+/* #endregion */
 
-/* -- PROFİL GÖRSELİ VE DÜZENLEME KATMANI -- */
+/* #region 4.2: Profil Görseli ve Katmanı (Avatar & Overlay) */
 .profile-image {
     width: clamp(48px, 6vw, 80px);
     height: clamp(48px, 6vw, 80px);
@@ -939,8 +942,9 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
     opacity: 1;
     pointer-events: auto;
 }
+/* #endregion */
 
-/* -- İSİM VE DÜZENLEME BUTONLARI -- */
+/* #region 4.3: Profil Metinleri (İsim, Ünvan ve Biyografi) */
 .profile-name-wrapper {
     display: flex;
     align-items: flex-start;
@@ -965,6 +969,150 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+.profile-title {
+    font-size: clamp(0.75rem, 0.65rem + 0.4vw, 0.9rem);
+    line-height: 1.6;
+    letter-spacing: 0.1em;
+    color: rgba(var(--theme-secondary-rgb), 1);
+    margin-top: clamp(0.2rem, 1rem + 2vh, 0.6rem);
+    font-weight: var(--fw-medium);
+}
+
+.profile-bio {
+    font-size: clamp(0.75rem, 0.65rem + 0.3vw, 0.85rem);
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    color: rgba(var(--white-rgb), 0.8);
+    margin-top: clamp(0.3rem, 1rem + 2vh, 0.3rem);
+    font-weight: var(--fw-regular);
+    margin-bottom: 15px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.profile-bio::-webkit-scrollbar { width: 4px; }
+.profile-bio::-webkit-scrollbar-track { background: transparent; }
+.profile-bio::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-secondary-rgb), 0.3);
+    border-radius: 10px;
+}
+.profile-bio::-webkit-scrollbar-thumb:hover { background: rgba(var(--theme-secondary-rgb), 0.6); }
+
+/* Sayfa sahibiyken metinlerin (dolu veya boş) üzerine gelince düzenlenebilir olduğunu hissettir */
+body.is-owner:not(.global-edit-mode) .profile-name,
+body.is-owner:not(.global-edit-mode) .profile-title,
+body.is-owner:not(.global-edit-mode) .profile-bio {
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-fast), padding var(--transition-fast);
+    /* Tıklama alanını biraz genişletmek için şeffaf bir çerçeve payı */
+    border: 1px solid transparent; 
+}
+
+/* Üzerine gelindiğinde hafif bir arkaplan ver */
+body.is-owner:not(.global-edit-mode) .profile-name:hover,
+body.is-owner:not(.global-edit-mode) .profile-title:hover,
+body.is-owner:not(.global-edit-mode) .profile-bio:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+/* #endregion */
+
+/* #region 4.4: Bağlantılar (Links) */
+.profile-links {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(var(--white-rgb), 0.08);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center; /* İŞTE SORUNU ÇÖZEN SİHİRLİ DOKUNUŞ */
+    gap: var(--space-sm);
+    max-height: 75px; 
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.link-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: var(--fw-medium);
+    color: rgba(var(--theme-secondary-rgb), 0.8);
+    border: 1px solid rgba(var(--theme-secondary-rgb), 0.2);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    text-decoration: none;
+}
+
+.link-item img, 
+.link-item svg {
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    border-radius: 50%;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.link-item:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-secondary-rgb), 0.8);
+    background-color: rgba(var(--theme-secondary-rgb), 0.05);
+    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
+}
+
+/* --- DÜZENLEME MODU VE KALEM İKONU --- */
+.link-item.is-editing {
+    position: relative;
+    cursor: pointer;
+    color: rgba(var(--white-rgb), 0.7);
+    border-color: rgba(var(--white-rgb), 0.2);
+    background-color: transparent;
+    overflow: visible; /* Kalem ikonunun dışarı taşması için */
+}
+
+.link-edit-badge {
+    position: absolute;
+    right: -6px;
+    top: -6px;
+    background: color-mix(in srgb, var(--accent-500) 90%, black);
+    color: white;
+    border-radius: var(--radius-circle);
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.link-item.is-editing:hover {
+    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.link-item.is-editing:hover .link-edit-badge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.link-edit-badge:hover {
+    background: var(--accent-500);
+    transform: scale(1.2);
+}
+/* #endregion */
+
+/* #region 4.5: Düzenleme Araçları, Formlar ve Boş Durumlar (Edit Mode & States) */
 
 /* Kutu düzenleme modundayken CSS satır kısıtlamasını iptal et */
 .profile-name.is-input-active {
@@ -1001,79 +1149,6 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 /* Satıriçi ikon hover efektleri */
 #inline-edit-trigger:hover .pen-icon { color: rgb(var(--white-rgb)); }
 #inline-edit-trigger:hover .check-icon { stroke: var(--color-success); }
-
-/* -- BİYOGRAFİ VE ÜNVAN -- */
-.profile-title {
-    font-size: clamp(0.75rem, 0.65rem + 0.4vw, 0.9rem);
-    line-height: 1.6;
-    letter-spacing: 0.1em;
-    color: rgba(var(--theme-secondary-rgb), 1);
-    margin-top: clamp(0.2rem, 1rem + 2vh, 0.6rem);
-    font-weight: var(--fw-medium);
-}
-
-.profile-bio {
-    font-size: clamp(0.75rem, 0.65rem + 0.3vw, 0.85rem);
-    line-height: 1.5;
-    letter-spacing: 0.05em;
-    color: rgba(var(--white-rgb), 0.8);
-    margin-top: clamp(0.3rem, 1rem + 2vh, 0.3rem);
-    font-weight: var(--fw-regular);
-    margin-bottom: 15px;
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding-right: 8px;
-}
-
-.profile-bio::-webkit-scrollbar { width: 4px; }
-.profile-bio::-webkit-scrollbar-track { background: transparent; }
-.profile-bio::-webkit-scrollbar-thumb {
-    background: rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: 10px;
-}
-.profile-bio::-webkit-scrollbar-thumb:hover { background: rgba(var(--theme-secondary-rgb), 0.6); }
-
-/* -- LİNKLER -- */
-.profile-links {
-    margin-top: auto;
-    padding-top: 15px;
-    border-top: 1px solid rgba(var(--white-rgb), 0.08);
-    display: flex;
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-    
-    /* YENİ EKLENEN KISIM: 2 Satır limiti ve Scrollbar */
-    max-height: 75px; 
-    overflow-y: auto;
-    padding-right: 5px; /* Scrollbar içeriğe yapışmasın diye */
-}
-
-/* Scrollbar Tasarımı (Bio ile aynı) */
-.profile-links::-webkit-scrollbar { width: 4px; }
-.profile-links::-webkit-scrollbar-track { background: transparent; }
-.profile-links::-webkit-scrollbar-thumb {
-    background: rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: 10px;
-}
-.profile-links::-webkit-scrollbar-thumb:hover { background: rgba(var(--theme-secondary-rgb), 0.6); }
-
-.link-item {
-    padding: 6px 12px;
-    font-size: 0.75rem;
-    font-weight: var(--fw-medium);
-    color: rgba(var(--theme-secondary-rgb), 0.8);
-    border: 1px solid rgba(var(--theme-secondary-rgb), 0.2);
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
-}
-
-.link-item:hover {
-    color: rgb(var(--white-rgb));
-    border-color: rgba(var(--theme-secondary-rgb), 0.8);
-    background-color: rgba(var(--theme-secondary-rgb), 0.05);
-    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
-}
 
 /* Link Düzenleme Modu Görünümü (Silme ikonlu hali) */
 .link-item.is-editing {
@@ -1114,7 +1189,7 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
     color: rgb(var(--white-rgb));
 }
 
-/* -- DÜZENLEME INPUTLARI (Satıriçi Düzenleme Stilleri) -- */
+/* DÜZENLEME INPUTLARI (Satıriçi Düzenleme Stilleri) */
 .auto-expand-textarea {
     resize: none !important;
     overflow: hidden !important;
@@ -1141,7 +1216,7 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
     border-color: rgba(var(--theme-secondary-rgb), 0.8) !important;
 }
 
-/* -- EKSİK/BOŞ VERİ GÖRÜNÜMLERİ -- */
+/* EKSİK/BOŞ VERİ GÖRÜNÜMLERİ */
 .ghost-text {
     color: var(--theme-secondary);
     opacity: 0.6;
@@ -1188,7 +1263,9 @@ body.is-owner .ghost-text:hover {
     font-size: 1.2rem;
     font-weight: 300;
 }
+/* #endregion */
 
+/* #region 4.6: Animasyonlar ve Uyarılar (Animations & Warnings) */
 .shake-box-animation {
     animation: shakeUI 0.4s cubic-bezier(.36,.07,.19,.97) both;
     border-color: rgba(var(--color-danger-rgb), 0.5) !important;
@@ -1221,6 +1298,8 @@ body.is-owner .ghost-text:hover {
     from { opacity: 0; transform: translate(-50%, -10px); }
     to { opacity: 1; transform: translate(-50%, 0); }
 }
+/* #endregion */
+
 /* #endregion */
 
 /* #region 5: Widget Alanı (Slotlar ve Katmanlar) */
@@ -1518,7 +1597,7 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 
 /* #region 6: İçerik Alanı (Sekmeler, Grid ve Kartlar) */
 
-/* -- ANA İÇERİK SÜTUNU -- */
+/* #region 6.1: Ana Kapsayıcı ve Izgara (Main Layout & Grid) */
 .content {
     grid-column: 3 / 5;
     grid-row: 1 / 4;
@@ -1528,7 +1607,29 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     min-height: 0;
 }
 
-/* -- SEKME (TAB) ALANI -- */
+/* NOT: Container-type ile iç responsive ölçüleri buradan hesaplanır */
+.content-body {
+    container-type: size;
+    container-name: contentgrid;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden; 
+    padding: 15px 12px 20px 12px; /* Kartın esneme payı */
+    margin: -15px -12px -20px -12px; /* Dışarıdan görünmez alan açma hilesi */
+}
+
+.content-grid {
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 25.3cqh);
+    align-content: flex-start;
+    justify-content: flex-start;
+    column-gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem);
+    row-gap: 7cqh;
+}
+/* #endregion */
+
+/* #region 6.2: Sekmeler ve Navigasyon (Tabs & Link Animations) */
 .content-tabs-row {
     display: flex;
     align-items: center;
@@ -1544,6 +1645,11 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 }
 
 .tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible; /* Silme butonu taşabilsin diye visible kalmalı */
     background-color: transparent;
     border: 1px solid color-mix(in srgb, var(--theme-secondary) 30%, transparent);
     color: var(--theme-secondary);
@@ -1569,6 +1675,56 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     border-color: var(--accent-500);
     background-color: color-mix(in srgb, var(--accent-500) 20%, transparent);
     box-shadow: 0 0 15px color-mix(in srgb, var(--accent-500) 30%, transparent);
+}
+
+/* Kategori isminin altındaki çizgi (Başlangıçta sıfır genişlik) */
+.tab.has-link::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transform: translateX(-50%);
+    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 2px;
+}
+
+/* COOLDOWN BİTİNCE (Link Hazır Durumu) */
+.tab.active.link-ready::after {
+    width: calc(100% - 40px); /* Kenarlardan biraz boşluk bırakarak altını çizer */
+}
+
+/* İkonun Başlangıç Durumu (Gizli ve Genişliği Sıfır) */
+.tab-link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: width 0.4s ease, opacity 0.4s ease, margin-right 0.4s ease;
+}
+
+.tab.active.link-ready .tab-link-icon {
+    width: 14px;
+    opacity: 1;
+    margin-right: 6px;
+}
+
+.tab-link-icon svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.tab-link-icon img {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    border-radius: 50%; /* İkonlar daha temiz ve modern dursun diye yuvarlak yapıyoruz */
+    object-fit: contain;
 }
 
 /* Sekme Yanındaki Kategori Ekleme Butonu (+) */
@@ -1609,30 +1765,9 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     background-color: transparent;
     box-shadow: none;
 }
+/* #endregion */
 
-/* -- İÇERİK GÖVDESİ VE IZGARA (GRID) -- */
-/* NOT: Container-type ile iç responsive ölçüleri buradan hesaplanır */
-.content-body {
-    container-type: size;
-    container-name: contentgrid;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden; 
-    padding: 15px 12px 20px 12px; /* Kartın esneme payı */
-    margin: -15px -12px -20px -12px; /* Dışarıdan görünmez alan açma hilesi */
-}
-
-.content-grid {
-    height: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 25.3cqh);
-    align-content: flex-start;
-    justify-content: flex-start;
-    column-gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem);
-    row-gap: 7cqh;
-}
-
-/* -- STANDART İÇERİK KARTI -- */
+/* #region 6.3: İçerik Kartları (Standard Content Cards) */
 .content-card {
     display: flex;
     flex-direction: column;
@@ -1690,8 +1825,9 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 .content-card:hover .card-label {
     color: rgba(var(--white-rgb), 0.95);
 }
+/* #endregion */
 
-/* -- KART SİLME BUTONU (Düzenleme Modu) -- */
+/* #region 6.4: Kart Düzenleme ve Etkileşim (Edit & Drag States) */
 .card-delete-btn {
     position: absolute;
     top: 8px;
@@ -1738,10 +1874,10 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 }
 
 .card-delete-btn.confirm-delete:hover {
-    background-color: rgba(190, 40, 40, 0.95); /* Kırmızının daha koyusu */
+    background-color: rgba(190, 40, 40, 0.95);
 }
 
-/* -- YENİ KART EKLEME SLOTU (Düzenleme Modu) -- */
+/* YENİ KART EKLEME SLOTU (Düzenleme Modu) */
 .content-card.empty-add-card {
     opacity: 0.7;
 }
@@ -1777,6 +1913,7 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 .content-card.empty-add-card:hover .plus-icon {
     color: rgb(var(--white-rgb));
 }
+
 /* Sürüklenen (Tutulan) Kartın Görünümü */
 .content-card.is-dragging {
     opacity: 0.4;
@@ -1786,15 +1923,13 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     z-index: 100;
 }
 
-/* Sürükleme esnasında iç elemanların fare olaylarını engelle (Pürüzsüz taşıma için şart) */
+/* Sürükleme esnasında iç elemanların fare olaylarını engelle */
 .content-card.is-dragging * {
     pointer-events: none;
 }
+/* #endregion */
 
-/* ==========================================================================
-   BOŞ DURUM (EMPTY STATE) VE PROMPT BLOCK (ZİYARETÇİ & SAHİP)
-   ========================================================================== */
-
+/* #region 6.5: Boş Durumlar ve Karşılama (Empty States & Prompts) */
 /* Zıplamayı engellemek için grid yerine flex'e geçiş sınıfı */
 .content-grid.is-empty-grid {
     display: flex;
@@ -1805,7 +1940,7 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     margin-top: -15px; /* Üstteki boş sekme satırının gap itmesini nötrler */
 }
 
-/* --- 1. ZİYARETÇİ MODU (Tek Satırlık Blok) --- */
+/* ZİYARETÇİ MODU (Tek Satırlık Blok) */
 .empty-state-block {
     width: fit-content; 
     max-width: 90%; 
@@ -1836,7 +1971,7 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     text-overflow: ellipsis;
 }
 
-/* --- 2. SAHİP MODU (Prompt Block) --- */
+/* SAHİP MODU (Prompt Block) */
 .prompt-block {
     container-type: inline-size;
     container-name: promptblock;
@@ -1856,7 +1991,6 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 
 .prompt-pill {
     width: 100%;
-    /* Çizgiyi ve arka planı kullanıcının seçtiği renge göre oranlıyoruz */
     border: 1px dashed color-mix(in srgb, var(--accent-500) 28%, transparent);
     border-radius: clamp(10px, 2.6cqi, 14px);
     background: linear-gradient(180deg, color-mix(in srgb, var(--accent-500) 4.5%, transparent), color-mix(in srgb, var(--accent-500) 1.5%, transparent));
@@ -1923,16 +2057,16 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     flex-shrink: 0;
 }
 
-/* --- 3. MOBİL UYUM --- */
+/* MOBİL UYUM */
 @media (max-width: 480px) {
     .prompt-block { width: 92%; padding: 8px 0; }
     .prompt-text { font-size: 0.86rem; }
     .prompt-pill { padding: 12px 16px; border-radius: 12px; }
     .prompt-btn { font-size: 0.82rem; padding: 10px 20px; }
 }
-/* ==========================================
-   YENİ: KATEGORİ SEÇİM IZGARASI (MODAL İÇİ)
-   ========================================== */
+/* #endregion */
+
+/* #region 6.6: Modal Bileşenleri (Category Selection) */
 .category-selection-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1988,67 +2122,7 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     opacity: 1;
     transform: scale(1.15);
 }
-
-/* ==========================================
-   KATEGORİ SEKMESİ BAĞLANTI (LINK) ANİMASYONLARI
-   ========================================== */
-.tab {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    overflow: visible; /* Silme butonu taşabilsin diye visible kalmalı */
-}
-
-/* Kategori isminin altındaki çizgi (Başlangıçta sıfır genişlik) */
-.tab.has-link::after {
-    content: '';
-    position: absolute;
-    bottom: 6px;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background-color: currentColor;
-    transform: translateX(-50%);
-    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border-radius: 2px;
-}
-
-/* İkonun Başlangıç Durumu (Gizli ve Genişliği Sıfır) */
-.tab-link-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: width 0.4s ease, opacity 0.4s ease, margin-right 0.4s ease;
-}
-
-.tab-link-icon svg {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-}
-
-.tab-link-icon img {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    border-radius: 50%; /* İkonlar daha temiz ve modern dursun diye yuvarlak yapıyoruz */
-    object-fit: contain;
-}
-
-/* COOLDOWN BİTİNCE (Link Hazır Durumu) */
-.tab.active.link-ready::after {
-    width: calc(100% - 40px); /* Kenarlardan biraz boşluk bırakarak altını çizer */
-}
-
-.tab.active.link-ready .tab-link-icon {
-    width: 14px;
-    opacity: 1;
-    margin-right: 6px;
-}
+/* #endregion */
 
 /* #endregion */
 
@@ -2600,27 +2674,28 @@ body.global-edit-mode .ghost-add-slot {
 }
 /* #endregion */
 
-/* #region 7.9: DİNAMİK KATEGORİ (SEKME) YÖNETİMİ VE SİLME İKONU */
-/* ==========================================================================
-   DİNAMİK KATEGORİ (SEKME) YÖNETİMİ VE SİLME İKONU
-   ========================================================================== */
-
-/* 1. Kategori Ekle (+) Butonunu Düzenleme Modunda Göster */
+/* #region 7.9: DİNAMİK KATEGORİ (SEKME) YÖNETİMİ */
 body.global-edit-mode #add-content-btn {
     display: flex !important; 
 }
 
-/* 2. Sekme Hover ve Silme İkonu (Absolute) */
+/* Sekmeler Düzenleme Modunda Tutulabilir (Sürüklenebilir) Olur */
 body.global-edit-mode .tab {
     position: relative;
-    overflow: visible; /* İkonun dışarı taşmasına izin ver */
+    overflow: visible;
+    cursor: grab;
 }
 
-.tab-delete-badge {
+body.global-edit-mode .tab:active {
+    cursor: grabbing;
+}
+
+/* Düzenleme (Kalem) İkonu - Silme İkonunun Yerini Aldı */
+.tab-edit-badge {
     position: absolute;
-    right: -6px; /* Sağ üst köşeden dışarı taşır */
-    top: -6px;   /* Sağ üst köşeden dışarı taşır */
-    background: rgba(var(--color-danger-rgb), 0.9);
+    right: -6px;
+    top: -6px;
+    background: color-mix(in srgb, var(--accent-500) 90%, black);
     color: white;
     border-radius: var(--radius-circle);
     width: 18px;
@@ -2628,28 +2703,36 @@ body.global-edit-mode .tab {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    line-height: 1;
+    font-size: 10px;
     cursor: pointer;
-    opacity: 0; /* Normalde görünmez */
+    opacity: 0;
     transform: scale(0.8);
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 10;
     box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
-/* Sekmenin üzerine gelince çarpıyı göster */
-body.global-edit-mode .tab:hover .tab-delete-badge {
+body.global-edit-mode .tab:hover .tab-edit-badge {
     opacity: 1;
     transform: scale(1);
 }
 
-.tab-delete-badge:hover {
-    background: rgb(var(--color-danger-rgb));
-    transform: scale(1.2) !important; /* İkonun üstüne gelince biraz daha büyüsün */
+.tab-edit-badge:hover {
+    background: var(--accent-500);
+    transform: scale(1.2) !important;
 }
 
-/* 3. Hiç Kategori Yoksa Çıkacak Boş Ekran */
+/* Sekme Sürükleme Efektleri */
+.tab.is-dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+    border: 1px dashed var(--accent-500) !important;
+}
+
+.tab.is-dragging * {
+    pointer-events: none;
+}
+
 .empty-categories-state {
     grid-column: 1 / -1;
     display: flex;

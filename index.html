@@ -263,22 +263,37 @@
             <div class="search-modal-backdrop" id="link-modal-backdrop"></div>
             <div class="auth-modal-box" style="width: min(350px, 90vw);">
                 <div class="search-modal-header">
-                    <h3 class="auth-modal-title">Yeni Link Ekle</h3>
+                    <h3 class="auth-modal-title" id="link-modal-title">Yeni Link Ekle</h3>
                     <button class="search-modal-close" id="link-modal-close">&times;</button>
                 </div>
                 <div class="auth-form-container">
+                    
+                    <!-- Canlı Önizleme Çipi -->
+                    <div style="display: flex; justify-content: center; margin-bottom: 10px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); border: 1px dashed rgba(255,255,255,0.1);">
+                        <span id="link-live-preview" class="link-item" style="pointer-events: none; margin: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                            <span id="link-preview-icon" style="display: inline-flex; align-items: center; margin-right: 6px;">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                            </span>
+                            <span id="link-preview-text">Önizleme</span>
+                        </span>
+                    </div>
+
                     <div class="input-group">
-                        <input type="text" id="link-name-input" class="search-input" placeholder="Görünen Ad (Örn: Twitter)" maxlength="15">
+                        <input type="text" id="link-name-input" class="search-input" placeholder="Görünen Ad (Örn: Twitter)" maxlength="15" autocomplete="off">
                     </div>
                     <div class="input-group">
-                        <input type="url" id="link-url-input" class="search-input" placeholder="URL (Örn: x.com/apdi)">
+                        <input type="url" id="link-url-input" class="search-input" placeholder="URL (Örn: https://x.com/apdi)" autocomplete="off">
                     </div>
+                    
                     <div id="link-error-box" class="auth-error-box" style="display: none;"></div>
-                    <button id="link-submit-btn" class="auth-submit-btn">Ekle</button>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                        <button id="link-delete-btn" class="auth-submit-btn danger-action" style="margin-top: 0; flex: 1; display: none;">Sil</button>
+                        <button id="link-submit-btn" class="auth-submit-btn" style="margin-top: 0; flex: 1.5;">Ekle</button>
+                    </div>
                 </div>
             </div>
         </div>
-        
         <div id="category-modal" class="auth-modal">
             <div class="search-modal-backdrop" id="category-modal-backdrop"></div>
             <div class="auth-modal-box" style="width: min(400px, 90vw);">
@@ -299,6 +314,25 @@
 
                     <div id="category-error-box" class="auth-error-box" style="display: none;"></div>
                     <button id="category-submit-btn" class="auth-submit-btn" style="margin-top: 5px;">Ekle</button>
+                </div>
+            </div>
+        </div>
+        <div id="category-edit-modal" class="auth-modal">
+            <div class="search-modal-backdrop" id="category-edit-modal-backdrop"></div>
+            <div class="auth-modal-box" style="width: min(350px, 90vw);">
+                <div class="search-modal-header">
+                    <h3 class="auth-modal-title">Kategori Ayarları</h3>
+                    <button class="search-modal-close" id="category-edit-modal-close">&times;</button>
+                </div>
+                <div class="auth-form-container">
+                    <div class="input-group">
+                        <input type="url" id="category-edit-url-input" class="search-input" placeholder="Bağlantı (Örn: letterboxd.com/apdi)" autocomplete="off">
+                    </div>
+                    <div id="category-edit-error-box" class="auth-error-box" style="display: none;"></div>
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                        <button id="category-edit-delete-btn" class="auth-submit-btn danger-action" style="margin-top: 0; flex: 1;">Sil</button>
+                        <button id="category-edit-submit-btn" class="auth-submit-btn" style="margin-top: 0; flex: 1.5;">Güncelle</button>
+                    </div>
                 </div>
             </div>
         </div>

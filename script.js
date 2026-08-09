@@ -769,7 +769,7 @@ function ekraniCiz() {
             a.href = link.url;
             a.target = '_blank';
             a.rel = 'noopener';
-            a.textContent = link.isim;
+            a.innerHTML = `${getLinkIcon(link.url)} <span>${link.isim}</span>`;
             wrapper.appendChild(a);
         });
         linksContainer.appendChild(wrapper);
@@ -863,23 +863,29 @@ function sekmeleriVeIcerikleriHazirla() {
         btn.innerHTML = `${iconHtml}<span class="tab-text">${kat.ad}</span>`;
         
         if (isOwner) {
-            const delBtn = document.createElement('span');
-            delBtn.className = 'tab-delete-badge edit-only';
-            delBtn.innerHTML = '&times;';
-            delBtn.title = 'Kategoriyi Sil';
-            delBtn.onclick = (e) => {
-                e.stopPropagation(); 
+            btn.setAttribute('draggable', 'true'); // YENİ: Sekmeler artık taşınabilir
+            btn.dataset.id = kat.id; // YENİ: Sürükle bırak için ID veriyoruz
+
+            const editBtn = document.createElement('span');
+            editBtn.className = 'tab-edit-badge edit-only';
+            editBtn.innerHTML = `<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+            editBtn.title = 'Kategori Ayarları';
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
                 if (!EditManager.state.isGlobalEditActive) return;
+
+                EditManager.state.duzenlenenKategoriId = kat.id;
                 
-                ozelOnayAl(`"${kat.ad}" kategorisini ve içindeki tüm afişleri silmek istediğine emin misin?`, () => {
-                    metinler.kategoriler = kategoriler.filter(k => k.id !== kat.id);
-                    delete siteVerisi.icerik[kat.id]; 
-                    
-                    EditManager.Global.degisiklikYapildi();
-                    sekmeleriVeIcerikleriHazirla(); 
-                });
+                const editModal = document.getElementById('category-edit-modal');
+                const urlInput = document.getElementById('category-edit-url-input');
+                const errorBox = document.getElementById('category-edit-error-box');
+                
+                if (urlInput) urlInput.value = kat.url || '';
+                if (errorBox) errorBox.style.display = 'none';
+                
+                if (editModal) editModal.classList.add('is-open');
             };
-            btn.appendChild(delBtn);
+            btn.appendChild(editBtn);
         }
         
         let cooldownTimer;
@@ -1239,65 +1245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // #endregion
 
-// #region 6: AUTH FORM KONTROLÜ
-document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elementlerini Seçiyoruz
-    const landingBox = document.getElementById('main-landing-box');
-    const submitBtn = document.getElementById('landing-submit-btn');
-    const switchBtn = document.getElementById('landing-switch-action');
-    const switchText = document.getElementById('landing-switch-text');
-    const errorBox = document.querySelector('.auth-error-box');
-
-    // 1. KAYIT / GİRİŞ MODU DEĞİŞTİRİCİ
-    if (switchBtn && landingBox) {
-        switchBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            landingBox.classList.toggle('register-mode');
-            
-            // Mod değiştiğinde buton ve uyarı metinlerini ayarla
-            if (landingBox.classList.contains('register-mode')) {
-                switchText.textContent = "Zaten hesabın var mı?";
-                switchBtn.textContent = "Giriş Yap";
-                submitBtn.textContent = "Kayıt Ol";
-            } else {
-                switchText.textContent = "Hesabın yok mu?";
-                switchBtn.textContent = "Kayıt Ol";
-                submitBtn.textContent = "Giriş Yap";
-            }
-            
-            // Modlar arası geçişte hataları ve kilitleri temizle
-            errorBox.classList.remove('is-visible');
-            submitBtn.classList.remove('is-locked');
-        });
-    }
-
-    // 2. BUTON SPAM KORUMASI VE HATA YÖNETİMİ (Debounce)
-    let spamTimer; // Sayacı hafızada tutacağımız değişken
-
-    if (submitBtn && errorBox) {
-        submitBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            // SİHİRLİ KISIM: Kullanıcı butona her bastığında önceki sayacı çöpe atar.
-            // Böylece süre sürekli baştan başlar (Spam cezası).
-            clearTimeout(spamTimer);
-
-            // Hata mesajını yaz, kutuyu aç ve butonu kilitle
-            errorBox.textContent = "E-posta ve şifre zorunludur!"; // Burayı backend'den gelen hataya göre dinamik yapabilirsin
-            errorBox.classList.add('is-visible');
-            submitBtn.classList.add('is-locked');
-
-            // Kullanıcı 1 saniye (1000ms) boyunca HİÇ TIKLAMADAN durursa kilidi aç
-            spamTimer = setTimeout(() => {
-                errorBox.classList.remove('is-visible');
-                submitBtn.classList.remove('is-locked');
-            }, 800);
-        });
-    }
-});
-// #endregion
-
-// #region 7. RENK SEÇİCİ (HSV/RGB) MATEMATİK MOTORLARI
+// #region 6: RENK SEÇİCİ (HSV/RGB) MATEMATİK MOTORLARI
 function hexToRgb(hex) {
     return {
         r: parseInt(hex.slice(1, 3), 16),
@@ -1553,6 +1501,8 @@ const EditManager = {
         // --- ANA BAŞLATICI ---
         baslat() {
             this.kategoriEklemeSisteminiKur();
+            this.kategoriDuzenlemeSisteminiKur();
+            this.sekmeSurukleBirakSisteminiKur();
             this.aramaMotorunuKur();
             this.icerikSilmeSisteminiKur();
             this.surukleBirakSisteminiKur();
@@ -1571,7 +1521,6 @@ const EditManager = {
 
             if (!addCategoryBtn || !catModal || !gridContainer) return;
 
-            // Butonları JS ile Dinamik Çiz
             if (gridContainer.children.length === 0) {
                 Object.entries(SABIT_KATEGORILER).forEach(([key, data]) => {
                     const btn = document.createElement('button');
@@ -1625,7 +1574,6 @@ const EditManager = {
                     return;
                 }
 
-                // URL kontrolü ve kaydı
                 let girilenUrl = catUrlInput ? catUrlInput.value.trim() : "";
                 if (girilenUrl && !girilenUrl.startsWith('http')) {
                     girilenUrl = 'https://' + girilenUrl;
@@ -1644,11 +1592,140 @@ const EditManager = {
                 
                 aktifKategoriId = secilenTur; 
                 
-                if(catUrlInput) catUrlInput.value = ''; // Inputu temizle
+                if(catUrlInput) catUrlInput.value = ''; 
 
                 EditManager.Global.degisiklikYapildi();
                 sekmeleriVeIcerikleriHazirla();
                 modaliKapat();
+            });
+        },
+
+        kategoriDuzenlemeSisteminiKur() {
+            const editModal = document.getElementById('category-edit-modal');
+            const backdrop = document.getElementById('category-edit-modal-backdrop');
+            const closeBtn = document.getElementById('category-edit-modal-close');
+            const submitBtn = document.getElementById('category-edit-submit-btn');
+            const deleteBtn = document.getElementById('category-edit-delete-btn');
+            const urlInput = document.getElementById('category-edit-url-input');
+
+            if (!editModal) return;
+
+            const modaliKapat = () => editModal.classList.remove('is-open');
+
+            closeBtn.addEventListener('click', modaliKapat);
+            backdrop.addEventListener('click', modaliKapat);
+
+            // Linki Güncelleme İşlemi
+            submitBtn.addEventListener('click', () => {
+                const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
+                const kategoriler = metinler.kategoriler || [];
+                const duzenlenenId = EditManager.state.duzenlenenKategoriId;
+
+                let girilenUrl = urlInput.value.trim();
+                if (girilenUrl && !girilenUrl.startsWith('http')) {
+                    girilenUrl = 'https://' + girilenUrl;
+                }
+
+                const index = kategoriler.findIndex(k => k.id === duzenlenenId);
+                if (index !== -1) {
+                    kategoriler[index].url = girilenUrl;
+                }
+
+                EditManager.Global.degisiklikYapildi();
+                sekmeleriVeIcerikleriHazirla();
+                modaliKapat();
+            });
+
+            // Kategoriyi Komple Silme İşlemi
+            deleteBtn.addEventListener('click', () => {
+                const duzenlenenId = EditManager.state.duzenlenenKategoriId;
+                const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
+                const kategoriler = metinler.kategoriler || [];
+                const kategori = kategoriler.find(k => k.id === duzenlenenId);
+
+                if (!kategori) return;
+
+                ozelOnayAl(`"${kategori.ad}" kategorisini ve içindeki tüm afişleri silmek istediğine emin misin?`, () => {
+                    metinler.kategoriler = kategoriler.filter(k => k.id !== duzenlenenId);
+                    delete siteVerisi.icerik[duzenlenenId]; 
+                    
+                    // Silinen kategori ekranda açıksa diğerine atla
+                    if (aktifKategoriId === duzenlenenId) {
+                        aktifKategoriId = metinler.kategoriler.length > 0 ? metinler.kategoriler[0].id : null;
+                    }
+
+                    EditManager.Global.degisiklikYapildi();
+                    sekmeleriVeIcerikleriHazirla(); 
+                    modaliKapat();
+                });
+            });
+        },
+
+        sekmeSurukleBirakSisteminiKur() {
+            const tabsContainer = document.getElementById('content-tabs');
+            if (!tabsContainer) return;
+
+            tabsContainer.addEventListener('dragstart', (e) => {
+                if (!EditManager.state.isGlobalEditActive) {
+                    e.preventDefault(); 
+                    return;
+                }
+                
+                const tab = e.target.closest('.tab');
+                if (!tab) { e.preventDefault(); return; }
+                
+                tab.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', tab.dataset.id); 
+            });
+
+            tabsContainer.addEventListener('dragover', (e) => {
+                if (!EditManager.state.isGlobalEditActive) return;
+                e.preventDefault(); 
+
+                const draggingTab = tabsContainer.querySelector('.is-dragging');
+                if (!draggingTab) return;
+
+                const targetTab = e.target.closest('.tab:not(.is-dragging)');
+
+                if (targetTab) {
+                    const box = targetTab.getBoundingClientRect();
+                    const offset = e.clientX - box.left;
+                    
+                    if (offset > box.width / 2) {
+                        targetTab.after(draggingTab);
+                    } else {
+                        targetTab.before(draggingTab);
+                    }
+                }
+            });
+
+            tabsContainer.addEventListener('dragend', (e) => {
+                if (!EditManager.state.isGlobalEditActive) return;
+                
+                const draggingTab = e.target.closest('.tab');
+                if (draggingTab) {
+                    draggingTab.classList.remove('is-dragging');
+                }
+
+                // Sürükleme bitince yeni dizilimi DOM'dan okuyup State'e geçiriyoruz
+                const guncelSekmeElementleri = [...tabsContainer.querySelectorAll('.tab')];
+                const yeniSiralamaIdleri = guncelSekmeElementleri.map(el => el.dataset.id);
+                
+                const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
+                const eskiKategoriler = metinler.kategoriler || [];
+                const eskiSiralamaIdleri = eskiKategoriler.map(k => k.id);
+
+                if (yeniSiralamaIdleri.join(',') !== eskiSiralamaIdleri.join(',')) {
+                    const yeniKategoriler = [];
+                    yeniSiralamaIdleri.forEach(id => {
+                        const kat = eskiKategoriler.find(k => k.id === id);
+                        if (kat) yeniKategoriler.push(kat);
+                    });
+                    
+                    metinler.kategoriler = yeniKategoriler;
+                    EditManager.Global.degisiklikYapildi();
+                }
             });
         },
 
@@ -2096,20 +2173,20 @@ const EditManager = {
             EditManager.state.tempProfileLinks.forEach((link, index) => {
                 const span = document.createElement('span');
                 span.className = 'link-item is-editing';
-                span.textContent = link.isim;
+                span.innerHTML = `${getLinkIcon(link.url)} <span>${link.isim}</span>`;
                 
-                const delBtn = document.createElement('button');
-                delBtn.className = 'link-delete-badge';
-                delBtn.innerHTML = '&times;';
-                delBtn.onclick = (e) => {
+                const editBtn = document.createElement('span');
+                editBtn.className = 'link-edit-badge';
+                editBtn.innerHTML = `<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+                
+                span.onclick = (e) => {
                     e.preventDefault();
-                    e.stopPropagation(); 
-                    EditManager.state.tempProfileLinks.splice(index, 1); 
-                    EditManager.Profile.anlikKaydet(); // Siler silmez state'e yaz ve çubuğu çıkar
-                    EditManager.Profile.renderLinks(); 
+                    e.stopPropagation();
+                    document.getElementById('inline-add-link-btn').dataset.editIndex = index;
+                    document.getElementById('inline-add-link-btn').click();
                 };
                 
-                span.appendChild(delBtn);
+                span.appendChild(editBtn);
                 wrapper.appendChild(span);
             });
         },
@@ -2340,8 +2417,20 @@ const EditManager = {
             ekraniCiz(); 
         },
         baslat() {
-            // Bu fonksiyon artık boş bırakılıyor. 
-            // Profil HTML'indeki butonları sildiğimiz için dinleyicilere gerek kalmadı.
+            const profileBox = document.querySelector('.box.profile');
+            
+            if (profileBox && isOwner) {
+                profileBox.addEventListener('click', (e) => {
+                    // 1. Eğer halihazırda düzenleme modundaysak hiçbir şey yapma
+                    if (EditManager.state.isGlobalEditActive) return;
+                    
+                    // 2. Kullanıcı profil kutusunun içindeki bir linke/butona tıkladıysa engelle (sayfaya gitsin)
+                    if (e.target.closest('a') || e.target.closest('button')) return;
+
+                    // 3. Şartlar uygunsa sistemi direkt düzenleme moduna geçir
+                    EditManager.Global.toggleEditMode();
+                });
+            }
         },
         linkModaliBaslat() {
             const addBtn = document.getElementById('inline-add-link-btn');
@@ -2349,38 +2438,122 @@ const EditManager = {
             const closeBtn = document.getElementById('link-modal-close');
             const backdrop = document.getElementById('link-modal-backdrop');
             const submitBtn = document.getElementById('link-submit-btn');
+            const deleteBtn = document.getElementById('link-delete-btn');
             const nameInput = document.getElementById('link-name-input');
             const urlInput = document.getElementById('link-url-input');
             const errorBox = document.getElementById('link-error-box');
+            const modalTitle = document.getElementById('link-modal-title');
+            
+            // Canlı Önizleme Seçicileri
+            const previewText = document.getElementById('link-preview-text');
+            const previewIcon = document.getElementById('link-preview-icon');
+            const defaultIconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
 
             if (!modal || !addBtn) return;
+
+            // URL Doğrulama Regex'i
+            const urlGecerliMi = (string) => {
+                const res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+                return (res !== null);
+            };
+
+            // Canlı Önizlemeyi Güncelleyen Fonksiyon
+            const onizlemeyiGuncelle = () => {
+                const isim = nameInput.value.trim() || 'Önizleme';
+                let url = urlInput.value.trim();
+                if (url && !url.startsWith('http')) url = 'https://' + url;
+                
+                previewText.textContent = isim;
+                previewIcon.innerHTML = url && urlGecerliMi(url) ? getLinkIcon(url) : defaultIconSvg;
+            };
+
+            nameInput.addEventListener('input', onizlemeyiGuncelle);
+            urlInput.addEventListener('input', onizlemeyiGuncelle);
 
             const modaliAc = (e) => {
                 e.stopPropagation(); 
                 modal.classList.add('is-open');
-                nameInput.value = '';
-                urlInput.value = '';
                 errorBox.style.display = 'none';
+                
+                const editIndex = addBtn.dataset.editIndex;
+                
+                if (editIndex !== undefined && editIndex !== "") {
+                    // DÜZENLEME MODU
+                    const linkData = EditManager.state.tempProfileLinks[editIndex];
+                    modalTitle.textContent = "Linki Düzenle";
+                    submitBtn.textContent = "Güncelle";
+                    deleteBtn.style.display = "block";
+                    nameInput.value = linkData.isim;
+                    urlInput.value = linkData.url;
+                } else {
+                    // YENİ EKLEME MODU
+                    modalTitle.textContent = "Yeni Link Ekle";
+                    submitBtn.textContent = "Ekle";
+                    deleteBtn.style.display = "none";
+                    nameInput.value = '';
+                    urlInput.value = '';
+                }
+                
+                onizlemeyiGuncelle();
                 setTimeout(() => nameInput.focus(), 50);
             };
 
-            const modaliKapat = () => modal.classList.remove('is-open');
+            const modaliKapat = () => {
+                modal.classList.remove('is-open');
+                addBtn.dataset.editIndex = ""; // Hafızayı temizle
+            };
 
             addBtn.addEventListener('click', modaliAc);
             closeBtn.addEventListener('click', modaliKapat);
             backdrop.addEventListener('click', modaliKapat);
 
+            // Ekle / Güncelle
             submitBtn.addEventListener('click', () => {
                 const isim = nameInput.value.trim();
                 let url = urlInput.value.trim();
 
-                if (!isim || !url) { errorBox.textContent = "İsim ve URL boş bırakılamaz."; errorBox.style.display = 'block'; return; }
+                if (!isim || !url) { 
+                    errorBox.textContent = "İsim ve URL boş bırakılamaz."; 
+                    errorBox.style.display = 'block'; 
+                    errorBox.classList.add('shake-box-animation');
+                    setTimeout(() => errorBox.classList.remove('shake-box-animation'), 400);
+                    return; 
+                }
+                
+                if (!urlGecerliMi(url)) {
+                    errorBox.textContent = "Lütfen geçerli bir internet bağlantısı girin."; 
+                    errorBox.style.display = 'block'; 
+                    errorBox.classList.add('shake-box-animation');
+                    setTimeout(() => errorBox.classList.remove('shake-box-animation'), 400);
+                    return;
+                }
+
                 if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
 
-                EditManager.state.tempProfileLinks.push({ isim, url });
-                EditManager.Profile.anlikKaydet(); // State'e yaz ve çubuğu tetikle
+                const editIndex = addBtn.dataset.editIndex;
+                
+                if (editIndex !== undefined && editIndex !== "") {
+                    // Güncelle
+                    EditManager.state.tempProfileLinks[editIndex] = { isim, url };
+                } else {
+                    // Yeni Ekle
+                    EditManager.state.tempProfileLinks.push({ isim, url });
+                }
+                
+                EditManager.Profile.anlikKaydet(); 
                 EditManager.Profile.renderLinks();
                 modaliKapat();
+            });
+
+            // Silme İşlemi
+            deleteBtn.addEventListener('click', () => {
+                const editIndex = addBtn.dataset.editIndex;
+                if (editIndex !== undefined && editIndex !== "") {
+                    EditManager.state.tempProfileLinks.splice(editIndex, 1);
+                    EditManager.Profile.anlikKaydet(); 
+                    EditManager.Profile.renderLinks();
+                    modaliKapat();
+                }
             });
         }
     },
