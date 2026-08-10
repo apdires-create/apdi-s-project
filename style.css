@@ -127,6 +127,13 @@
     --blur-md: blur(8px);
     --blur-lg: blur(20px);
 
+    --overlay-dim: rgba(0, 0, 0, 0.55);
+    --overlay-blur: blur(8px);
+
+    /* Okunabilirlik Konturları (Siyah - Beyaz Dengesi) (YENİ) */
+    --text-stroke-dark: 0 1px 4px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9);
+    --icon-stroke-dark: drop-shadow(0px 1px 2px rgba(0,0,0,0.8)) drop-shadow(0px 0px 2px rgba(0,0,0,0.9));
+
     /* ============================================================
        5. MOTION (Animasyon ve Geçiş Süreleri)
        ============================================================ */
@@ -282,9 +289,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 14px;
     overflow: hidden;
-    z-index: var(--z-banner);
+    z-index: 90; 
 }
 
 .banner-image {
@@ -294,33 +300,84 @@ body {
     display: block;
 }
 
-/* Banner Düzenleme Görünümü */
+/* 1. ETKİLEŞİM KATMANI (Sadece Ortadaki Güvenli Tıklama Alanı) */
 .banner-edit-overlay {
     position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(1px);
+    top: 0; 
+    bottom: 0;
+    left: 35vw; 
+    right: 35vw; /* Sadece ortadaki %30'luk alan tıklanabilir */
+    z-index: 10;
+    cursor: pointer;
+    
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--space-sm);
-    color: rgb(var(--white-rgb));
-    font-size: 0.85rem;
-    font-weight: var(--fw-medium);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--transition-base);
-    cursor: pointer;
-    z-index: var(--z-inner-overlay);
+    gap: 12px;
+    
+    color: #ffffff; 
+    font-size: 1.1rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.02em;
+    
+    pointer-events: none; /* Sadece sayfa sahibi için açılacak */
 }
 
-body.is-owner .banner:hover .banner-edit-overlay {
-    opacity: 1;
+/* Başlangıçta İkon ve Yazı Görünmez */
+.banner-edit-overlay svg,
+.banner-edit-overlay span {
+    filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));
+    opacity: 0; 
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Yükselme efekti ortak yapıldı */
+}
+
+/* 2. GÖRSEL KATMAN (Tüm Banner'ı Kaplayan Blur ve Karartma) */
+.banner-visual-bg {
+    position: absolute;
+    inset: 0; /* Sınır tanımadan tüm banner'ı kaplar */
+    background-color: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    
+    opacity: 0; /* BÜTÜN SIR BURADA: Blur değil, görünürlük canlandırılıyor! */
+    pointer-events: none; /* Fareyi asla tutmaz, tıklamalar içinden geçer */
+    transition: opacity 0.4s ease; 
+    z-index: 1; /* Tıklama alanının (10) altında kalır */
+}
+
+
+/* --- SADECE SAYFA SAHİBİ İÇİN ETKİLEŞİMLER --- */
+
+/* Sahip için tıklamayı aktif et */
+body.is-owner .banner-edit-overlay {
     pointer-events: auto;
 }
 
-/* 1. Estetik Banner Placeholder (Grid + Noise + Glow) */
+/* SADECE ORTADAKİ ALANA Hover Olunca (Yazı ve İkon belirip havaya kalksın) */
+body.is-owner .banner-edit-overlay:hover svg,
+body.is-owner .banner-edit-overlay:hover span {
+    opacity: 1;
+    transform: translateY(-4px); /* Hem ikon hem yazı yükselir */
+}
+
+/* SADECE ORTADAKİ ALANA Hover Olunca (Arkadaki Görsel Katman Yavaşça Belirsin) */
+body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
+    opacity: 1;
+}
+
+/* DÜZENLEME MODU (Zaten Aktifken) */
+body.global-edit-mode .banner-visual-bg {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.4); /* Düzenlemedeyken biraz daha koyu */
+}
+body.global-edit-mode .banner-edit-overlay svg,
+body.global-edit-mode .banner-edit-overlay span {
+    opacity: 1;
+}
+
+/* --- Placeholder Banner Ayarları --- */
 .banner.no-banner {
     background-color: var(--theme-bg-base);
     background-image: 
@@ -338,24 +395,6 @@ body.is-owner .banner:hover .banner-edit-overlay {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
-}
-
-/* 2. Düzenleme Butonu Radar Animasyonu */
-@keyframes radar-glow {
-    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-500) 60%, transparent); }
-    70% { box-shadow: 0 0 0 15px color-mix(in srgb, var(--accent-500) 0%, transparent); }
-    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-500) 0%, transparent); }
-}
-
-.settings-action-btn.pulse-attention {
-    animation: radar-glow 2s infinite;
-    border-color: var(--accent-500);
-    background-color: color-mix(in srgb, var(--accent-500) 10%, transparent);
-}
-
-.settings-action-btn.pulse-attention svg {
-    color: var(--accent-500);
-    opacity: 1;
 }
 /* #endregion */
 
