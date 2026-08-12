@@ -2,6 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -143,29 +144,57 @@
         </div>
         <div class="container">
                 <div class="box profile">
-                    <div class="profile-header">
-                        <div class="profile-image" style="position: relative;">
-                            <img src="https://i.ibb.co/8gvf4SNF/pfp-placeholder.png" alt="Profil" id="pfp-img">
-                            <div class="pfp-edit-overlay" id="pfp-edit-overlay" style="display: none;">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 20h9"></path>
-                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                </svg>
+                    <div class="profile-flip-inner" id="profile-flip-inner">
+                        
+                        <!-- ÖN YÜZ (Mevcut Profil ve Gelecek Tag'ler) -->
+                        <div class="profile-flip-front">
+                            <div class="profile-header">
+                                <div class="profile-image" style="position: relative;">
+                                    <img src="https://i.ibb.co/8gvf4SNF/pfp-placeholder.png" alt="Profil" id="pfp-img">
+                                    <div class="pfp-edit-overlay" id="pfp-edit-overlay">
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M12 20h9"></path>
+                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                        </svg>
+                                    </div>
+                                    <input type="file" id="pfp-file-input" accept="image/*" style="display: none;">
+                                </div>
+                                
+                                <div class="profile-name-wrapper">
+                                    <h1 class="profile-name" id="inline-name">-</h1>
+                                    
+                                    <!-- YENİ: Kartı Arkaya Çevirme Butonu -->
+                                    <button id="profile-flip-to-back" class="edit-btn" title="Bağlantıları Gör" style="flex-shrink: 0;">
+                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                            <input type="file" id="pfp-file-input" accept="image/*" style="display: none;">
+                            
+                            <h2 class="profile-title ghost-text" id="inline-title">Ünvan Ekle (Örn: Designer)</h2>
+                            <p class="profile-bio ghost-text" id="inline-bio">Kendinden bahset, arşivini tanıt...</p>
+                            
+                            <!-- 2. Aşamada Tag'lerin (Yetenekler/İlgi Alanları) geleceği boş konteyner -->
+                            <div class="profile-tags-container" id="profile-tags-container"></div>
+                        </div>
+
+                        <!-- ARKA YÜZ (Yeni Link Arayüzü) -->
+                        <div class="profile-flip-back">
+                            <div class="profile-back-header">
+                                <h3 style="font-size: 0.9rem; font-weight: var(--fw-semibold); color: rgba(255,255,255,0.7); margin: 0; text-transform: uppercase; letter-spacing: 0.05em;">Bağlantılar</h3>
+                                
+                                <!-- YENİ: Kartı Öne Çevirme Butonu -->
+                                <button id="profile-flip-to-front" class="search-modal-close" style="width: 28px; height: 28px;">&times;</button>
+                            </div>
+                            
+                            <!-- Orijinal ID korundu, JS burayı hedefleyecek -->
+                            <div class="profile-links-back" id="profile-links-container">
+                                <button id="inline-add-link-btn" class="dashed-add-btn" style="display: none;">+ Yeni Link</button>
+                            </div>
                         </div>
                         
-                        <!-- TERTEMİZ İSİM ALANI (İkonlar silindi) -->
-                        <div class="profile-name-wrapper">
-                            <h1 class="profile-name" id="inline-name">-</h1>
-                        </div>
-                    </div>
-                    
-                    <h2 class="profile-title ghost-text" id="inline-title">Ünvan Ekle (Örn: Designer)</h2>
-                    <p class="profile-bio ghost-text" id="inline-bio">Kendinden bahset, arşivini tanıt...</p>
-                    
-                    <div class="profile-links" id="profile-links-container">
-                        <button id="inline-add-link-btn" class="dashed-add-btn" style="display: none;">+ Yeni Link</button>
                     </div>
                 </div>
 
@@ -211,19 +240,6 @@
         </button>
         <button id="auth-trigger-btn" class="auth-trigger-btn" title="Giriş / Ayarlar">
         <span class="login-text" id="auth-trigger-text">Giriş Yap</span>
-        </button>
-        <button id="settings-trigger-btn" class="settings-action-btn" style="display: none;" title="Düzenleme Modu">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="settings-svg-icon">
-        <line x1="4" y1="21" x2="4" y2="14"></line>
-        <line x1="4" y1="10" x2="4" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="12"></line>
-        <line x1="12" y1="8" x2="12" y2="3"></line>
-        <line x1="20" y1="21" x2="20" y2="16"></line>
-        <line x1="20" y1="12" x2="20" y2="3"></line>
-        <line x1="1" y1="14" x2="7" y2="14"></line>
-        <line x1="9" y1="8" x2="15" y2="8"></line>
-        <line x1="17" y1="16" x2="23" y2="16"></line>
-    </svg>
         </button>
         <div id="global-color-picker-wrapper" class="global-color-picker-wrapper">
             <button type="button" class="nook-color-trigger" id="colorTrigger" title="Tema Rengini Değiştir"></button>
@@ -282,41 +298,6 @@
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         <button id="auth-logout-btn" class="auth-submit-btn logout-btn">Güvenli Çıkış Yap</button>
                         <button id="auth-delete-account-btn" class="auth-submit-btn danger-action">Hesabımı Kalıcı Olarak Sil</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="link-modal" class="auth-modal">
-            <div class="search-modal-backdrop" id="link-modal-backdrop"></div>
-            <div class="auth-modal-box" style="width: min(350px, 90vw);">
-                <div class="search-modal-header">
-                    <h3 class="auth-modal-title" id="link-modal-title">Yeni Link Ekle</h3>
-                    <button class="search-modal-close" id="link-modal-close">&times;</button>
-                </div>
-                <div class="auth-form-container">
-                    
-                    <!-- Canlı Önizleme Çipi -->
-                    <div style="display: flex; justify-content: center; margin-bottom: 10px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); border: 1px dashed rgba(255,255,255,0.1);">
-                        <span id="link-live-preview" class="link-item" style="pointer-events: none; margin: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                            <span id="link-preview-icon" style="display: inline-flex; align-items: center; margin-right: 6px;">
-                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                            </span>
-                            <span id="link-preview-text">Önizleme</span>
-                        </span>
-                    </div>
-
-                    <div class="input-group">
-                        <input type="text" id="link-name-input" class="search-input" placeholder="Görünen Ad (Örn: Twitter)" maxlength="15" autocomplete="off">
-                    </div>
-                    <div class="input-group">
-                        <input type="url" id="link-url-input" class="search-input" placeholder="URL (Örn: https://x.com/apdi)" autocomplete="off">
-                    </div>
-                    
-                    <div id="link-error-box" class="auth-error-box" style="display: none;"></div>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <button id="link-delete-btn" class="auth-submit-btn danger-action" style="margin-top: 0; flex: 1; display: none;">Sil</button>
-                        <button id="link-submit-btn" class="auth-submit-btn" style="margin-top: 0; flex: 1.5;">Ekle</button>
                     </div>
                 </div>
             </div>
@@ -417,16 +398,33 @@
             </div>
         </div>
     </div>
+    <div id="cropper-modal" class="auth-modal">
+        <div class="search-modal-backdrop" id="cropper-modal-backdrop"></div>
+        <div class="auth-modal-box" style="width: min(500px, 90vw);">
+            <div class="search-modal-header">
+                <h3 class="auth-modal-title">Görseli Ayarla</h3>
+                <button class="search-modal-close" id="cropper-modal-close">&times;</button>
+            </div>
+            
+            <!-- Cropper Alanı -->
+            <div style="width: 100%; max-height: 45vh; min-height: 250px; background: rgba(0,0,0,0.3); border-radius: 8px; margin: 15px 0; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <img id="cropper-image" src="" style="max-width: 100%; display: block;">
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button id="cropper-cancel-btn" class="auth-submit-btn" style="background: rgba(255,255,255,0.1); border-color: transparent;">İptal</button>
+                <button id="cropper-save-btn" class="auth-submit-btn">Kırp ve Yükle</button>
+            </div>
+            <p style="font-size: 0.75rem; color: rgba(255,255,255,0.4); text-align: center; margin-top: 15px;">PFP ve Banner için maksimum dosya boyutu 2 MB'dır.</p>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Sıra önemli: config.js her zaman ilk, çünkü diğer tüm dosyalar
-         onun tanımladığı global değişkenlere (siteVerisi, durum, isOwner...) güveniyor.
-         edit.js burada YOK -- main.js onu sadece isOwner=true olduğunda,
-         dinamik <script> enjeksiyonuyla lazy-load ediyor. -->
-    <script src="config.js"></script>
-    <script src="utils.js"></script>
-    <script src="auth.js"></script>
-    <script src="ui.js"></script>
-    <script src="landing.js"></script>
-    <script src="main.js"></script>
+    <script src="config.js" defer></script>
+    <script src="utils.js" defer></script>
+    <script src="auth.js" defer></script>
+    <script src="ui.js" defer></script>
+    <script src="landing.js" defer></script>
+    <script src="main.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 </body>
 </html>

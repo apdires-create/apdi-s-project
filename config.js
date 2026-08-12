@@ -30,7 +30,6 @@ let siteVerisi = {
 // buraya taşındı: ui.js (herkes için render) bunlara owner olmayan ziyaretçilerde
 // bile erişiyor, ama edit.js sadece isOwner=true olduğunda yükleniyor.
 let durum = {
-    isGlobalEditActive: false,
     duzenlenenKategoriId: null,
     KATEGORI_ARAMA_TURU: { animeler: 'anime', diziler: 'dizi', filmler: 'film', oyunlar: 'oyun' }
 };

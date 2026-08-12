@@ -1,4 +1,13 @@
 // #region UTILS: TEMA RENGİ VE PALET YARDIMCILARI (Herkes için - ziyaretçi dahil)
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
 function hexToHSL(hex) {
     if (!hex) return { h: 32, s: 100, l: 50 }; // Nook turuncusu varsayılan

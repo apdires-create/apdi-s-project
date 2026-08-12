@@ -153,6 +153,7 @@
     --space-2xl: 24px;
     --space-3xl: 32px;
     --space-4xl: 40px;
+    --space-5xl: 150px;
 
     /* ============================================================
        8. LAYERS (z-index)
@@ -364,16 +365,6 @@ body.is-owner .banner-edit-overlay:hover span {
 
 /* SADECE ORTADAKİ ALANA Hover Olunca (Arkadaki Görsel Katman Yavaşça Belirsin) */
 body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
-    opacity: 1;
-}
-
-/* DÜZENLEME MODU (Zaten Aktifken) */
-body.global-edit-mode .banner-visual-bg {
-    opacity: 1;
-    background-color: rgba(0, 0, 0, 0.4); /* Düzenlemedeyken biraz daha koyu */
-}
-body.global-edit-mode .banner-edit-overlay svg,
-body.global-edit-mode .banner-edit-overlay span {
     opacity: 1;
 }
 
@@ -922,17 +913,50 @@ body.global-edit-mode .banner-edit-overlay span {
 }
 /* #endregion */
 
-/* #endregion */
-
 /* #region 4: Profil Alanı (Görünüm ve Düzenleme) */
 
 /* #region 4.1: Kapsayıcı ve Başlık (Layout & Header) */
 .profile {
     grid-column: 1 / 2;
     grid-row: 1 / 4;
+    perspective: 1200px; /* 3D derinliği dış kasaya veriyoruz */
+    padding: 0; 
+    background-color: transparent; 
+    border: none;
+}
+
+.profile-flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.profile-flip-inner.is-flipped {
+    transform: rotateY(180deg);
+}
+
+.profile-flip-front,
+.profile-flip-back {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background-color: var(--theme-bg-panel);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
     display: flex;
     flex-direction: column;
-    position: relative;
+}
+
+/* Arka yüz başlangıçta ters durmalı */
+.profile-flip-back {
+    transform: rotateY(180deg);
+    background-color: var(--theme-bg-panel);
 }
 
 .profile-header {
@@ -1042,120 +1066,301 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 }
 .profile-bio::-webkit-scrollbar-thumb:hover { background: rgba(var(--theme-secondary-rgb), 0.6); }
 
-/* Sayfa sahibiyken metinlerin (dolu veya boş) üzerine gelince düzenlenebilir olduğunu hissettir */
-body.is-owner:not(.global-edit-mode) .profile-name,
-body.is-owner:not(.global-edit-mode) .profile-title,
-body.is-owner:not(.global-edit-mode) .profile-bio {
-    cursor: pointer;
+/* Sadece metin kutusu açık DEĞİLKEN üzerine gelince blok efekti ver */
+body.is-owner .profile-name:not(.is-input-active),
+body.is-owner .profile-title:not(.is-input-active),
+body.is-owner .profile-bio:not(.is-input-active) {
+    cursor: text; /* Tıklanıp yazılacağını belli etsin */
     border-radius: var(--radius-sm);
     transition: background-color var(--transition-fast), padding var(--transition-fast);
-    /* Tıklama alanını biraz genişletmek için şeffaf bir çerçeve payı */
     border: 1px solid transparent; 
 }
 
-/* Üzerine gelindiğinde hafif bir arkaplan ver */
-body.is-owner:not(.global-edit-mode) .profile-name:hover,
-body.is-owner:not(.global-edit-mode) .profile-title:hover,
-body.is-owner:not(.global-edit-mode) .profile-bio:hover {
+body.is-owner .profile-name:not(.is-input-active):hover,
+body.is-owner .profile-title:not(.is-input-active):hover,
+body.is-owner .profile-bio:not(.is-input-active):hover {
     background-color: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.1);
 }
 /* #endregion */
 
-/* #region 4.4: Bağlantılar (Links) */
-.profile-links {
-    margin-top: auto;
-    padding-top: 15px;
-    border-top: 1px solid rgba(var(--white-rgb), 0.08);
+/* #region 4.4: Arka Yüz (Bağlantılar - Yeni UI) */
+.profile-back-header {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center; /* İŞTE SORUNU ÇÖZEN SİHİRLİ DOKUNUŞ */
-    gap: var(--space-sm);
-    max-height: 75px; 
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.profile-back-header h3 {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+.profile-links-back {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     overflow-y: auto;
+    flex: 1;
     padding-right: 5px;
 }
 
-.link-item {
-    display: inline-flex;
+.profile-links-back::-webkit-scrollbar { width: 4px; }
+.profile-links-back::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+/* --- 1. TEKİL BAĞLANTI SATIRI (LinkRow) --- */
+.nook-link-row {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: border-color 150ms ease;
+}
+
+.nook-link-row.is-open {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.nook-link-main {
+    display: flex;
     align-items: center;
-    padding: 6px 12px;
-    font-size: 0.75rem;
-    font-weight: var(--fw-medium);
-    color: rgba(var(--theme-secondary-rgb), 0.8);
-    border: 1px solid rgba(var(--theme-secondary-rgb), 0.2);
-    border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
-    text-decoration: none;
+    gap: 10px;
+    padding: 8px 10px;
 }
 
-.link-item img, 
-.link-item svg {
-    width: 14px;
-    height: 14px;
-    margin-right: 6px;
-    border-radius: 50%;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.link-item:hover {
-    color: rgb(var(--white-rgb));
-    border-color: rgba(var(--theme-secondary-rgb), 0.8);
-    background-color: rgba(var(--theme-secondary-rgb), 0.05);
-    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
-}
-
-/* --- DÜZENLEME MODU VE KALEM İKONU --- */
-.link-item.is-editing {
-    position: relative;
-    cursor: pointer;
-    color: rgba(var(--white-rgb), 0.7);
-    border-color: rgba(var(--white-rgb), 0.2);
-    background-color: transparent;
-    overflow: visible; /* Kalem ikonunun dışarı taşması için */
-}
-
-.link-edit-badge {
-    position: absolute;
-    right: -6px;
-    top: -6px;
-    background: color-mix(in srgb, var(--accent-500) 90%, black);
-    color: white;
-    border-radius: var(--radius-circle);
-    width: 18px;
-    height: 18px;
+/* İkon Alanı */
+.nook-link-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.nook-link-icon img, .nook-link-icon svg { width: 16px; height: 16px; object-fit: contain; }
+
+/* Metin Alanı */
+.nook-link-info {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.nook-link-name {
+    font-size: 13.5px;
+    line-height: 1.3;
+    font-weight: 600;
+    color: rgb(var(--white-rgb));
+    cursor: text;
+    border-bottom: 1px dashed transparent;
+    width: fit-content;
+    transition: border-color 120ms ease;
+}
+.nook-link-name:hover { border-color: rgba(255, 255, 255, 0.3); }
+
+.nook-link-domain {
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Düzenleme Kalem İkonu */
+.nook-link-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: background 120ms ease, color 120ms ease;
+    flex-shrink: 0;
+}
+.nook-link-row:not(.is-open) .nook-link-toggle:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.nook-link-row.is-open .nook-link-toggle { 
+    background: color-mix(in srgb, var(--accent-500) 15%, transparent); 
+    color: var(--accent-500); 
+}
+
+/* --- LİNK SÜRÜKLE & BIRAK (DRAG) DÜZELTMELERİ --- */
+
+/* 1. Sürüklenen satırın stili ve DOM zıplamalarını çözen transition iptali */
+.nook-link-row.is-dragging {
+    opacity: 0.6;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-500);
+    transform: scale(0.98);
+    transition: none !important; /* DOM yer değişimlerinde layout'un çökmesini engeller */
+    z-index: 100;
+}
+
+/* 2. Sürükleme işlemi devam ederken tüm listedeki animasyonları dondur (Yeni butonunun titremesini önler) */
+#links-wrapper:has(.is-dragging) .nook-link-row {
+    transition: none !important;
+}
+
+/* 3. Sürüklenen elementin içindeki tıklama olaylarını kapat (Pürüzsüz taşıma için) */
+.nook-link-row.is-dragging * {
+    pointer-events: none;
+}
+
+/* --- 2. AKORDEON İÇ FORMU VE DÜZENLEME (Collapse) --- */
+.nook-link-collapse {
+    height: 0;
+    overflow: hidden;
+    transition: height 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nook-link-form {
+    padding: 0 10px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 2px;
+    padding-top: 10px;
+}
+
+/* Tüm Inputların Ortak Tasarımı */
+.nook-link-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 7px 9px;
+    color: rgb(var(--white-rgb));
+    font-size: 12.5px;
+    outline: none;
+    transition: border-color 150ms ease;
+    font-family: inherit;
+    width: 100%;
+}
+.nook-link-input:focus { border-color: var(--accent-500); }
+
+/* Akordeon Açıkken Başlıkları Gizle ve İsim Inputunu Göster */
+.nook-link-row .edit-isim-input {
+    display: none;
+}
+.nook-link-row.is-expanded .nook-link-name,
+.nook-link-row.is-expanded .nook-link-domain {
+    display: none !important;
+}
+.nook-link-row.is-expanded .edit-isim-input {
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* Sürükleme (Drag) Sırasında Yeni Ekle Butonunun Gelmesini Engelleyen Düzeltme */
+#links-wrapper {
+    display: flex !important;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+/* Global Onay Butonu Kilit Durumu (Geçersiz URL girildiğinde) */
+.save-btn.is-locked {
+    opacity: 0.5;
+    pointer-events: none;
+    background-color: var(--color-danger-rgb) !important;
+    box-shadow: none !important;
+}
+
+/* Açık Akordeon Çerçeve Parlaması */
+.nook-link-row.is-expanded {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Düzenleme Kalem/Sil İkonu Geçişleri */
+.nook-link-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 120ms ease;
+    flex-shrink: 0;
+}
+
+.nook-link-row:not(.is-expanded) .nook-link-toggle:hover { 
+    background: rgba(255, 255, 255, 0.1); 
+    color: #fff; 
+}
+
+/* Akordeon Açıkken Sil Butonuna Dönüşür */
+.nook-link-row.is-expanded .nook-link-toggle { 
+    background: rgba(var(--color-danger-rgb), 0.15); 
+    color: var(--color-danger-light); 
+}
+
+.nook-link-row.is-expanded .nook-link-toggle:hover {
+    background: var(--color-danger-rgb); 
+    color: #fff; 
+}
+
+/* --- 4. YENİ BAĞLANTI EKLE BUTONU (AddLinkRow) --- */
+.nook-add-btn {
+    border: 1.5px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 9px 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 120ms ease, color 120ms ease;
+    font-family: inherit;
+}
+.nook-add-btn:hover { border-color: var(--accent-500); color: var(--accent-500); }
+
+/* Düzenleme Modu Sürükleme Efekti */
+.nook-link-row[draggable="true"] { cursor: grab; }
+.nook-link-row[draggable="true"]:active { cursor: grabbing; }
+
+/* Yeni Tag Alanı İçin Hazırlık */
+.profile-tags-container {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+/* --- LİNK SİLİNME (YOK OLUŞ) ANİMASYONU --- */
+.nook-link-row {
+    transition: border-color 150ms ease, opacity 250ms ease, transform 250ms ease, margin-top 250ms ease;
+    transform-origin: top center;
+}
+
+.nook-link-row.is-deleting {
     opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 10;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-}
-
-.link-item.is-editing:hover {
-    box-shadow: none;
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.link-item.is-editing:hover .link-edit-badge {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.link-edit-badge:hover {
-    background: var(--accent-500);
-    transform: scale(1.2);
+    transform: scale(0.9) translateY(-10px);
+    pointer-events: none;
 }
 /* #endregion */
 
 /* #region 4.5: Düzenleme Araçları, Formlar ve Boş Durumlar (Edit Mode & States) */
 
-/* Kutu düzenleme modundayken CSS satır kısıtlamasını iptal et */
 .profile-name.is-input-active {
     display: block !important;
     overflow: visible !important;
@@ -1187,56 +1392,8 @@ body.is-owner:not(.global-edit-mode) .profile-bio:hover {
     transform: scale(1.05);
 }
 
-/* Satıriçi ikon hover efektleri */
 #inline-edit-trigger:hover .pen-icon { color: rgb(var(--white-rgb)); }
 #inline-edit-trigger:hover .check-icon { stroke: var(--color-success); }
-
-/* Link Düzenleme Modu Görünümü (Silme ikonlu hali) */
-.link-item.is-editing {
-    position: relative;
-    padding-right: 24px;
-    cursor: default;
-    color: rgba(var(--white-rgb), 0.7);
-    border-color: rgba(var(--white-rgb), 0.2);
-    background-color: transparent;
-}
-
-.link-item.is-editing:hover {
-    box-shadow: none;
-    background-color: transparent;
-}
-
-.link-delete-badge {
-    position: absolute;
-    right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(var(--color-danger-rgb), 0.2);
-    color: var(--color-danger-light);
-    border: none;
-    border-radius: var(--radius-circle);
-    width: 16px;
-    height: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.link-delete-badge:hover {
-    background: rgba(var(--color-danger-rgb), 0.8);
-    color: rgb(var(--white-rgb));
-}
-
-/* DÜZENLEME INPUTLARI (Satıriçi Düzenleme Stilleri) */
-.auto-expand-textarea {
-    resize: none !important;
-    overflow: hidden !important;
-    min-height: 60px;
-    line-height: 1.5;
-}
 
 .edit-name-input {
     font-size: clamp(1rem, 1.5vw, 1.4rem) !important;
@@ -1296,14 +1453,26 @@ body.is-owner .ghost-text:hover {
     box-shadow: 0 0 10px color-mix(in srgb, var(--theme-secondary) 15%, transparent);
 }
 
-.dashed-add-btn.square-add-btn {
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border-radius: var(--radius-sm);
-    font-size: 1.2rem;
-    font-weight: 300;
+/* Yeni Link Butonunun Tam Alan Kaplaması */
+.profile-links-back .dashed-add-btn {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    min-height: 48px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.02);
 }
+
+/* JavaScript'in eklediği kare sınıfını CSS ile eziyoruz */
+.profile-links-back .dashed-add-btn.square-add-btn {
+    width: 100%; 
+    height: auto;
+}
+
 /* #endregion */
 
 /* #region 4.6: Animasyonlar ve Uyarılar (Animations & Warnings) */
@@ -1341,32 +1510,227 @@ body.is-owner .ghost-text:hover {
 }
 /* #endregion */
 
-/* #endregion */
-
 /* #region 5: Widget Alanı (Slotlar ve Katmanlar) */
 
 /* #region 1. GENEL WIDGET KASASI (Ortak Altyapı) */
+
+/* 1. GENEL KASA VE 3D PERSPEKTİF */
 .widgets { background-color: transparent; border: none; padding: 0; grid-column: 2/3; grid-row: 1/4; display: flex; flex-direction: column; gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem); position: relative; z-index: var(--z-banner); }
+
 .widget-slot { 
-    flex: 1; 
-    min-height: 0; 
-    position: relative; 
-    display: flex; 
-    flex-direction: column; 
+    flex: 1; min-height: 120px; position: relative; 
+    perspective: 1000px; /* 3D DÜNYASI BURADA BAŞLAR */
+    background-color: transparent; border: none;
+}
+
+/* --- 2. DÖNEN İÇ MEKANİZMA (FLIP INNER) --- */
+.widget-flip-inner {
+    position: relative; width: 100%; height: 100%;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+/* X ekseni hatası giderildi, Y eksenine alındı */
+.widget-flip-inner.is-flipped { transform: rotateY(180deg); }
+
+/* 3. ÖN VE ARKA YÜZLER */
+.widget-flip-front, .widget-flip-back {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
     background-color: var(--theme-bg-panel); 
     border: 1px solid rgba(var(--white-rgb), 0.08); 
-    border-radius: clamp(10px, 1vw + 6px, 16px); 
-    z-index: var(--z-base);     
-    transition: border-color var(--transition-fast); 
+    border-radius: clamp(10px, 1vw + 6px, 16px);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
-.widget-slot:hover { border-color: rgba(var(--theme-secondary-rgb), 0.4); } 
-.widget-slot.is-active,
-.widget-slot.is-closing {z-index: var(--z-dropdown); }
 
-.widget-slot.is-active {border-color: rgba(var(--theme-secondary-rgb), 0.8); }
-.widget-view-layer { width: 100%; flex: 1; border-radius: inherit; }
-.widget-placeholder { width: 100%; height: 100%; border-radius: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(var(--white-rgb), 0.3); font-size: 0.85rem; font-weight: var(--fw-semibold); letter-spacing: 0.1em; text-transform: uppercase; }
-.widget-link { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; border-radius: inherit; cursor: pointer; container-type: size; container-name: widgetcard; }
+.widget-flip-back {
+    transform: rotateY(180deg);
+    background-color: rgba(var(--white-rgb), 0.02); 
+}
+
+/* Hover olduğunda çerçevenin parlaması */
+.widget-slot:hover .widget-flip-front { border-color: rgba(var(--theme-secondary-rgb), 0.4); }
+
+/* 4. İÇERİK KAPSAYICILARI */
+.widget-link { width: 100%; height: 100%; position: relative; border-radius: inherit; cursor: pointer; }
+.widget-front-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; }
+.widget-back-content { width: 100%; height: 100%; padding: 15px 20px; display: flex; align-items: center; }
+
+/* --- 5. HAYALET YUVA (BOŞ SLOT) --- */
+.widget-ghost-slot {
+    width: 100%; height: 100%; 
+    /* Karmaşık renk mixleri yerine tertemiz, çok hafif beyaz-saydam bir kesik çizgi */
+    border: 2px dashed rgba(var(--white-rgb), 0.08);
+    border-radius: clamp(10px, 1vw + 6px, 16px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    cursor: pointer; transition: all var(--transition-fast);
+    background-color: transparent; 
+}
+
+.widget-ghost-slot:hover {
+    background-color: rgba(var(--white-rgb), 0.03);
+    border-color: rgba(var(--white-rgb), 0.15);
+    transform: scale(1.02);
+}
+
+.ghost-plus-icon { 
+    font-size: 2rem; font-weight: 300; 
+    color: rgba(var(--white-rgb), 0.3); 
+    transition: color var(--transition-fast); line-height: 1; 
+}
+
+.ghost-slot-text { 
+    font-size: 0.75rem; font-weight: var(--fw-medium); 
+    color: rgba(var(--white-rgb), 0.3); 
+    letter-spacing: 0.05em; transition: color var(--transition-fast); 
+}
+
+.widget-ghost-slot:hover .ghost-plus-icon, 
+.widget-ghost-slot:hover .ghost-slot-text { 
+    color: rgb(var(--white-rgb)); 
+}
+
+/* --- WIDGET ARKA YÜZ (FORM UI) --- */
+.widget-username-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 16px;
+    background-color: rgba(var(--white-rgb), 0.04); 
+    border: 1px solid rgba(var(--white-rgb), 0.12);
+    border-radius: var(--radius-pill); 
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    font-weight: var(--fw-semibold);
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.widget-username-input:focus {
+    border-color: var(--accent-500);
+    background-color: rgba(var(--white-rgb), 0.08);
+    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
+}
+
+/* --- 6. DÜZENLEME VE SİLME İKONLARI --- */
+.widget-tool-btn {
+    position: absolute; top: 10px; right: 10px; 
+    width: 24px; height: 24px; /* Boyut küçültüldü */
+    border-radius: var(--radius-circle); display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+    cursor: pointer; opacity: 0; transform: scale(0.9); transition: all var(--transition-fast); z-index: 10;
+}
+/* İkonu orantılı küçültmek için eklendi */
+.widget-tool-btn svg {
+    width: 12px; height: 12px;
+}
+.widget-flip-front:hover .widget-tool-btn { opacity: 1; transform: scale(1); }
+.widget-tool-btn:hover { background: var(--theme-secondary); color: #111; border-color: transparent; }
+
+/* Arka Yüz Çöp Kutusu (Sayfa sahibi arkayı döndüğünde hep görünür) */
+.delete-trigger-btn { opacity: 1; transform: scale(1); background: rgba(var(--color-danger-rgb), 0.15); border-color: rgba(var(--color-danger-rgb), 0.3); color: var(--color-danger-light); }
+.delete-trigger-btn:hover { background: var(--color-danger-rgb); color: #fff; }
+
+/* 7. ONAY VE İPTAL BUTON GRUBU (Input değişince ortaya çıkar) */
+.widget-save-actions {
+    position: absolute; right: 50px; top: 50%; transform: translateY(-50%);
+    display: flex; gap: 8px; z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.widget-save-actions.is-visible { opacity: 1; pointer-events: auto; }
+
+.widget-action-btn {
+    width: 32px; height: 32px; border-radius: var(--radius-circle); border: none;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: transform var(--transition-fast);
+}
+.widget-action-btn:hover { transform: scale(1.1); }
+.widget-action-btn.confirm-btn { background-color: var(--color-success); box-shadow: 0 4px 10px rgba(46, 160, 67, 0.3); }
+.widget-action-btn.cancel-btn { background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); }
+
+/* --- 8. WIDGET İKONLARI VE HİZALAMA DÜZELTMELERİ --- */
+/* MT ikon */
+.widget-type-icon { 
+    width: 48px; 
+    height: 48px; 
+    border-radius: var(--radius-lg); 
+    background-color: var(--theme-primary); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    flex-shrink: 0; 
+}
+.widget-type-icon.mt-brand { background-color: var(--brand-monkeytype, #e2b714); }
+.widget-type-icon.mt-brand::after { 
+    content: 'mt'; 
+    font-family: var(--font-mono); 
+    color: var(--brand-monkeytype-dark, #111); 
+    font-size: 1.5rem; 
+    font-weight: var(--fw-extrabold); 
+    margin-top: -2px; 
+}
+
+/* Kalem ikonunun metinle çakışmasını engellemek için sağdan biraz boşluk bırakıyoruz */
+.mt-front-view {
+    padding: 15px 45px 15px 25px !important; 
+}
+
+/* --- 9. WIDGET ARKA YÜZ (FORM UI) --- */
+.widget-edit-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; 
+}
+
+.widget-edit-brand-text {
+    font-family: var(--font-primary);
+    font-size: 0.65rem;
+    font-weight: var(--fw-bold);
+    color: rgb(var(--white-rgb));
+    letter-spacing: 0.03em;
+}
+
+.widget-edit-divider {
+    width: 2px;
+    height: 38px; 
+    background-color: rgba(var(--white-rgb), 0.12);
+    border-radius: 2px;
+    margin: 0 16px;
+    flex-shrink: 0;
+}
+
+.widget-username-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 16px;
+    background-color: rgba(0, 0, 0, 0.25); 
+    border: 1px solid rgba(var(--white-rgb), 0.12);
+    border-radius: var(--radius-pill); 
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-primary);
+    font-size: 0.85rem;
+    font-weight: var(--fw-semibold);
+    outline: none;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.widget-username-input:focus {
+    border-color: var(--accent-500);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* --- 10. ZİYARETÇİ MODU İÇİN WIDGET HİZALAMASI --- */
+
+body:not(.is-owner) .widgets {
+    justify-content: center;
+    padding-bottom: var(--space-5xl);
+    gap: clamp(0.8rem, 0.6rem + 1vw, 1.4rem);
+}
+
+body:not(.is-owner) .widget-slot {
+    flex: 0 0 auto;
+    height: 130px;
+}
+
 /* #endregion */
 
 /* #region 3. WIDGET MODÜLÜ: MONKEYTYPE */
@@ -1512,93 +1876,6 @@ body.is-owner .ghost-text:hover {
 }
 /* #endregion */
 
-/* #region 4. WIDGET SATIRIÇI (INLINE) DÜZENLEME ARAYÜZÜ */
-.widget-edit-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: none; border-radius: inherit; z-index: 5; background-color: var(--theme-bg-panel); }
-.widget-ghost-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; border: 2px dashed rgba(var(--theme-secondary-rgb), 0.3); border-radius: inherit; cursor: pointer; color: rgba(var(--theme-secondary-rgb), 0.6); transition: all var(--transition-fast); }
-.widget-ghost-slot:hover { border-color: rgba(var(--theme-secondary-rgb), 0.8); color: rgb(var(--white-rgb)); background-color: rgba(var(--theme-secondary-rgb), 0.05); }
-.widget-inline-edit { display: flex; align-items: center; width: 100%; height: 100%; border-radius: inherit; padding: 10px 15px; }
-.widget-edit-left { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; min-width: 65px; }
-.widget-type-select { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.widget-type-icon { width: 48px; height: 48px; border-radius: var(--radius-lg); background-color: var(--theme-primary); margin-bottom: 4px; display: flex; align-items: center; justify-content: center; }
-.widget-type-icon.mt-brand { background-color: var(--mt-yellow, #e2b714); }
-.widget-type-icon.mt-brand::after { content: 'mt'; font-family: var(--font-mono); color: var(--mt-dark, #111); font-size: 1.5rem; font-weight: var(--fw-extrabold); margin-top: -2px; }
-.widget-type-label { font-family: var(--font-primary); font-size: 0.65rem; font-weight: var(--fw-semibold); color: #ffffff; letter-spacing: 0.5px; }
-.widget-edit-divider { width: 2px; height: 45px; background-color: rgba(var(--white-rgb), 0.2); border-radius: 2px; margin: 0 15px; }
-/* Input'u Root Değişkenlerine Bağlama */
-.widget-username-input { 
-    width: 100%; 
-    height: 32px; 
-    border-radius: var(--radius-pill); 
-    background-color: var(--theme-bg-input); 
-    border: 1px solid var(--theme-border-input); 
-    padding: 0 15px; 
-    font-family: var(--font-primary); 
-    font-size: 0.85rem; 
-    font-weight: var(--fw-semibold); 
-    color: rgb(var(--white-rgb)); 
-    outline: none; 
-    transition: border-color var(--transition-fast), background-color var(--transition-fast);
-}
-
-.widget-username-input:focus {
-    border-color: rgba(var(--theme-secondary-rgb), 0.8);
-    background-color: rgba(0, 0, 0, 0.4);
-}
-
-/* Daha Belirgin Silme Butonu */
-.widget-inline-delete { 
-    position: absolute; 
-    top: 8px; 
-    right: 8px; 
-    width: 28px; 
-    height: 28px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    border-radius: var(--radius-circle); 
-    border: 1px solid rgba(var(--color-danger-rgb), 0.4); 
-    background-color: rgba(20, 24, 32, 0.85); 
-    backdrop-filter: blur(4px); 
-    color: var(--color-danger-light); 
-    cursor: pointer; 
-    opacity: 0; 
-    pointer-events: none; 
-    transform: scale(0.9); 
-    transition: all var(--transition-fast); 
-    z-index: 10; 
-}
-
-.widget-inline-delete svg {
-    width: 16px;
-    height: 16px;
-}
-
-.widget-edit-layer:hover .widget-inline-delete { 
-    opacity: 1; 
-    pointer-events: auto; 
-    transform: scale(1); 
-}
-
-.widget-inline-delete:hover { 
-    background-color: rgba(var(--color-danger-rgb), 0.85); 
-    color: rgb(var(--white-rgb)); 
-    border-color: rgba(var(--color-danger-rgb), 0.85);
-}
-
-/* 2 Aşamalı Onay Durumu İçin Animasyonlu Class */
-.widget-inline-delete.confirm-delete {
-    background-color: rgba(var(--color-danger-rgb), 0.95);
-    color: rgb(var(--white-rgb));
-    border-color: rgb(var(--color-danger-rgb));
-    animation: pulse-danger 0.8s infinite alternate;
-}
-
-@keyframes pulse-danger {
-    from { box-shadow: 0 0 0 0 rgba(var(--color-danger-rgb), 0.4); }
-    to { box-shadow: 0 0 0 6px rgba(var(--color-danger-rgb), 0); }
-}
-/* #endregion */
-
 /* #region 5. WIDGET SEÇİM MENÜSÜ */
 
 .widget-selection-grid {
@@ -1671,11 +1948,11 @@ body.is-owner .ghost-text:hover {
 }
 
 /* Düzenleme modunda dolu widget'ların üzerine gelince fare "tutma" ikonuna dönsün */
-body.global-edit-mode .widget-slot.is-draggable {
+body.is-owner .widget-slot.is-draggable {
     cursor: grab;
 }
 
-body.global-edit-mode .widget-slot.is-draggable:active {
+body.is-owner .widget-slot.is-draggable:active {
     cursor: grabbing;
 }
 /* #endregion */
@@ -2231,9 +2508,6 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 /* #region 7: Modallar ve Ekran Katmanları (Arama & Giriş & Ayarlar) */
 
 /* #region 7.1: ORTAK MODAL KURALLARI VE ARKA PLAN */
-/* ==========================================
-   ORTAK MODAL KURALLARI VE ARKA PLAN
-   ========================================== */
 .search-modal-backdrop {
     position: absolute;
     inset: 0;
@@ -2253,9 +2527,8 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     transition: opacity 0.25s ease;
 }
 
-/* Modalların z-indexleri değişkenlerle yönetilir */
 .search-modal { z-index: var(--z-modal); }
-.auth-modal { z-index: var(--z-modal-top); } /* Auth her şeyin üstündedir */
+.auth-modal { z-index: var(--z-modal-top); }
 
 .search-modal.is-open,
 .auth-modal.is-open {
@@ -2265,9 +2538,6 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 /* #endregion */
 
 /* #region 7.2: ORTAK INPUT VE KAPATMA YAPILARI */
-/* ==========================================
-   ORTAK INPUT VE KAPATMA YAPILARI
-   ========================================== */
 .search-input {
     flex: 1;
     height: 40px;
@@ -2312,9 +2582,6 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 /* #endregion */
 
 /* #region 7.3: ARAMA MODALI (Search) */
-/* ==========================================
-   1. ARAMA MODALI (Search)
-   ========================================== */
 .search-modal-box {
     position: relative;
     width: min(480px, 90vw);
@@ -2340,7 +2607,6 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     flex-shrink: 0;
 }
 
-/* Arama Sonuçları Izgarası */
 .search-results {
     overflow-y: auto;
     display: grid;
@@ -2355,9 +2621,7 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     border-radius: 10px;
 }
 
-.search-hint,
-.search-empty,
-.search-loading {
+.search-hint, .search-empty, .search-loading {
     grid-column: 1 / -1;
     text-align: center;
     color: rgba(var(--white-rgb), 0.4);
@@ -2407,9 +2671,6 @@ body.global-edit-mode .widget-slot.is-draggable:active {
 /* #endregion */
 
 /* #region 7.4: KİMLİK DOĞRULAMA VE AYARLAR MODALI (Auth) */
-/* ==========================================
-   2. KİMLİK DOĞRULAMA VE AYARLAR MODALI (Auth)
-   ========================================== */
 .auth-modal-box {
     position: relative;
     width: min(380px, 90vw);
@@ -2434,8 +2695,6 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     flex: 1;
 }
 
-
-/* Ayarlar İçi Kategori Başlıkları (Eski Region'dan geldi) */
 .edit-section-title {
     font-size: 0.75rem;
     font-weight: var(--fw-semibold);
@@ -2446,45 +2705,9 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     text-transform: uppercase;
 }
 
-/* Link Düzenleme Inputları (Eski Region'dan geldi) */
-.link-input-group {
-    display: flex;
-    gap: var(--space-sm);
-    align-items: center;
-}
-
-.link-input-group .search-input:first-child { flex: 1; }
-.link-input-group .search-input:nth-child(2) { flex: 2; }
-
-.remove-link-btn {
-    background: rgba(var(--color-danger-rgb), 0.15);
-    color: var(--color-danger-light);
-    border: none;
-    border-radius: var(--radius-circle);
-    width: 28px;
-    height: 28px;
-    flex-shrink: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-fast);
-}
-
-.remove-link-btn:hover {
-    background: rgba(var(--color-danger-rgb), 0.3);
-    color: rgb(var(--white-rgb));
-    transform: scale(1.1);
-}
-
-
 /* #endregion */
 
 /* #region 7.5: DIŞ ARAYÜZ (HEADER) KONTROLLERİ */
-/* ==========================================
-   DIŞ ARAYÜZ (HEADER) KONTROLLERİ
-   ========================================== */
-/* Sağ Üstteki Giriş/Düzenle Tetikleyici Butonu */
 .auth-trigger-btn {
     position: absolute;
     top: 24px;
@@ -2502,7 +2725,7 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     border-radius: var(--radius-pill);
     color: rgba(var(--white-rgb), 0.6);
     cursor: pointer;
-    z-index: var(--z-banner); /* Banner ile aynı hizada kalmalı */
+    z-index: var(--z-banner); 
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -2520,91 +2743,12 @@ body.global-edit-mode .widget-slot.is-draggable:active {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(var(--theme-secondary-rgb), 0.1);
 }
-
-
-.minimal-footer {
-    position: fixed;
-    bottom: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: var(--font-primary);
-    font-size: 0.65rem;
-    color: rgba(var(--white-rgb), 0.2);
-    letter-spacing: 0.1em;
-    pointer-events: none;
-    z-index: var(--z-inner-overlay);
-}
 /* #endregion */
 
-/* #region 7.6: GLOBAL EDIT MODU VE İŞLEM ÇUBUĞU */
-/* ==========================================================================
-   GLOBAL EDIT MODU VE İŞLEM ÇUBUĞU
-   ========================================================================== */
-
-/* ==========================================
-   DÜZENLEME BUTONU (Settings Trigger)
-   ========================================== */
-.settings-action-btn {
-    position: absolute;
-    top: 24px;
-    right: 140px; /* Giriş butonuyla çakışmaması için mesafe */
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(22, 27, 34, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: var(--blur-md);
-    -webkit-backdrop-filter: var(--blur-md);
-    border-radius: var(--radius-circle); /* Tam yuvarlak kurgu */
-    cursor: pointer;
-    z-index: var(--z-banner);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    padding: 0;
-}
-
-.settings-action-btn svg {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
-    opacity: 0.7;
-    transition: opacity var(--transition-base), transform var(--transition-base);
-    color: rgb(var(--white-rgb));
-}
-
-.settings-action-btn:hover {
-    background-color: rgba(var(--theme-secondary-rgb), 0.15);
-    border-color: rgba(var(--theme-secondary-rgb), 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(var(--theme-secondary-rgb), 0.15);
-}
-
-.settings-action-btn:hover img {
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-/* Düzenleme Modu Aktifken */
-body.global-edit-mode .settings-action-btn {
-    background-color: var(--accent-500); /* Nook sarısı iptal, kullanıcının rengi devrede */
-    border-color: var(--accent-500);
-    box-shadow: 0 0 15px color-mix(in srgb, var(--accent-500) 40%, transparent);
-    transform: scale(1.05);
-    animation: none !important; /* Edit moduna girince nabız (radar) animasyonunu durdurur */
-}
-
-body.global-edit-mode .settings-action-btn svg {
-    opacity: 1;
-    color: var(--accent-text); /* Seçilen renge göre otomatik Siyah veya Beyaz olur */
-    filter: none; /* Eski zorunlu siyahlaştırma filtresini sildik */
-    animation: spin-slow 4s linear infinite;
-}
-
-/* İşlem Çubuğu (Floating Action Bar) - Varsayılan Olarak Aşağıda Saklı */
+/* #region 7.6: İŞLEM ÇUBUĞU (ACTION BAR) */
 .edit-action-bar {
     position: fixed;
-    bottom: -100px; /* Ekranın dışında sakla */
+    bottom: -100px;
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(20, 20, 20, 0.95);
@@ -2612,14 +2756,13 @@ body.global-edit-mode .settings-action-btn svg {
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 12px 24px;
     border-radius: 100px;
-    z-index: var(--z-modal-top, 600); /* En üstte olsun */
+    z-index: var(--z-modal-top, 600);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     transition: bottom var(--transition-smooth);
     width: max-content;
     max-width: 90%;
 }
 
-/* Değişiklik Olduğunda Çubuk Yukarı Çıkar */
 body.has-unsaved-changes .edit-action-bar {
     bottom: 30px;
 }
@@ -2651,10 +2794,6 @@ body.has-unsaved-changes .edit-action-bar {
     transition: all var(--transition-fast);
 }
 
-#settings-trigger-btn {
-    right: 140px; 
-}
-
 .cancel-btn {
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
@@ -2673,65 +2812,25 @@ body.has-unsaved-changes .edit-action-bar {
     background-color: var(--color-success, #2ea043);
     box-shadow: 0 0 10px rgba(46, 160, 67, 0.4);
 }
-
-/* 
-  VİZYON HAZIRLIĞI: 
-  Edit modunda görünmesini veya gizlenmesini istediğimiz 
-  genel objeler için pratik yardımcı sınıflar 
-*/
-.edit-only { display: none; }
-body.global-edit-mode .edit-only { display: block; }
-
-.view-only { display: block; }
-body.global-edit-mode .view-only { display: none; }
 /* #endregion */
 
-/* #region 7.7: DÜZENLEME ARAÇLARININ GİZLENMESİ VE GÖSTERİLMESİ */
-/* ==========================================================================
-   AŞAMA 4 - BÖLÜM 1: DÜZENLEME ARAÇLARININ GİZLENMESİ VE GÖSTERİLMESİ
-   ========================================================================== */
-
-/* 1. NORMAL DURUM: Sayfa sahibi olsa bile tüm düzenleme araçlarını zorla gizle */
-.banner-edit-overlay,
-.pfp-edit-overlay,
-#inline-edit-trigger,
-#inline-add-link-btn,
-.card-delete-btn,
-#add-content-btn,
-#add-widget-btn,
-#edit-widget-btn,
-.link-delete-badge {
-    display: none !important; 
+/* #region 7.7: ZİYARETÇİ KORUMASI VE SATIRIÇİ GÖRÜNÜRLÜK */
+body:not(.is-owner) .banner-edit-overlay,
+body:not(.is-owner) .pfp-edit-overlay,
+body:not(.is-owner) #inline-add-link-btn,
+body:not(.is-owner) .card-delete-btn,
+body:not(.is-owner) #add-content-btn,
+body:not(.is-owner) .ghost-add-slot,
+body:not(.is-owner) .link-edit-badge {
+    display: none !important;
 }
 
-/* 2. DÜZENLEME MODU AKTİF: Butonları kendi display türlerine göre zorla göster */
-body.global-edit-mode #inline-edit-trigger,
-body.global-edit-mode #inline-add-link-btn,
-body.global-edit-mode .card-delete-btn,
-body.global-edit-mode #add-content-btn,
-body.global-edit-mode #edit-widget-btn {
-    display: flex !important;
+body.is-owner .card-delete-btn {
+    display: flex;
 }
 
-body.global-edit-mode #add-widget-btn,
-body.global-edit-mode .link-delete-badge {
-    display: block !important;
-}
-
-/* 3. CMS (YÖNETİM) GÖRÜNÜMÜ: Medya alanları hover kararma efekti */
-body.global-edit-mode .banner-edit-overlay,
-body.global-edit-mode .pfp-edit-overlay {
-    display: flex !important;
-    opacity: 1 !important; 
-    background: rgba(0, 0, 0, 0.1); 
-    border-radius: inherit; 
-    transition: background-color 0.4s ease; 
-}
-
-body.global-edit-mode .banner-edit-overlay:hover,
-body.global-edit-mode .pfp-edit-overlay:hover {
-    background: rgba(0, 0, 0, 0.40);
-    backdrop-filter: blur(1px);
+body.is-owner #inline-add-link-btn {
+    display: flex;
 }
 /* #endregion */
 
@@ -2744,7 +2843,7 @@ body.global-edit-mode .pfp-edit-overlay:hover {
     height: 36cqh;  /* Diğer afişlerle birebir aynı yükseklik */
     border: 2px dashed rgba(var(--theme-secondary-rgb), 0.3);
     border-radius: clamp(10px, 0.8vw + 6px, 18px);
-    display: none; /* Sadece edit modunda flex olacak */
+    display: none;
     align-items: center;
     justify-content: center;
     cursor: pointer;
@@ -2753,7 +2852,7 @@ body.global-edit-mode .pfp-edit-overlay:hover {
     margin-top: 0;
 }
 
-body.global-edit-mode .ghost-add-slot {
+body.is-owner .ghost-add-slot {
     display: flex !important;
 }
 
@@ -2777,28 +2876,29 @@ body.global-edit-mode .ghost-add-slot {
 /* #endregion */
 
 /* #region 7.9: DİNAMİK KATEGORİ (SEKME) YÖNETİMİ */
-body.global-edit-mode #add-content-btn {
+body.is-owner #add-content-btn {
     display: flex !important; 
 }
 
 /* Sekmeler Düzenleme Modunda Tutulabilir (Sürüklenebilir) Olur */
-body.global-edit-mode .tab {
+body.is-owner .tab {
     position: relative;
     overflow: visible;
     cursor: grab;
 }
 
-body.global-edit-mode .tab:active {
+body.is-owner .tab:active {
     cursor: grabbing;
 }
 
-/* Düzenleme (Kalem) İkonu - Silme İkonunun Yerini Aldı */
+/* Düzenleme (Kalem) İkonu - Sabit Kontrastlı Yapı */
 .tab-edit-badge {
     position: absolute;
     right: -6px;
     top: -6px;
-    background: color-mix(in srgb, var(--accent-500) 90%, black);
-    color: white;
+    background: rgba(20, 24, 32, 0.95); /* Sabit koyu arka plan */
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Hafif çerçeve */
+    color: rgba(255, 255, 255, 0.85); /* Sabit görünür ikon rengi */
     border-radius: var(--radius-circle);
     width: 18px;
     height: 18px;
@@ -2814,13 +2914,15 @@ body.global-edit-mode .tab:active {
     box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
-body.global-edit-mode .tab:hover .tab-edit-badge {
+body.is-owner .tab:hover .tab-edit-badge {
     opacity: 1;
     transform: scale(1);
 }
 
 .tab-edit-badge:hover {
-    background: var(--accent-500);
+    background: var(--theme-secondary); /* Diğer edit butonlarındaki ortak hover */
+    color: #111;
+    border-color: transparent;
     transform: scale(1.2) !important;
 }
 
@@ -2881,18 +2983,16 @@ body.global-edit-mode .tab:hover .tab-edit-badge {
 .global-color-picker-wrapper {
     position: absolute;
     top: 24px;
-    right: 140px;
+    right: 130px;
     z-index: var(--z-banner);
     opacity: 0;
     pointer-events: none;
-    transform: translateX(0);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: opacity 0.3s ease; 
 }
 
-body.global-edit-mode .global-color-picker-wrapper {
+body.is-owner .global-color-picker-wrapper {
     opacity: 1;
     pointer-events: auto;
-    transform: translateX(-48px); /* Butonun soluna kayar */
 }
 
 /* 2. Tetikleyici Buton (Dış Renk Küresi) */

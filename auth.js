@@ -22,12 +22,16 @@ async function oturumuKontrolEt() {
 function authHataGoster(mesaj) {
     document.querySelectorAll('.auth-error-box').forEach(box => {
         box.textContent = mesaj;
-        box.style.display = 'block';
+        box.style.display = ''; // block iptal edildi
+        box.classList.add('is-visible', 'shake-box-animation');
+        setTimeout(() => box.classList.remove('shake-box-animation'), 400);
     });
 }
 
 function authHataTemizle() {
-    document.querySelectorAll('.auth-error-box').forEach(box => box.style.display = 'none');
+    document.querySelectorAll('.auth-error-box').forEach(box => {
+        box.classList.remove('is-visible');
+    });
 }
 
 async function sistemeGirisYap(email, password) {
@@ -214,23 +218,38 @@ function authModaliniBaslat() {
 
     if (deleteAccountBtn) {
         deleteAccountBtn.addEventListener('click', () => {
-            ozelOnayAl("Tüm arşivini ve hesabını kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.", async () => {
-                
-                deleteAccountBtn.disabled = true;
-                deleteAccountBtn.textContent = 'Siliniyor...';
-                
-                // SQL Editor'de oluşturduğumuz fonksiyonu doğrudan tetikliyoruz
-                const { error } = await supabaseClient.rpc('delete_user_account');
-                
-                if (error) {
-                    authHataGoster("Hesap silinirken bir hata oluştu: " + error.message);
-                    deleteAccountBtn.disabled = false;
-                    deleteAccountBtn.textContent = 'Hesabımı Kalıcı Olarak Sil';
-                } else {
-                    await sistemdenCikisYap(); 
-                }
-            });
-        });
+    ozelOnayAl("Tüm arşivini ve hesabını kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.", async () => {
+        
+        deleteAccountBtn.disabled = true;
+        deleteAccountBtn.textContent = 'Siliniyor...';
+        
+        // YENİ: RPC'den önce storage'daki dosyaları temizle
+        try {
+            const authId = aktifKullaniciOturumu.user.id;
+            const { data: dosyalar, error: listError } = await supabaseClient.storage
+                .from('avatars-and-banners')
+                .list(authId);
+            
+            if (!listError && dosyalar && dosyalar.length > 0) {
+                const silinecekYollar = dosyalar.map(d => `${authId}/${d.name}`);
+                await supabaseClient.storage.from('avatars-and-banners').remove(silinecekYollar);
+            }
+        } catch (storageErr) {
+            console.error('Storage temizliği sırasında hata (devam ediliyor):', storageErr);
+            // Storage temizlenemese bile hesap silme işlemi durmamalı
+        }
+        
+        const { error } = await supabaseClient.rpc('delete_user_account');
+        
+        if (error) {
+            authHataGoster("Hesap silinirken bir hata oluştu: " + error.message);
+            deleteAccountBtn.disabled = false;
+            deleteAccountBtn.textContent = 'Hesabımı Kalıcı Olarak Sil';
+        } else {
+            await sistemdenCikisYap(); 
+        }
+    });
+    });
     }
 
     passwordInput.addEventListener('keydown', (e) => {

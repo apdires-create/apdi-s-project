@@ -65,55 +65,48 @@ async function tumVerileriCek() {
 
         ekraniCiz();
     } catch (err) {
-        console.error("Veriler çekilirken hata oluştu:", err.message);
-    }
+    console.error("Veriler çekilirken hata oluştu:", err.message);
+    toastGoster("Veriler yüklenirken bir sorun oluştu. Lütfen sayfayı yenileyin.");
+}
 }
 
 const WidgetEngine = {
     types: {
         monkeytype: {
             id: 'monkeytype',
-            renderView: (ayarlar) => {
-                const username = ayarlar.kullanici || '';
+            // Ön Yüz: Sadece İzleme Görünümü
+            renderFront: (ayarlar) => {
+                const username = escapeHtml(ayarlar.kullanici || '');
                 return `
-                <div class="widget-link" data-type="monkeytype" data-username="${username}">
                     <div class="mt-front-view">
                         <div class="mt-front-left">
                             <div class="widget-type-icon mt-brand"></div>
                             <a href="https://monkeytype.com/profile/${username}" target="_blank" onclick="event.stopPropagation()" class="mt-front-username" title="${username}">${username || 'Bilinmiyor'}</a>
                         </div>
-                        
                         <div class="mt-front-divider"></div>
-                        
                         <div class="mt-front-right">
                             <div class="mt-stat-item front-stat" data-front-mode="words" data-front-amount="10">
-                                <span class="mt-stat-label">10 WORDS</span>
-                                <span class="mt-stat-value">-</span>
-                                <span class="mt-stat-percent">-%</span>
+                                <span class="mt-stat-label">10 WORDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span>
                             </div>
                             <div class="mt-stat-item front-stat" data-front-mode="time" data-front-amount="15">
-                                <span class="mt-stat-label">15 SECONDS</span>
-                                <span class="mt-stat-value">-</span>
-                                <span class="mt-stat-percent">-%</span>
+                                <span class="mt-stat-label">15 SECONDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span>
                             </div>
                         </div>
                     </div>
-                </div>`;
+                `;
             },
-            renderEdit: (ayarlar) => {
+            // Arka Yüz: Sadece Input Alanı
+            renderBack: (ayarlar) => {
                 return `
-                <div class="widget-inline-edit">
                     <div class="widget-edit-left">
-                        <select class="widget-type-select"><option value="monkeytype">Monkeytype</option></select>
                         <div class="widget-type-icon mt-brand"></div>
-                        <span class="widget-type-label">monkeytype</span>
+                        <span class="widget-edit-brand-text">monkeytype</span>
                     </div>
                     <div class="widget-edit-divider"></div>
-                    <div class="widget-edit-right">
-                        <input type="text" class="widget-username-input" placeholder="Kullanıcı Adı" value="${ayarlar.kullanici || ''}">
-                        <button class="widget-inline-delete" title="Kaldır">${SIL_IKONU_SVG}</button>
+                    <div class="widget-edit-right" style="flex: 1;">
+                        <input type="text" class="widget-username-input" placeholder="Kullanıcı Adı" value="${escapeHtml(ayarlar.kullanici || '')}" autocomplete="off" spellcheck="false">
                     </div>
-                </div>`;
+                `;
             },
             onMount: () => {
                 const data = siteVerisi.monkeytype_skorlari;
@@ -124,12 +117,6 @@ const WidgetEngine = {
                     const stat = (modeData && modeData[miktar]) ? modeData[miktar][0] : (data[miktar] ? data[miktar][0] : null);
                     
                     if (stat && stat.wpm) {
-                        document.querySelectorAll(`.mt-stat-item[data-mode="${mode}"][data-amount="${miktar}"]`).forEach(item => {
-                            const valueEl = item.querySelector('.mt-stat-value');
-                            const percentEl = item.querySelector('.mt-stat-percent');
-                            if (valueEl) valueEl.textContent = Math.round(stat.wpm);
-                            if (percentEl) percentEl.textContent = `${Math.round(stat.acc)}%`;
-                        });
                         document.querySelectorAll(`.front-stat[data-front-mode="${mode}"][data-front-amount="${miktar}"]`).forEach(item => {
                             const valueEl = item.querySelector('.mt-stat-value');
                             const percentEl = item.querySelector('.mt-stat-percent');
@@ -142,8 +129,7 @@ const WidgetEngine = {
                 ['15', '30', '60', '120'].forEach(m => veriyiEkranaBas('time', m));
                 ['10', '25', '50', '100'].forEach(m => veriyiEkranaBas('words', m));
             },            
-            onClick: (slot, widgetLink, isOverlayClick) => {
-                // Tıklanınca pop-up açmak yerine doğrudan yeni sekmede profiline yolla
+            onClick: (slot, widgetLink) => {
                 const username = widgetLink.dataset.username;
                 if (username) window.open(`https://monkeytype.com/profile/${username}`, '_blank');
             }
@@ -159,42 +145,85 @@ const WidgetEngine = {
 
         for (let i = 0; i < 3; i++) {
             const widgetData = (siteVerisi.widgetlar && siteVerisi.widgetlar[i]) ? siteVerisi.widgetlar[i] : null;
+            
+            // YENİ: Ziyaretçiyse ve o slotta widget yoksa, boş şeffaf kutu oluşturmak yerine işlemi tamamen atla!
+            if (typeof isOwner !== 'undefined' && !isOwner && !widgetData) {
+                continue;
+            }
+
             const slot = document.createElement('div');
             slot.className = 'widget-slot';
             slot.dataset.index = i;
 
-            if (typeof isOwner !== 'undefined' && isOwner && widgetData) {
-                slot.setAttribute('draggable', 'true');
-                slot.classList.add('is-draggable');
-            }
+            if (widgetData) {
+                // DOLU SLOT (3D Flip Kasa)
+                if (typeof isOwner !== 'undefined' && isOwner) {
+                    slot.setAttribute('draggable', 'true');
+                    slot.classList.add('is-draggable');
+                }
 
-            const viewLayer = document.createElement('div');
-            viewLayer.className = 'widget-view-layer view-only';
-            
-            if (widgetData && this.types[widgetData.tur]) {
                 const wType = this.types[widgetData.tur];
-                viewLayer.innerHTML = wType.renderView(widgetData.ayarlar);
-                mountedTypes.add(widgetData.tur); 
-            } else {
-                viewLayer.innerHTML = `<div class="widget-placeholder">Boş Slot</div>`;
-            }
-            slot.appendChild(viewLayer);
+                const typeId = wType ? wType.id : 'unknown';
 
-            if (typeof isOwner !== 'undefined' && isOwner) {
-                const editLayer = document.createElement('div');
-                editLayer.className = 'widget-edit-layer edit-only';
-                
-                if (widgetData && this.types[widgetData.tur]) {
-                    editLayer.innerHTML = this.types[widgetData.tur].renderEdit(widgetData.ayarlar);
-                } else {
-                    editLayer.innerHTML = `
-                        <div class="widget-ghost-slot">
-                            <span style="font-size: 2rem; font-weight: 300;">+</span>
-                            <span style="font-size: 0.8rem; margin-top: 5px;">Yeni Ekle</span>
+                let ownerToolsFront = '';
+                let ownerToolsBack = '';
+
+                if (typeof isOwner !== 'undefined' && isOwner) {
+                    // Sayfa sahibine özel ön yüz kalemi ve arka yüz silme/onay tuşları
+                    ownerToolsFront = `
+                        <button class="widget-tool-btn edit-trigger-btn" title="Düzenle">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                        </button>
+                    `;
+                    ownerToolsBack = `
+                        <button class="widget-tool-btn delete-trigger-btn" title="Kaldır">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                        <div class="widget-save-actions">
+                            <button class="widget-action-btn cancel-btn" title="İptal"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                            <button class="widget-action-btn confirm-btn" title="Onayla"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
                         </div>
                     `;
                 }
-                slot.appendChild(editLayer);
+
+                slot.innerHTML = `
+                    <div class="widget-flip-inner">
+                        <!-- ÖN YÜZ -->
+                        <div class="widget-flip-front">
+                            <div class="widget-link" data-type="${typeId}" data-username="${widgetData.ayarlar.kullanici || ''}">
+                                <div class="widget-front-content">
+                                    ${wType ? wType.renderFront(widgetData.ayarlar) : 'Geçersiz Widget'}
+                                </div>
+                            </div>
+                            ${ownerToolsFront}
+                        </div>
+                        
+                        <!-- ARKA YÜZ -->
+                        <div class="widget-flip-back">
+                            <div class="widget-back-content">
+                                ${wType ? wType.renderBack(widgetData.ayarlar) : ''}
+                            </div>
+                            ${ownerToolsBack}
+                        </div>
+                    </div>
+                `;
+
+                if (wType) mountedTypes.add(widgetData.tur);
+
+            } else {
+                // BOŞ SLOT 
+                if (typeof isOwner !== 'undefined' && isOwner) {
+                    slot.innerHTML = `
+                        <div class="widget-ghost-slot">
+                            <div class="ghost-plus-icon">+</div>
+                            <span class="ghost-slot-text">Widget Ekle</span>
+                        </div>
+                    `;
+                } else {
+                    slot.innerHTML = ``;
+                    slot.style.border = "none";
+                    slot.style.background = "transparent";
+                }
             }
             container.appendChild(slot);
         }
@@ -208,52 +237,29 @@ const WidgetEngine = {
         const container = document.getElementById('widgets-container');
         if (!container) return;
 
-        // 1. SADECE TIKLAMA OLAYI
+        // İzleyici modu için tıklama (Sayfa sahibine de çalışır ama sadece ÖN YÜZDEYKEN)
         container.addEventListener('click', (e) => {
-            if (typeof EditManager !== 'undefined' && durum.isGlobalEditActive) return;
-
             const slot = e.target.closest('.widget-slot');
             if (!slot) return;
+            
+            // Eğer kart arkasını dönmüşse dış linke gitmesini engelle
+            const inner = slot.querySelector('.widget-flip-inner');
+            if (inner && inner.classList.contains('is-flipped')) return;
 
             const widgetLink = slot.querySelector('.widget-link');
             if (!widgetLink) return;
 
-            const isOverlayClick = !!e.target.closest('.widget-overlay');
+            // Düzenleme ikonuna basıldıysa linke gitmesini engelle (JS devralacak)
+            if (e.target.closest('.edit-trigger-btn')) {
+                e.preventDefault();
+                return; 
+            }
+
             const widgetType = widgetLink.dataset.type;
-
             if (widgetType && this.types[widgetType] && this.types[widgetType].onClick) {
-                this.types[widgetType].onClick(slot, widgetLink, isOverlayClick);
+                this.types[widgetType].onClick(slot, widgetLink);
             }
-        }); // DİKKAT: TIKLAMA FONKSİYONU BURADA KESİN OLARAK BİTİYOR!
-
-        // 2. KAPANMA OLAYI (Tıklamadan tamamen bağımsız dışarıda durmalı)
-        container.addEventListener('mouseout', (e) => {
-            const slot = e.target.closest('.widget-slot');
-            
-            // Fare gerçekten widget'ın dışına çıktıysa
-            if (slot && !slot.contains(e.relatedTarget)) {
-                if (slot.classList.contains('is-active')) {
-                    // Animasyonu başlatmak için is-active'i sil
-                    slot.classList.remove('is-active');
-                    // Ancak katmanı havada tutmak için is-closing ekle
-                    slot.classList.add('is-closing');
-                    
-                    // CSS animasyon süresi (0.25s) bittiğinde katmanı aşağı bırak
-                    setTimeout(() => slot.classList.remove('is-closing'), 250);
-                }
-            }
-        });
-
-        // 3. EKRANIN BOŞLUĞUNA TIKLAMA OLAYI
-        document.addEventListener('click', (e) => {
-            if (!container.contains(e.target)) {
-                document.querySelectorAll('.widget-slot.is-active').forEach(slot => {
-                    slot.classList.remove('is-active');
-                    slot.classList.add('is-closing');
-                    setTimeout(() => slot.classList.remove('is-closing'), 250);
-                });
-            }
-        });
+        }); 
     }
 };
 
@@ -324,53 +330,66 @@ function ekraniCiz() {
         wrapper.style.display = 'contents';
 
         linkler.forEach(link => {
+            // Domain'i ayıklayıp alt başlık (subtitle) yapıyoruz
+            let domain = '';
+            try { 
+                domain = new URL(link.url).hostname.replace(/^www\./, ''); 
+            } catch(e) { 
+                domain = 'Bağlantı'; 
+            }
+
             const a = document.createElement('a');
-            a.className = 'link-item';
+            a.className = 'nook-link-row'; // YENİ CLASS
             a.href = link.url;
             a.target = '_blank';
             a.rel = 'noopener';
-            a.innerHTML = `${getLinkIcon(link.url)} <span>${link.isim}</span>`;
+            a.style.display = 'block'; // 'a' etiketi olduğu için bloğa çeviriyoruz
+            a.style.textDecoration = 'none';
+
+            a.innerHTML = `
+                <div class="nook-link-main">
+                    <div class="nook-link-icon">${getLinkIcon(link.url)}</div>
+                    <div class="nook-link-info">
+                        <!-- Ziyaretçide düzenleme çizgisi olmaması için CSS'i eziyoruz -->
+                        <span class="nook-link-name" style="border: none; cursor: pointer;">${escapeHtml(link.isim)}</span>
+                        <span class="nook-link-domain">${domain}</span>
+                    </div>
+                </div>
+            `;
             wrapper.appendChild(a);
         });
         linksContainer.appendChild(wrapper);
 
         if (addLinkBtn) {
             linksContainer.appendChild(addLinkBtn);
-            if (linkler.length > 0) {
-                addLinkBtn.textContent = '+';
-                addLinkBtn.classList.add('square-add-btn');
-                addLinkBtn.title = "Yeni Link Ekle";
+
+            if (isOwner && linkler.length >= 10) {
+                addLinkBtn.style.display = 'none';
+            } else if (isOwner) {
+                addLinkBtn.style.display = 'flex';
+                if (linkler.length > 0) {
+                    addLinkBtn.textContent = '+';
+                    addLinkBtn.classList.add('square-add-btn');
+                    addLinkBtn.title = "Yeni Link Ekle";
+                } else {
+                    addLinkBtn.textContent = '+ Yeni Link';
+                    addLinkBtn.classList.remove('square-add-btn');
+                    addLinkBtn.title = "";
+                }
             } else {
-                addLinkBtn.textContent = '+ Yeni Link';
-                addLinkBtn.classList.remove('square-add-btn');
-                addLinkBtn.title = "";
+                addLinkBtn.style.display = 'none';
             }
-            addLinkBtn.style.display = isOwner ? 'flex' : 'none';
         }
+    }
+
+    if (typeof EditManager !== 'undefined' && isOwner && EditManager.Profile) {
+        EditManager.Profile.renderLinks();
     }
 
     WidgetEngine.ciz();
     
     sekmeleriVeIcerikleriHazirla();
-    if (typeof isOwner !== 'undefined' && isOwner) {
-        const ayarlarBtn = document.getElementById('settings-trigger-btn');
-        if (ayarlarBtn) {
-            const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
-            const kategoriler = metinler.kategoriler || [];
-            const aciklama = metinler.aciklama || '';
-            const unvan = metinler.unvan || '';
-            const widgetlar = siteVerisi.widgetlar || [];
-            
-            // Eğer sayfa tamamen boşsa animasyonu başlat, değilse temizle
-            const profilBosMu = kategoriler.length === 0 && widgetlar.length === 0 && !aciklama && !unvan;
-            
-            if (profilBosMu && !(typeof EditManager !== 'undefined' && durum.isGlobalEditActive)) {
-                ayarlarBtn.classList.add('pulse-attention');
-            } else {
-                ayarlarBtn.classList.remove('pulse-attention');
-            }
-        }
-    }
+    
 }
 
 function getLinkIcon(url) {
@@ -432,7 +451,6 @@ function sekmeleriVeIcerikleriHazirla() {
             editBtn.title = 'Kategori Ayarları';
             editBtn.onclick = (e) => {
                 e.stopPropagation();
-                if (!durum.isGlobalEditActive) return;
 
                 durum.duzenlenenKategoriId = kat.id;
                 
@@ -457,9 +475,7 @@ function sekmeleriVeIcerikleriHazirla() {
         btn.addEventListener('click', () => {
             if (kat.id === aktifKategoriId) {
                 if (kat.url && btn.classList.contains('link-ready')) {
-                    if (!durum.isGlobalEditActive) { 
-                        window.open(kat.url, '_blank');
-                    }
+                    if (!isOwner) { window.open(kat.url, '_blank'); }
                 }
                 return; 
             }
@@ -516,9 +532,6 @@ function sekmeleriVeIcerikleriHazirla() {
                     const ctaBtn = document.getElementById('empty-state-cta-btn');
                     if (ctaBtn) {
                         ctaBtn.addEventListener('click', () => {
-                            if (typeof EditManager !== 'undefined' && !durum.isGlobalEditActive) {
-                                EditManager.Global.toggleEditMode();
-                            }
                             const catModal = document.getElementById('category-modal');
                             if (catModal) {
                                 catModal.classList.add('is-open');
@@ -691,6 +704,25 @@ function starfieldOlustur() {
         field.appendChild(s);
     }
 }
+
+// PROFIL KARTI 3D FLIP KONTROLU
+document.addEventListener('DOMContentLoaded', () => {
+    const flipInner = document.getElementById('profile-flip-inner');
+    const btnToBack = document.getElementById('profile-flip-to-back');
+    const btnToFront = document.getElementById('profile-flip-to-front');
+
+    if (btnToBack && flipInner) {
+        btnToBack.addEventListener('click', () => {
+            flipInner.classList.add('is-flipped');
+        });
+    }
+
+    if (btnToFront && flipInner) {
+        btnToFront.addEventListener('click', () => {
+            flipInner.classList.remove('is-flipped');
+        });
+    }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     // ... senin mevcut DOMContentLoaded kodların ...

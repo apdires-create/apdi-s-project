@@ -44,19 +44,14 @@ function hsvToRgb(h, s, v) {
     return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 };
 }
 // #endregion
+
 // #region BLOK 2: DÜZENLEME YÖNETİCİSİ (EDIT MANAGER)
 const EditManager = {
     
     // #region 0. STATE (ORTAK HAFIZA)
-    // NOT: isGlobalEditActive, KATEGORI_ARAMA_TURU ve duzenlenenKategoriId artık
-    // burada değil, config.js'deki paylaşılan `durum` objesinde yaşıyor.
-    // Sebebi: ui.js (render) bu üç alanı isOwner=false olan ziyaretçiler için de
-    // okumak zorunda, ama edit.js sadece owner'sa yükleniyor. EditManager burada
-    // sadece kendi iç/private durumunu tutuyor.
     state: {
         hasUnsavedChanges: false,
-        orijinalVeri: null, // İptal edilirse geri döneceğimiz güvenli liman
-        
+        orijinalVeri: null, 
         isProfileEditing: false,
         tempProfileLinks: [],
         aramaZamanlayici: null
@@ -66,51 +61,41 @@ const EditManager = {
     // #region 0.5 GLOBAL MOD YÖNETİMİ
     Global: {
         baslat() {
-            const settingsBtn = document.getElementById('settings-trigger-btn');
             const cancelBtn = document.getElementById('edit-cancel-btn');
             const saveBtn = document.getElementById('edit-save-btn');
 
-            if (!settingsBtn) return;
-            settingsBtn.style.display = 'flex';
-
-            settingsBtn.addEventListener('click', () => this.toggleEditMode());
-            // Sıfırla butonuna basıldığında false gönderiyoruz (Yani tamamen çıkma, sadece veriyi sıfırla)
-            if (cancelBtn) cancelBtn.addEventListener('click', () => this.sifirla(false));
-            if (saveBtn) saveBtn.addEventListener('click', () => this.kaydet());
-        },
-
-        toggleEditMode() {
-            durum.isGlobalEditActive = !durum.isGlobalEditActive;
+            // Sahip sayfaya girdiği an düzenleme aktiftir. İptal ihtimaline karşı orijinal yedeği alıyoruz.
+            EditManager.state.orijinalVeri = JSON.parse(JSON.stringify(siteVerisi));
             
-            if (durum.isGlobalEditActive) {
-                document.body.classList.add('global-edit-mode');
-                EditManager.state.orijinalVeri = JSON.parse(JSON.stringify(siteVerisi));
-                
-                // Mod açıldığında Profil inputlarını devreye sok
-                EditManager.Profile.duzenlemeyeGec();
-            } else {
+            // Her şeyin aktif görünmesi için body class'ını kalıcı veriyoruz
+            document.body.classList.add('global-edit-mode'); 
+
+            if (cancelBtn) cancelBtn.addEventListener('click', () => this.sifirla());
+            if (saveBtn) saveBtn.addEventListener('click', () => this.kaydet());
+
+            // YENİ: Kaydedilmemiş değişiklik varken sekme kapatılırsa/yenilenirse
+            // tarayıcının native "Ayrılmak istediğinize emin misiniz?" uyarısını tetikle.
+            // NOT: Modern tarayıcılar özel mesaj metnini göstermez, sadece preventDefault +
+            // returnValue set edilmesi tetikleyici olarak yeterlidir.
+            window.addEventListener('beforeunload', (e) => {
                 if (EditManager.state.hasUnsavedChanges) {
-                    const onay = confirm("Kaydedilmemiş değişiklikler var. Çıkmak istediğine emin misin?");
-                    if (!onay) {
-                        durum.isGlobalEditActive = true; 
-                        return;
-                    }
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return '';
                 }
-                // Ayarlar butonuna basıp çıkmak istenirse true (tam çıkış) gönderiyoruz
-                this.sifirla(true);
-            }
+            });
         },
 
         degisiklikYapildi() {
             if (EditManager.state.orijinalVeri) {
                 const guncelVeriString = JSON.stringify(siteVerisi);
                 const orijinalVeriString = JSON.stringify(EditManager.state.orijinalVeri);
-
                 EditManager.state.hasUnsavedChanges = (guncelVeriString !== orijinalVeriString);
             } else {
                 EditManager.state.hasUnsavedChanges = true;
             }
 
+            // Değişiklik varsa CSS devreye girer ve alttan Kaydet/Sıfırla çubuğu fırlar
             if (EditManager.state.hasUnsavedChanges) {
                 document.body.classList.add('has-unsaved-changes');
             } else {
@@ -118,7 +103,7 @@ const EditManager = {
             }
         },
 
-        sifirla(tamCikis = false) {
+        sifirla() {
             EditManager.state.hasUnsavedChanges = false;
             document.body.classList.remove('has-unsaved-changes');
             
@@ -126,59 +111,36 @@ const EditManager = {
                 siteVerisi = JSON.parse(JSON.stringify(EditManager.state.orijinalVeri));
             }
             
-            // ÇÖZÜM 1: Ekranı her şeyden ÖNCE çiziyoruz. Böylece inputlar ezilmiyor.
-            try {
-                ekraniCiz(); 
-            } catch(error) {
-                console.error("Çizim hatası yakalandı:", error);
-            }
-
-            if (tamCikis) {
-                document.body.classList.remove('global-edit-mode');
-                durum.isGlobalEditActive = false;
-                EditManager.state.orijinalVeri = null;
-                EditManager.Profile.duzenlemedenCik();
-            } else {
-                EditManager.Profile.duzenlemeyeGec(); 
-            }
+            // YENİ: Sıfırlama anında geçici link dizisini de orijinaline döndür
+            const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
+            EditManager.state.tempProfileLinks = [...(metinler.linkler || [])];
+            
+            try { ekraniCiz(); } catch(error) { console.error("Çizim hatası:", error); }
         },
 
         async kaydet() {
             if (!EditManager.state.hasUnsavedChanges) return;
 
-            // ============================================================
-            // YENİ: VİDGET GÜVENLİK KONTROLÜ (Boş widget kaydetmeyi engelle)
-            // ============================================================
+            // VİDGET GÜVENLİK KONTROLÜ
             if (siteVerisi.widgetlar && siteVerisi.widgetlar.length > 0) {
                 let bosWidgetVarMi = false;
-                
                 siteVerisi.widgetlar.forEach((widget, index) => {
                     if (widget && widget.ayarlar) {
-                        // Eğer içi boş bir alan varsa (Gelecekte diğer widget türleri için de burası genişletilebilir)
                         if (!widget.ayarlar.kullanici || widget.ayarlar.kullanici.trim() === '') {
                             bosWidgetVarMi = true;
-                            
-                            // Ekrandaki o spesifik boş widget kutusunu bul
                             const container = document.getElementById('widgets-container');
                             if (container) {
                                 const slot = container.querySelector(`.widget-slot[data-index="${index}"]`);
                                 if (slot) {
-                                    // CSS'te zaten var olan sarsılma ve kırmızı olma animasyonunu ekle
                                     slot.classList.add('shake-box-animation');
-                                    
-                                    // Animasyon bitince class'ı temizle ki tekrar hata yaparsa yine titreyebilsin
                                     setTimeout(() => slot.classList.remove('shake-box-animation'), 400);
                                 }
                             }
                         }
                     }
                 });
-
-                // Eğer boş widget bulunduysa, işlemi burada kes (Sunucuya gitme)
                 if (bosWidgetVarMi) {
                     toastGoster("Lütfen eklediğiniz widget'ı doldurun veya silin!");
-                    
-                    // İşlem çubuğundaki butonu tekrar aktif et ki kullanıcı düzelttikten sonra basabilsin
                     const saveBtn = document.getElementById('edit-save-btn');
                     if(saveBtn) {
                         saveBtn.classList.add('shake-box-animation');
@@ -187,14 +149,12 @@ const EditManager = {
                     return; 
                 }
             }
-            // ============================================================
 
             const saveBtn = document.getElementById('edit-save-btn');
             saveBtn.textContent = "İşleniyor...";
             saveBtn.disabled = true;
 
             try {
-                // Supabase'e güncel veriyi gönderiyoruz
                 const { error } = await supabaseClient
                     .from('profiles')
                     .update({
@@ -208,8 +168,11 @@ const EditManager = {
 
                 if (error) throw error; 
 
+                // Yeni orijinal veri, kaydettiğimiz güncel veri oluyor
                 EditManager.state.orijinalVeri = JSON.parse(JSON.stringify(siteVerisi));
-                this.sifirla(true);
+                
+                EditManager.state.hasUnsavedChanges = false;
+                document.body.classList.remove('has-unsaved-changes');
                 
                 saveBtn.textContent = "Onayla";
                 saveBtn.disabled = false;
@@ -218,14 +181,13 @@ const EditManager = {
             } catch (err) {
                 console.error("Veritabanı Kayıt Hatası:", err);
                 toastGoster("Kayıt sırasında bir hata oluştu!"); 
-                
                 saveBtn.textContent = "Onayla";
                 saveBtn.disabled = false;
             }
         }
     },
     // #endregion
-
+    
     // #region 1. YARDIMCI API FONKSİYONLARI
     async edgeCagir(payload) {
         const token = aktifKullaniciOturumu ? aktifKullaniciOturumu.access_token : SUPABASE_ANON_KEY;
@@ -245,13 +207,16 @@ const EditManager = {
         try {
             const data = await this.edgeCagir({ action: 'search', arama_metni: sorgu, arama_turu: aramaTuru });
             return data.sonuclar || [];
-        } catch (err) { console.error('Arama hatası:', err); return []; }
+        } catch (err) { 
+            console.error('Arama hatası:', err); 
+            toastGoster('Arama sırasında bir hata oluştu.');
+            return []; 
+        }
     },
     // #endregion
 
     // #region 2. İÇERİK YÖNETİMİ (Arama, Ekleme, Silme, Sürükle-Bırak)
     Content: {
-        // --- ANA BAŞLATICI ---
         baslat() {
             this.kategoriEklemeSisteminiKur();
             this.kategoriDuzenlemeSisteminiKur();
@@ -261,7 +226,6 @@ const EditManager = {
             this.surukleBirakSisteminiKur();
         },
 
-        // --- 1. KATEGORİ EKLEME MANTIĞI ---
         kategoriEklemeSisteminiKur() {
             const addCategoryBtn = document.getElementById('add-content-btn');
             const catModal = document.getElementById('category-modal');
@@ -290,10 +254,8 @@ const EditManager = {
 
             const modaliKapat = () => catModal.classList.remove('is-open');
 
-            addCategoryBtn.addEventListener('click', () => {
-                if (!durum.isGlobalEditActive) return;
-                
-                catErrorBox.style.display = 'none';
+            addCategoryBtn.addEventListener('click', () => {                
+                catErrorBox.classList.remove('is-visible');
                 secilenTur = 'film';
                 
                 optionBtns.forEach(b => {
@@ -321,8 +283,8 @@ const EditManager = {
                 
                 if (kategoriler.find(k => k.id === secilenTur)) {
                     catErrorBox.textContent = "Bu kategori zaten arşivinizde mevcut.";
-                    catErrorBox.style.display = 'block';
-                    catErrorBox.classList.add('shake-box-animation');
+                    catErrorBox.style.display = ''; 
+                    catErrorBox.classList.add('is-visible', 'shake-box-animation');
                     setTimeout(() => catErrorBox.classList.remove('shake-box-animation'), 400);
                     return;
                 }
@@ -368,7 +330,6 @@ const EditManager = {
             closeBtn.addEventListener('click', modaliKapat);
             backdrop.addEventListener('click', modaliKapat);
 
-            // Linki Güncelleme İşlemi
             submitBtn.addEventListener('click', () => {
                 const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
                 const kategoriler = metinler.kategoriler || [];
@@ -389,7 +350,6 @@ const EditManager = {
                 modaliKapat();
             });
 
-            // Kategoriyi Komple Silme İşlemi
             deleteBtn.addEventListener('click', () => {
                 const duzenlenenId = durum.duzenlenenKategoriId;
                 const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
@@ -402,7 +362,6 @@ const EditManager = {
                     metinler.kategoriler = kategoriler.filter(k => k.id !== duzenlenenId);
                     delete siteVerisi.icerik[duzenlenenId]; 
                     
-                    // Silinen kategori ekranda açıksa diğerine atla
                     if (aktifKategoriId === duzenlenenId) {
                         aktifKategoriId = metinler.kategoriler.length > 0 ? metinler.kategoriler[0].id : null;
                     }
@@ -419,13 +378,8 @@ const EditManager = {
             if (!tabsContainer) return;
 
             tabsContainer.addEventListener('dragstart', (e) => {
-                if (!durum.isGlobalEditActive) {
-                    e.preventDefault(); 
-                    return;
-                }
-                
                 const tab = e.target.closest('.tab');
-                if (!tab) { e.preventDefault(); return; }
+                if(!tab) return;
                 
                 tab.classList.add('is-dragging');
                 e.dataTransfer.effectAllowed = 'move';
@@ -433,7 +387,6 @@ const EditManager = {
             });
 
             tabsContainer.addEventListener('dragover', (e) => {
-                if (!durum.isGlobalEditActive) return;
                 e.preventDefault(); 
 
                 const draggingTab = tabsContainer.querySelector('.is-dragging');
@@ -453,15 +406,12 @@ const EditManager = {
                 }
             });
 
-            tabsContainer.addEventListener('dragend', (e) => {
-                if (!durum.isGlobalEditActive) return;
-                
+            tabsContainer.addEventListener('dragend', (e) => {                
                 const draggingTab = e.target.closest('.tab');
                 if (draggingTab) {
                     draggingTab.classList.remove('is-dragging');
                 }
 
-                // Sürükleme bitince yeni dizilimi DOM'dan okuyup State'e geçiriyoruz
                 const guncelSekmeElementleri = [...tabsContainer.querySelectorAll('.tab')];
                 const yeniSiralamaIdleri = guncelSekmeElementleri.map(el => el.dataset.id);
                 
@@ -482,7 +432,6 @@ const EditManager = {
             });
         },
 
-        // --- 2. İÇERİK ARAMA VE EKLEME MANTIĞI ---
         aramaMotorunuKur() {
             const searchModal = document.getElementById('search-modal');
             const searchBackdrop = document.getElementById('search-modal-backdrop');
@@ -497,11 +446,9 @@ const EditManager = {
                 clearTimeout(EditManager.state.aramaZamanlayici);
             };
 
-            // Kapatma Tetikleyicileri
             searchCloseBtn.addEventListener('click', modaliKapat);
             searchBackdrop.addEventListener('click', modaliKapat);
             
-            // Arama İşlemi
             searchInput.addEventListener('input', () => {
                 const sorgu = searchInput.value.trim();
                 clearTimeout(EditManager.state.aramaZamanlayici);
@@ -552,7 +499,6 @@ const EditManager = {
                 }, 350);
             });
 
-            // ESC Tuşu Kontrolü (Her İki Modalı da Kapatır)
             document.addEventListener('keydown', (e) => { 
                 if (e.key === 'Escape') {
                     if (searchModal.classList.contains('is-open')) modaliKapat();
@@ -562,21 +508,17 @@ const EditManager = {
             });
         },
 
-        // --- 3. İÇERİK KARTI SİLME MANTIĞI (İki Adımlı Onay) ---
         icerikSilmeSisteminiKur() {
             const contentGrid = document.getElementById('content-grid');
             if (!contentGrid) return;
 
             contentGrid.addEventListener('click', (e) => {
-                if (!durum.isGlobalEditActive) return;
-
                 const silBtn = e.target.closest('.card-delete-btn');
                 if (!silBtn) return;
 
                 const cardEl = silBtn.closest('.content-card');
                 if (!cardEl) return;
 
-                // İlk tıklama: Onay iste
                 if (!silBtn.classList.contains('confirm-delete')) {
                     silBtn.classList.add('confirm-delete');
                     silBtn.innerHTML = TIK_IKONU_SVG;
@@ -591,7 +533,6 @@ const EditManager = {
                     return;
                 }
 
-                // İkinci tıklama: Sil
                 clearTimeout(silBtn._geriDonTimeout);
                 const kimlik = cardEl.dataset.kimlik;
                 if (!kimlik || !aktifKategoriId) return;
@@ -602,18 +543,11 @@ const EditManager = {
             });
         },
 
-        // --- 4. SÜRÜKLE-BIRAK (DRAG & DROP) SIRALAMA MANTIĞI ---
         surukleBirakSisteminiKur() {
             const contentGrid = document.getElementById('content-grid');
             if (!contentGrid) return;
 
-            // Sürükleme Başladığında
             contentGrid.addEventListener('dragstart', (e) => {
-                if (!durum.isGlobalEditActive) {
-                    e.preventDefault(); 
-                    return;
-                }
-                
                 const card = e.target.closest('.content-card');
                 if (!card || card.classList.contains('ghost-add-slot')) {
                     e.preventDefault();
@@ -625,9 +559,7 @@ const EditManager = {
                 e.dataTransfer.setData('text/plain', 'dragging'); 
             });
 
-            // Sürükleme Esnasında
             contentGrid.addEventListener('dragover', (e) => {
-                if (!durum.isGlobalEditActive) return;
                 e.preventDefault(); 
 
                 const draggingCard = contentGrid.querySelector('.is-dragging');
@@ -648,23 +580,18 @@ const EditManager = {
                 }
             });
 
-            // Sürükleme Bittiğinde
             contentGrid.addEventListener('dragend', (e) => {
-                if (!durum.isGlobalEditActive) return;
-                
                 const draggingCard = e.target.closest('.content-card');
                 if (draggingCard) {
                     draggingCard.classList.remove('is-dragging');
                 }
 
-                // Sıralamayı Oku
                 const guncelSiraElementleri = [...contentGrid.querySelectorAll('.content-card:not(.ghost-add-slot)')];
                 const yeniSiralamaKimlikleri = guncelSiraElementleri.map(el => el.dataset.kimlik);
                 
                 const eskiDizi = siteVerisi.icerik[aktifKategoriId] || [];
                 const eskiSiralamaKimlikleri = eskiDizi.map(k => k.kimlik);
 
-                // Değişiklik Kontrolü ve Kayıt
                 if (yeniSiralamaKimlikleri.join(',') !== eskiSiralamaKimlikleri.join(',')) {
                     const yeniDizi = [];
                     yeniSiralamaKimlikleri.forEach(kimlik => {
@@ -682,85 +609,150 @@ const EditManager = {
  
     // #region 3. MEDYA YÖNETİMİ (PFP ve Banner)
     Media: {
-        async yukleVeGuncelle(file, tur) {
-            if (!aktifKullaniciOturumu) return;
-            const authId = aktifKullaniciOturumu.user.id;
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${tur}-${Date.now()}.${fileExt}`; 
-            const filePath = `${authId}/${fileName}`; 
+        cropperInstance: null,
+        guncelHedefTur: null, // 'pfp' veya 'banner'
 
-            try {
-                // 1. Görselin ekranda görünebilmesi için Supabase Storage'a atılması şart
-                const { error: uploadError } = await supabaseClient.storage.from('avatars-and-banners').upload(filePath, file);
-                if (uploadError) throw uploadError;
+        async yukleVeGuncelle(fileBlob, tur) {
+    if (!aktifKullaniciOturumu) return;
+    const authId = aktifKullaniciOturumu.user.id;
+    const fileName = `${tur}-${Date.now()}.webp`; 
+    const filePath = `${authId}/${fileName}`; 
 
-                const { data: publicUrlData } = supabaseClient.storage.from('avatars-and-banners').getPublicUrl(filePath);
-                const publicUrl = publicUrlData.publicUrl;
+    // YENİ: Yeni dosya yüklenmeden önce eskisinin yolunu çıkar
+    const eskiUrl = tur === 'banner' ? siteVerisi.profil_gorselleri?.banner_url : siteVerisi.profil_gorselleri?.pfp_url;
+    let eskiDosyaYolu = null;
+    if (eskiUrl) {
+        const marker = '/avatars-and-banners/';
+        const idx = eskiUrl.indexOf(marker);
+        if (idx !== -1) eskiDosyaYolu = eskiUrl.slice(idx + marker.length);
+    }
 
-                // 2. VERİTABANINA YAZMA İPTAL. Sadece anlık veriyi güncelliyoruz.
-                const yeniGorseller = { ...siteVerisi.profil_gorselleri };
-                if (tur === 'banner') yeniGorseller.banner_url = publicUrl;
-                if (tur === 'pfp') yeniGorseller.pfp_url = publicUrl;
+    try {
+        const { error: uploadError } = await supabaseClient.storage.from('avatars-and-banners').upload(filePath, fileBlob, {
+            contentType: 'image/webp',
+        });
+        
+        if (uploadError) throw uploadError;
 
-                siteVerisi.profil_gorselleri = yeniGorseller;
+        const { data: publicUrlData } = supabaseClient.storage.from('avatars-and-banners').getPublicUrl(filePath);
+        const publicUrl = publicUrlData.publicUrl;
+
+        const yeniGorseller = { ...siteVerisi.profil_gorselleri };
+        if (tur === 'banner') yeniGorseller.banner_url = publicUrl;
+        if (tur === 'pfp') yeniGorseller.pfp_url = publicUrl;
+
+        siteVerisi.profil_gorselleri = yeniGorseller;
+        
+        EditManager.Global.degisiklikYapildi();
+        ekraniCiz(); 
+        toastGoster("Görsel başarıyla güncellendi!");
+
+        // YENİ: Eski dosyayı arka planda temizle, hataysa sessizce logla (kritik yol değil)
+        if (eskiDosyaYolu && eskiDosyaYolu !== filePath) {
+            supabaseClient.storage.from('avatars-and-banners').remove([eskiDosyaYolu])
+                .catch(err => console.error('Eski görsel silinemedi:', err));
+        }
+
+    } catch (error) {
+        alert(`Yükleme hatası: ${error.message}`);
+    }
+},
+
+        cropModaliniAc(file, tur) {
+            const maxBoyut = 2 * 1024 * 1024; // 2 MB
+            if (file.size > maxBoyut) {
+                toastGoster(`Dosya çok büyük! Lütfen 2 MB'ın altında bir görsel seçin.`);
+                return;
+            }
+
+            this.guncelHedefTur = tur;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const modal = document.getElementById('cropper-modal');
+                const image = document.getElementById('cropper-image');
                 
-                // 3. Değişiklik yapıldığını sisteme bildir ve ekranı çiz
-                EditManager.Global.degisiklikYapildi();
-                ekraniCiz(); 
-                
-                if (durum.isGlobalEditActive) {
-                    EditManager.Profile.duzenlemeyeGec();
+                image.src = e.target.result;
+                modal.classList.add('is-open');
+
+                if (this.cropperInstance) {
+                    this.cropperInstance.destroy();
                 }
 
-            } catch (error) {
-                alert(`Görsel yüklenirken bir hata oluştu: ${error.message}`);
-            }
+                // Aspect Ratio Ayarları: PFP için 1:1, Banner için 5:1 
+                const oran = tur === 'pfp' ? 1 / 1 : 5 / 1; 
+
+                this.cropperInstance = new Cropper(image, {
+                    aspectRatio: oran,
+                    viewMode: 2,
+                    background: false,
+                    autoCropArea: 1,
+                });
+            };
+            reader.readAsDataURL(file);
         },
+
         baslat() {
             const bannerOverlay = document.getElementById('banner-edit-overlay');
             const bannerInput = document.getElementById('banner-file-input');
             const pfpOverlay = document.getElementById('pfp-edit-overlay');
             const pfpInput = document.getElementById('pfp-file-input');
 
-            if (bannerOverlay && bannerInput) {
-                bannerOverlay.addEventListener('click', () => {
-                    if (!document.body.classList.contains('global-edit-mode')) {
-            const ayarlarButonu = document.getElementById('settings-action-btn');
-            if (ayarlarButonu) ayarlarButonu.click();
-        }
-                    bannerInput.click();
+            // Crop Modal Elementleri
+            const cropperModal = document.getElementById('cropper-modal');
+            const btnClose = document.getElementById('cropper-modal-close');
+            const btnCancel = document.getElementById('cropper-cancel-btn');
+            const btnSave = document.getElementById('cropper-save-btn');
+            const backdrop = document.getElementById('cropper-modal-backdrop');
+
+            const modaliKapat = () => {
+                cropperModal.classList.remove('is-open');
+                if (this.cropperInstance) this.cropperInstance.destroy();
+                if (bannerInput) bannerInput.value = '';
+                if (pfpInput) pfpInput.value = '';
+            };
+
+            if (btnClose) btnClose.addEventListener('click', modaliKapat);
+            if (btnCancel) btnCancel.addEventListener('click', modaliKapat);
+            if (backdrop) backdrop.addEventListener('click', modaliKapat);
+
+            if (btnSave) {
+                btnSave.addEventListener('click', () => {
+                    if (!this.cropperInstance) return;
+                    
+                    btnSave.textContent = 'İşleniyor...';
+                    btnSave.disabled = true;
+
+                    const canvasWidth = this.guncelHedefTur === 'pfp' ? 400 : 1200; 
+
+                    const canvas = this.cropperInstance.getCroppedCanvas({
+                        width: canvasWidth,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high',
+                    });
+
+                    // Supabase'i yormamak için sıkıştırılmış webp formatına çeviriyoruz
+                    canvas.toBlob(async (blob) => {
+                        await this.yukleVeGuncelle(blob, this.guncelHedefTur);
+                        modaliKapat();
+                        btnSave.textContent = 'Kırp ve Yükle';
+                        btnSave.disabled = false;
+                    }, 'image/webp', 0.85); 
                 });
-                bannerInput.addEventListener('change', async (e) => {
+            }
+
+            if (bannerOverlay && bannerInput) {
+                bannerOverlay.addEventListener('click', () => bannerInput.click());
+                bannerInput.addEventListener('change', (e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                        const textSpan = bannerOverlay.querySelector('span');
-                        textSpan.textContent = "Yükleniyor..."; 
-                        await EditManager.Media.yukleVeGuncelle(file, 'banner');
-                        textSpan.textContent = "Değiştir"; 
-                    }
+                    if (file) this.cropModaliniAc(file, 'banner');
                 });
             }
 
             if (pfpOverlay && pfpInput) {
                 pfpOverlay.addEventListener('click', () => pfpInput.click());
-                pfpInput.addEventListener('change', async (e) => {
+                pfpInput.addEventListener('change', (e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                        // Yükleniyor görsel durumu
-                        pfpOverlay.style.opacity = "1"; 
-                        pfpOverlay.innerHTML = `<span style="font-size: 0.6rem; font-weight: bold;">Yükleniyor...</span>`;
-                        
-                        await EditManager.Media.yukleVeGuncelle(file, 'pfp');
-                        
-                        // Yükleme bitince eski kalem ikonuna dön
-                        pfpOverlay.style.opacity = ""; 
-                        pfpOverlay.innerHTML = `
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 20h9"></path>
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                            </svg>
-                        `;
-                    }
+                    if (file) this.cropModaliniAc(file, 'pfp');
                 });
             }
         }
@@ -769,6 +761,9 @@ const EditManager = {
 
     // #region 4. WIDGET YÖNETİMİ
     Widget: {
+        aktifDüzenlenenSlot: null, // Hangi widget'ın arkası dönük?
+        orijinalInputDegeri: "",   // İptal edilirse geri dönmek için yedeğimiz
+
         modalBaslat() {
             const modal = document.getElementById('widget-selection-modal');
             const closeBtn = document.getElementById('widget-modal-close');
@@ -776,38 +771,31 @@ const EditManager = {
             const buttons = document.querySelectorAll('.widget-select-btn:not(.disabled)');
 
             if (!modal) return;
-
             const modaliKapat = () => modal.classList.remove('is-open');
-
             if (closeBtn) closeBtn.addEventListener('click', modaliKapat);
             if (backdrop) backdrop.addEventListener('click', modaliKapat);
 
-            // Her bir widget butonuna tıklama olayı
             buttons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const type = btn.dataset.type;
                     if (!siteVerisi.widgetlar) siteVerisi.widgetlar = [];
                     
-                    // 1. Seçilen türü array'in sonuna ekle
                     siteVerisi.widgetlar.push({ tur: type, ayarlar: { kullanici: '' } });
-                    
-                    // 2. Önbelleği temizle (eski veriler bulaşmasın)
                     if(type === 'monkeytype') siteVerisi.monkeytype_skorlari = null;
                     
-                    // 3. Ekranı çiz ve state'i uyar
                     WidgetEngine.ciz();
                     EditManager.Global.degisiklikYapildi();
-                    
-                    // 4. Kullanıcının yazabilmesi için inputa odaklan
-                    setTimeout(() => {
-                        const newIndex = siteVerisi.widgetlar.length - 1;
-                        const container = document.getElementById('widgets-container');
-                        const newInput = container.querySelector(`.widget-slot[data-index="${newIndex}"] .widget-username-input`);
-                        if (newInput) newInput.focus();
-                    }, 50);
-
-                    // İşlem bitince modalı kapat
                     modaliKapat();
+                    
+                    // Yeni eklenen widget'ın ismini girmesi için kartı otomatik ters çeviriyoruz!
+                    setTimeout(() => {
+                        const container = document.getElementById('widgets-container');
+                        const newSlot = container.querySelector(`.widget-slot[data-index="${siteVerisi.widgetlar.length - 1}"]`);
+                        if (newSlot) {
+                            const editBtn = newSlot.querySelector('.edit-trigger-btn');
+                            if (editBtn) editBtn.click();
+                        }
+                    }, 50);
                 });
             });
         },
@@ -817,11 +805,8 @@ const EditManager = {
             if (!container) return;
 
             container.addEventListener('dragstart', (e) => {
-                if (!durum.isGlobalEditActive) { e.preventDefault(); return; }
                 const slot = e.target.closest('.widget-slot');
-                
-                // Sadece is-draggable sınıfı olanlar (dolu widgetlar) sürüklenebilir
-                if (!slot || !slot.classList.contains('is-draggable')) { e.preventDefault(); return; }
+                if (!slot || !slot.classList.contains('is-draggable')) return;
                 
                 slot.classList.add('is-dragging');
                 e.dataTransfer.effectAllowed = 'move';
@@ -829,49 +814,45 @@ const EditManager = {
             });
 
             container.addEventListener('dragover', (e) => {
-                if (!durum.isGlobalEditActive) return;
                 e.preventDefault();
-
                 const draggingSlot = container.querySelector('.is-dragging');
                 if (!draggingSlot) return;
 
                 const targetSlot = e.target.closest('.widget-slot:not(.is-dragging)');
                 if (targetSlot) {
                     const box = targetSlot.getBoundingClientRect();
-                    // Widget'lar alt alta dizildiği için Y eksenini (yukarı/aşağı) kontrol ediyoruz
                     const offset = e.clientY - box.top;
-                    
-                    if (offset > box.height / 2) {
-                        targetSlot.after(draggingSlot);
-                    } else {
-                        targetSlot.before(draggingSlot);
-                    }
+                    if (offset > box.height / 2) targetSlot.after(draggingSlot);
+                    else targetSlot.before(draggingSlot);
                 }
             });
 
             container.addEventListener('dragend', (e) => {
-                if (!durum.isGlobalEditActive) return;
                 const draggingSlot = e.target.closest('.widget-slot');
                 if (draggingSlot) draggingSlot.classList.remove('is-dragging');
 
-                // DOM'daki GÜNCEL sıralamayı oku (Sadece dolu olanları baz al)
                 const guncelSira = [...container.querySelectorAll('.widget-slot.is-draggable')];
-                
-                // Eski indeksleri okuyarak yeni bir array oluştur
                 const yeniWidgetDizisi = guncelSira.map(slot => {
                     const oldIndex = parseInt(slot.dataset.index);
                     return siteVerisi.widgetlar[oldIndex];
                 });
 
-                // Eğer bir yer değiştirme olduysa State'i güncelle ve kaydet çubuğunu tetikle
                 if (JSON.stringify(siteVerisi.widgetlar) !== JSON.stringify(yeniWidgetDizisi)) {
                     siteVerisi.widgetlar = yeniWidgetDizisi;
                     EditManager.Global.degisiklikYapildi();
+                    WidgetEngine.ciz(); // İndekslerin DOM'a işlemesi için arayüzü tekrar çiziyoruz
                 }
-                
-                // Sıralama değişmese bile (Örn: Yanlışlıkla boş yuvaya sürüklendiyse) DOM'u temizlemek için tekrar çiz
-                WidgetEngine.ciz(); 
             });
+        },
+
+        // Kartı kapatan güvenlik fonksiyonu
+        kartiKapat(slot) {
+            const inner = slot.querySelector('.widget-flip-inner');
+            if (inner) inner.classList.remove('is-flipped');
+            if (this.aktifDüzenlenenSlot === slot) {
+                this.aktifDüzenlenenSlot = null;
+                this.orijinalInputDegeri = "";
+            }
         },
 
         baslat() {
@@ -881,59 +862,137 @@ const EditManager = {
             const container = document.getElementById('widgets-container');
             if (!container) return;
 
+            // Tıklama Olayları Yönetimi
             container.addEventListener('click', (e) => {
-                if (!durum.isGlobalEditActive) return;
-
                 const slot = e.target.closest('.widget-slot');
                 if (!slot) return;
                 const index = parseInt(slot.dataset.index);
 
-                // 1. Yeni Ekle (+)'ya tıklandıysa (Hayalet yuva)
+                // 1. Yeni Ekle (+)'ya Tıklandıysa (Hayalet Yuva)
                 if (e.target.closest('.widget-ghost-slot')) {
-                    // YENİ: Artık direkt oluşturmuyor, modalı açıyor!
                     const modal = document.getElementById('widget-selection-modal');
                     if (modal) modal.classList.add('is-open');
+                    return;
                 }
 
-                // 2. Sil (Çarpı) butonuna tıklandıysa (Fareyle uzaklaşınca iptal olan onay)
-                if (e.target.closest('.widget-inline-delete')) {
-                    const silBtn = e.target.closest('.widget-inline-delete');
+                const inner = slot.querySelector('.widget-flip-inner');
+                const input = slot.querySelector('.widget-username-input');
 
-                    // İlk Tıklama: Onay İste
-                    if (!silBtn.classList.contains('confirm-delete')) {
-                        silBtn.classList.add('confirm-delete');
-                        silBtn.innerHTML = TIK_IKONU_SVG;
-                        silBtn.title = 'Silmek için tekrar tıkla';
-                        
-                        // Fare üzerinden çekilince (mouseleave) iptal et ve normale dön
-                        silBtn.addEventListener('mouseleave', function revertDelete() {
-                            silBtn.classList.remove('confirm-delete');
-                            silBtn.innerHTML = SIL_IKONU_SVG;
-                            silBtn.title = 'Kaldır';
-                        }, { once: true }); // once: true ile bu dinleyici bir kere çalıştıktan sonra kendini imha eder
-                        
-                        return;
+                // 2. Kalem (Düzenle) Butonuna Tıklandıysa -> Kartı Döndür
+                if (e.target.closest('.edit-trigger-btn')) {
+                    // Eğer açık bir kart varsa onu güvenlice kapatmayı dene
+                    if (this.aktifDüzenlenenSlot && this.aktifDüzenlenenSlot !== slot) {
+                        const aktifInput = this.aktifDüzenlenenSlot.querySelector('.widget-username-input');
+                        if (aktifInput && aktifInput.value.trim() !== this.orijinalInputDegeri) {
+                            // Diğer kartta değişiklik var, kapatılamaz! Onu titretip uyar.
+                            this.aktifDüzenlenenSlot.classList.add('shake-box-animation');
+                            setTimeout(() => { if(this.aktifDüzenlenenSlot) this.aktifDüzenlenenSlot.classList.remove('shake-box-animation') }, 400);
+                            return; 
+                        } else {
+                            this.kartiKapat(this.aktifDüzenlenenSlot); // Değişiklik yoksa eski kartı kapat
+                        }
                     }
 
-                    // İkinci Tıklama (Fareyi çekmeden hemen basarsa): Gerçekten Sil
+                    inner.classList.add('is-flipped');
+                    this.aktifDüzenlenenSlot = slot;
+                    this.orijinalInputDegeri = input ? input.value.trim() : "";
+                    
+                    // Inputa odaklan ve metnin sonuna git
+                    if (input) {
+                        setTimeout(() => {
+                            input.focus();
+                            input.selectionStart = input.selectionEnd = input.value.length;
+                        }, 300); // 3D dönüş süresini bekliyor
+                    }
+                    return;
+                }
+
+                // 3. İptal (X) Butonuna Tıklandıysa -> Yazıyı Geri Al ve Kapat
+                if (e.target.closest('.cancel-btn')) {
+                    if (input) input.value = this.orijinalInputDegeri;
+                    const actions = slot.querySelector('.widget-save-actions');
+                    if(actions) actions.classList.remove('is-visible');
+                    this.kartiKapat(slot);
+                    return;
+                }
+
+                // 4. Onayla (Check) Butonuna Tıklandıysa -> Sistemi Güncelle ve Kapat
+                if (e.target.closest('.confirm-btn')) {
+                    if (siteVerisi.widgetlar[index] && input) {
+                        const yeniDeger = input.value.trim();
+                        siteVerisi.widgetlar[index].ayarlar.kullanici = yeniDeger;
+                        if(siteVerisi.widgetlar[index].tur === 'monkeytype') siteVerisi.monkeytype_skorlari = null;
+                        
+                        EditManager.Global.degisiklikYapildi();
+                        WidgetEngine.ciz(); 
+                        this.aktifDüzenlenenSlot = null; 
+                    }
+                    return;
+                }
+
+                // 5. Sil (Çöp Kutusu) Butonuna Tıklandıysa -> Direkt Sil
+                if (e.target.closest('.delete-trigger-btn')) {
                     siteVerisi.widgetlar.splice(index, 1);
                     siteVerisi.monkeytype_skorlari = null; 
                     WidgetEngine.ciz(); 
                     EditManager.Global.degisiklikYapildi();
+                    this.aktifDüzenlenenSlot = null;
+                    return;
                 }
             });
 
+            // Girdi Dinleyicisi (Sadece değişiklik varsa Onay butonlarını gösterir)
             container.addEventListener('input', (e) => {
-                if (!durum.isGlobalEditActive) return;
                 const input = e.target.closest('.widget-username-input');
                 if (input) {
                     const slot = input.closest('.widget-slot');
-                    const index = parseInt(slot.dataset.index);
-                    const username = input.value.trim();
+                    const actions = slot.querySelector('.widget-save-actions');
+                    if (actions) {
+                        if (input.value.trim() !== this.orijinalInputDegeri) {
+                            actions.classList.add('is-visible');
+                        } else {
+                            actions.classList.remove('is-visible');
+                        }
+                    }
+                }
+            });
+
+            // Ekranda boşluğa tıklama sensörü (Click Outside)
+            document.addEventListener('click', (e) => {
+                if (!this.aktifDüzenlenenSlot) return;
+
+                // Tıklanan yer aktif widget değilse ve yeni widget ekleme ekranında değilsek
+                if (!this.aktifDüzenlenenSlot.contains(e.target) && !e.target.closest('.widget-selection-grid')) {
+                    const input = this.aktifDüzenlenenSlot.querySelector('.widget-username-input');
+                    const actions = this.aktifDüzenlenenSlot.querySelector('.widget-save-actions');
                     
-                    if (siteVerisi.widgetlar[index]) {
-                        siteVerisi.widgetlar[index].ayarlar.kullanici = username;
-                        EditManager.Global.degisiklikYapildi();
+                    if (input && input.value.trim() !== this.orijinalInputDegeri) {
+                        // Kilit mekanizması: Değişiklik varsa kapatmayı reddet ve titret
+                        this.aktifDüzenlenenSlot.classList.add('shake-box-animation');
+                        setTimeout(() => {
+                            if(this.aktifDüzenlenenSlot) this.aktifDüzenlenenSlot.classList.remove('shake-box-animation');
+                        }, 400);
+                    } else {
+                        // Değişiklik yoksa kartı geri kapat
+                        if(actions) actions.classList.remove('is-visible');
+                        this.kartiKapat(this.aktifDüzenlenenSlot);
+                    }
+                }
+            });
+            
+            // Enter tuşu ile hızlı onay
+            container.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const input = e.target.closest('.widget-username-input');
+                    if (input) {
+                        e.preventDefault();
+                        const slot = input.closest('.widget-slot');
+                        const confirmBtn = slot.querySelector('.confirm-btn');
+                        if (confirmBtn && slot.querySelector('.widget-save-actions.is-visible')) {
+                            confirmBtn.click();
+                        } else if (input.value.trim() === this.orijinalInputDegeri) {
+                            this.kartiKapat(slot);
+                        }
                     }
                 }
             });
@@ -943,233 +1002,391 @@ const EditManager = {
 
     // #region 5. PROFİL (METİN & LİNK) YÖNETİMİ
     Profile: {
+        isClickOutsideAttached: false,
+        isDraggingRow: false, 
+
         renderLinks() {
             const wrapper = document.getElementById('links-wrapper');
             if(!wrapper) return;
             wrapper.innerHTML = ''; 
             
-            EditManager.state.tempProfileLinks.forEach((link, index) => {
-                const span = document.createElement('span');
-                span.className = 'link-item is-editing';
-                span.innerHTML = `${getLinkIcon(link.url)} <span>${link.isim}</span>`;
-                
-                const editBtn = document.createElement('span');
-                editBtn.className = 'link-edit-badge';
-                editBtn.innerHTML = `<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-                
-                span.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    document.getElementById('inline-add-link-btn').dataset.editIndex = index;
-                    document.getElementById('inline-add-link-btn').click();
-                };
-                
-                span.appendChild(editBtn);
-                wrapper.appendChild(span);
-            });
-        },
-        duzenlemeyeGec() {
-            EditManager.state.isProfileEditing = true;
-            document.body.classList.add('is-editing-profile'); 
+            const KALEM_IKONU = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+            const SIL_IKONU = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
-            const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
-            const currentName = metinler.gorunen_isim || KULLANICI_ADI.charAt(0).toUpperCase() + KULLANICI_ADI.slice(1);
-            const currentTitle = metinler.unvan || '';
-            const currentBio = metinler.aciklama || '';
-
-            const nameEl = document.getElementById('inline-name');
-            const unvanEl = document.getElementById('inline-title');
-            const aciklamaEl = document.getElementById('inline-bio');
-
-            nameEl.classList.add('is-input-active');
-            nameEl.innerHTML = `<input type="text" id="edit-in-name" class="search-input edit-input-rect edit-name-input" maxlength="20" value="${currentName}" placeholder="Görünen İsim">`;
-            
-            unvanEl.innerHTML = `<input type="text" id="edit-in-title" class="search-input edit-input-rect" maxlength="30" value="${currentTitle}" placeholder="Ünvan Ekle (Örn: Designer)">`;
-            unvanEl.classList.remove('ghost-text');
-            
-            aciklamaEl.innerHTML = `<textarea id="edit-in-bio" class="search-input edit-input-rect auto-expand-textarea" maxlength="160" placeholder="Kendinden bahset...">${currentBio}</textarea>`;
-            aciklamaEl.classList.remove('ghost-text');
-
-            const autoExpand = function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-            };
-            
-            const bioInput = document.getElementById('edit-in-bio');
-            if (bioInput) {
-                bioInput.style.height = 'auto';
-                bioInput.style.height = (bioInput.scrollHeight) + 'px';
-                bioInput.addEventListener('input', autoExpand);
-            }
-
-            // Inputlara yazıldıkça anında state'e kaydet ve çubuğu tetikle
-            const inputlariDinle = () => { EditManager.Profile.anlikKaydet(); };
-            document.getElementById('edit-in-name').addEventListener('input', inputlariDinle);
-            document.getElementById('edit-in-title').addEventListener('input', inputlariDinle);
-            if (bioInput) bioInput.addEventListener('input', inputlariDinle);
-
-            EditManager.state.tempProfileLinks = [...(metinler.linkler || [])];
-            this.renderLinks();
-        },
-        anlikKaydet() {
-            // Sadece taslağa (siteVerisi) yazar ve çubuğu tetikler. DB'ye henüz gitmez.
-            const newName = document.getElementById('edit-in-name').value.trim();
-            const newTitle = document.getElementById('edit-in-title').value.trim();
-            const newBio = document.getElementById('edit-in-bio').value.trim();
-
-            const yeniMetinler = { ...(siteVerisi.profil_metinleri_ve_linkler || {}) };
-            yeniMetinler.gorunen_isim = newName;
-            yeniMetinler.unvan = newTitle;
-            yeniMetinler.aciklama = newBio;
-            yeniMetinler.linkler = EditManager.state.tempProfileLinks; 
-
-            siteVerisi.profil_metinleri_ve_linkler = yeniMetinler;
-            EditManager.Global.degisiklikYapildi();
-        },
-        duzenlemedenCik() {
-            EditManager.state.isProfileEditing = false;
-            document.body.classList.remove('is-editing-profile'); 
-            const nameEl = document.getElementById('inline-name');
-            if(nameEl) nameEl.classList.remove('is-input-active');
-            ekraniCiz(); 
-        },
-        baslat() {
-            const profileBox = document.querySelector('.box.profile');
-            
-            if (profileBox && isOwner) {
-                profileBox.addEventListener('click', (e) => {
-                    // 1. Eğer halihazırda düzenleme modundaysak hiçbir şey yapma
-                    if (durum.isGlobalEditActive) return;
-                    
-                    // 2. Kullanıcı profil kutusunun içindeki bir linke/butona tıkladıysa engelle (sayfaya gitsin)
-                    if (e.target.closest('a') || e.target.closest('button')) return;
-
-                    // 3. Şartlar uygunsa sistemi direkt düzenleme moduna geçir
-                    EditManager.Global.toggleEditMode();
-                });
-            }
-        },
-        linkModaliBaslat() {
-            const addBtn = document.getElementById('inline-add-link-btn');
-            const modal = document.getElementById('link-modal');
-            const closeBtn = document.getElementById('link-modal-close');
-            const backdrop = document.getElementById('link-modal-backdrop');
-            const submitBtn = document.getElementById('link-submit-btn');
-            const deleteBtn = document.getElementById('link-delete-btn');
-            const nameInput = document.getElementById('link-name-input');
-            const urlInput = document.getElementById('link-url-input');
-            const errorBox = document.getElementById('link-error-box');
-            const modalTitle = document.getElementById('link-modal-title');
-            
-            // Canlı Önizleme Seçicileri
-            const previewText = document.getElementById('link-preview-text');
-            const previewIcon = document.getElementById('link-preview-icon');
-            const defaultIconSvg = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
-
-            if (!modal || !addBtn) return;
-
-            // URL Doğrulama Regex'i
             const urlGecerliMi = (string) => {
                 const res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
                 return (res !== null);
             };
 
-            // Canlı Önizlemeyi Güncelleyen Fonksiyon
-            const onizlemeyiGuncelle = () => {
-                const isim = nameInput.value.trim() || 'Önizleme';
-                let url = urlInput.value.trim();
-                if (url && !url.startsWith('http')) url = 'https://' + url;
+            const closeAccordion = (rowEl, collapseEl, urlInput) => {
+                const currentUrl = urlInput.value.trim();
+                const errorEl = rowEl.querySelector('.inline-url-error');
                 
-                previewText.textContent = isim;
-                previewIcon.innerHTML = url && urlGecerliMi(url) ? getLinkIcon(url) : defaultIconSvg;
+                if (currentUrl && !urlGecerliMi(currentUrl)) {
+                    urlInput.style.borderColor = "var(--color-danger-rgb)";
+                    errorEl.style.display = "block";
+                    return false; // Hata varsa kapatma!
+                }
+
+                if (!rowEl.classList.contains('is-expanded')) return true;
+                
+                collapseEl.style.height = collapseEl.scrollHeight + 'px';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => { collapseEl.style.height = '0px'; });
+                });
+                
+                rowEl.classList.remove('is-expanded');
+                rowEl.setAttribute('draggable', 'true');
+                
+                const toggleBtn = rowEl.querySelector('.nook-link-toggle');
+                toggleBtn.innerHTML = KALEM_IKONU;
+                toggleBtn.title = 'Düzenle';
+
+                return true;
             };
 
-            nameInput.addEventListener('input', onizlemeyiGuncelle);
-            urlInput.addEventListener('input', onizlemeyiGuncelle);
+            const openAccordion = (rowEl, collapseEl) => {
+                if (rowEl.classList.contains('is-expanded')) return;
+                
+                let canOpen = true;
+                wrapper.querySelectorAll('.nook-link-row.is-expanded').forEach(openRow => {
+                    const otherUrlInput = openRow.querySelector('.edit-url-input');
+                    const isClosed = closeAccordion(openRow, openRow.querySelector('.nook-link-collapse'), otherUrlInput);
+                    if (!isClosed) canOpen = false; 
+                });
 
-            const modaliAc = (e) => {
-                e.stopPropagation(); 
-                modal.classList.add('is-open');
-                errorBox.style.display = 'none';
+                if (!canOpen) return; 
                 
-                const editIndex = addBtn.dataset.editIndex;
+                rowEl.classList.add('is-expanded');
+                rowEl.removeAttribute('draggable');
                 
-                if (editIndex !== undefined && editIndex !== "") {
-                    // DÜZENLEME MODU
-                    const linkData = EditManager.state.tempProfileLinks[editIndex];
-                    modalTitle.textContent = "Linki Düzenle";
-                    submitBtn.textContent = "Güncelle";
-                    deleteBtn.style.display = "block";
-                    nameInput.value = linkData.isim;
-                    urlInput.value = linkData.url;
+                const toggleBtn = rowEl.querySelector('.nook-link-toggle');
+                toggleBtn.innerHTML = SIL_IKONU;
+                toggleBtn.title = 'Sil';
+
+                collapseEl.style.height = collapseEl.scrollHeight + 'px';
+                setTimeout(() => {
+                    if (rowEl.classList.contains('is-expanded')) collapseEl.style.height = 'auto';
+                }, 220);
+            };
+
+            const deleteRowWithAnim = (rowEl, index) => {
+                rowEl.classList.add('is-deleting');
+                
+                // Silinme işleminde global kaydet butonundaki kilit varsa açalım
+                const saveBtn = document.getElementById('edit-save-btn');
+                if (saveBtn) saveBtn.classList.remove('is-locked');
+
+                setTimeout(() => {
+                    EditManager.state.tempProfileLinks.splice(index, 1);
+                    if (!siteVerisi.profil_metinleri_ve_linkler) siteVerisi.profil_metinleri_ve_linkler = {};
+                    siteVerisi.profil_metinleri_ve_linkler.linkler = EditManager.state.tempProfileLinks;
+                    EditManager.Global.degisiklikYapildi();
+                    EditManager.Profile.renderLinks();
+                }, 250); 
+            };
+
+            EditManager.state.tempProfileLinks.forEach((link, index) => {
+                let domain = '';
+                try { domain = new URL(link.url).hostname.replace(/^www\./, ''); } catch(e) { domain = 'Bağlantı'; }
+
+                const row = document.createElement('div');
+                row.className = 'nook-link-row';
+                row.setAttribute('draggable', 'true');
+                row.dataset.index = index; 
+
+                // YENİ HTML: Başlık kaldırıldı, input altına hata mesajı satırı eklendi
+                row.innerHTML = `
+                    <div class="nook-link-main">
+                        <div class="nook-link-icon">${getLinkIcon(link.url)}</div>
+                        <div class="nook-link-info">
+                            <span class="nook-link-name">${escapeHtml(link.isim) || 'Yeni bağlantı'}</span>
+                            <input type="text" class="nook-link-input edit-isim-input" placeholder="Görünen İsim (Örn: Twitter)" value="${escapeHtml(link.isim)}" autocomplete="off" spellcheck="false">
+                            <span class="nook-link-domain">${domain}</span>
+                        </div>
+                        <button class="nook-link-toggle" title="Düzenle">${KALEM_IKONU}</button>
+                    </div>
+                    
+                    <div class="nook-link-collapse" style="height: 0px;">
+                        <div class="nook-link-form">
+                            <input type="url" class="nook-link-input edit-url-input" placeholder="https://ornek.com" value="${escapeHtml(link.url)}" autocomplete="off" spellcheck="false">
+                            <span class="inline-url-error" style="display: none; color: var(--color-danger-light); font-size: 11px; margin-top: 2px;">Lütfen geçerli bir internet adresi girin.</span>
+                        </div>
+                    </div>
+                `;
+                
+                const toggleBtn = row.querySelector('.nook-link-toggle');
+                const collapseEl = row.querySelector('.nook-link-collapse');
+                const nameInput = row.querySelector('.edit-isim-input');
+                const urlInput = row.querySelector('.edit-url-input');
+                const errorEl = row.querySelector('.inline-url-error');
+
+                const autoSave = () => {
+                    let val = urlInput.value.trim();
+                    const saveBtn = document.getElementById('edit-save-btn');
+
+                    // 1. HATA KONTROLÜ
+                    if (val && !urlGecerliMi(val)) {
+                        urlInput.style.borderColor = "var(--color-danger-rgb)";
+                        errorEl.style.display = "block";
+                        if (saveBtn) saveBtn.classList.add('is-locked'); // Onay Butonunu Kilitle
+                        return; // Sistemi Güncelleme
+                    } 
+                    
+                    // 2. HATA YOKSA NORMAL İŞLEYİŞE DÖN
+                    urlInput.style.borderColor = "";
+                    errorEl.style.display = "none";
+                    
+                    // Başka bir satırda hata var mı diye kontrol et, yoksa kilidi aç
+                    if (saveBtn) {
+                        const anyError = document.querySelector('.inline-url-error[style*="display: block"]');
+                        if (!anyError) saveBtn.classList.remove('is-locked');
+                    }
+
+                    if (val && !val.startsWith('http')) val = 'https://' + val;
+                    EditManager.state.tempProfileLinks[index] = { isim: nameInput.value.trim(), url: val };
+                    
+                    if (!siteVerisi.profil_metinleri_ve_linkler) siteVerisi.profil_metinleri_ve_linkler = {};
+                    siteVerisi.profil_metinleri_ve_linkler.linkler = EditManager.state.tempProfileLinks;
+                    EditManager.Global.degisiklikYapildi(); 
+                };
+
+                nameInput.addEventListener('input', autoSave);
+                urlInput.addEventListener('input', autoSave);
+
+                row.addEventListener('mousedown', (e) => e.stopPropagation());
+
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (EditManager.Profile.isDraggingRow) return; 
+
+                    if (row.classList.contains('is-expanded')) {
+                        deleteRowWithAnim(row, index);
+                    } else {
+                        openAccordion(row, collapseEl);
+                        setTimeout(() => nameInput.focus(), 50);
+                    }
+                });
+
+                wrapper.appendChild(row);
+            });
+        },
+
+        alanDuzenlemeyiBaslat(elementId, alanAdi, varsayilanMetin, maxKarakter, isTextarea = false) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+
+            el.addEventListener('click', (e) => {
+                if (el.querySelector('input') || el.querySelector('textarea') || e.target.closest('a') || e.target.closest('button')) return;
+
+                const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
+                const guncelDeger = metinler[alanAdi] || (alanAdi === 'gorunen_isim' ? KULLANICI_ADI.charAt(0).toUpperCase() + KULLANICI_ADI.slice(1) : '');
+                
+                el.classList.add('is-input-active');
+                
+                let inputHTML = '';
+                if (isTextarea) {
+                    inputHTML = `
+                        <div style="position: relative;">
+                            <textarea class="search-input edit-input-rect auto-expand-textarea" maxlength="${maxKarakter}" placeholder="${varsayilanMetin}" style="padding-bottom: 24px;">${guncelDeger}</textarea>
+                            <span class="bio-counter" style="position: absolute; bottom: 12px; right: 12px; font-size: 0.7rem; color: rgba(255,255,255,0.4); font-family: var(--font-mono); pointer-events: none;">${guncelDeger.length}/${maxKarakter}</span>
+                        </div>
+                    `;
+                    el.classList.remove('ghost-text');
                 } else {
-                    // YENİ EKLEME MODU
-                    modalTitle.textContent = "Yeni Link Ekle";
-                    submitBtn.textContent = "Ekle";
-                    deleteBtn.style.display = "none";
-                    nameInput.value = '';
-                    urlInput.value = '';
+                    inputHTML = `<input type="text" class="search-input edit-input-rect edit-name-input" maxlength="${maxKarakter}" value="${guncelDeger}" placeholder="${varsayilanMetin}">`;
+                    if (elementId !== 'inline-name') el.classList.remove('ghost-text');
                 }
                 
-                onizlemeyiGuncelle();
-                setTimeout(() => nameInput.focus(), 50);
-            };
-
-            const modaliKapat = () => {
-                modal.classList.remove('is-open');
-                addBtn.dataset.editIndex = ""; // Hafızayı temizle
-            };
-
-            addBtn.addEventListener('click', modaliAc);
-            closeBtn.addEventListener('click', modaliKapat);
-            backdrop.addEventListener('click', modaliKapat);
-
-            // Ekle / Güncelle
-            submitBtn.addEventListener('click', () => {
-                const isim = nameInput.value.trim();
-                let url = urlInput.value.trim();
-
-                if (!isim || !url) { 
-                    errorBox.textContent = "İsim ve URL boş bırakılamaz."; 
-                    errorBox.style.display = 'block'; 
-                    errorBox.classList.add('shake-box-animation');
-                    setTimeout(() => errorBox.classList.remove('shake-box-animation'), 400);
-                    return; 
+                el.innerHTML = inputHTML;
+                const inputEl = el.querySelector('input, textarea');
+                
+                if (isTextarea) {
+                    inputEl.style.height = 'auto';
+                    inputEl.style.height = (inputEl.scrollHeight) + 'px';
+                    inputEl.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = (this.scrollHeight) + 'px';
+                        const counterEl = el.querySelector('.bio-counter');
+                        if (counterEl) counterEl.textContent = `${this.value.length}/${maxKarakter}`;
+                    });
                 }
                 
-                if (!urlGecerliMi(url)) {
-                    errorBox.textContent = "Lütfen geçerli bir internet bağlantısı girin."; 
-                    errorBox.style.display = 'block'; 
-                    errorBox.classList.add('shake-box-animation');
-                    setTimeout(() => errorBox.classList.remove('shake-box-animation'), 400);
-                    return;
-                }
+                inputEl.focus();
 
-                if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
+                const kaydetVeKapat = () => {
+                    const yeniDeger = inputEl.value.trim();
+                    if (!siteVerisi.profil_metinleri_ve_linkler) siteVerisi.profil_metinleri_ve_linkler = {};
+                    siteVerisi.profil_metinleri_ve_linkler[alanAdi] = yeniDeger;
+                    el.classList.remove('is-input-active');
+                    ekraniCiz(); 
+                    EditManager.Global.degisiklikYapildi(); 
+                };
 
-                const editIndex = addBtn.dataset.editIndex;
+                inputEl.addEventListener('blur', kaydetVeKapat);
+                inputEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !isTextarea) {
+                        e.preventDefault();
+                        kaydetVeKapat();
+                    }
+                });
+            });
+        },
+
+        linkSurukleBirakSisteminiKur() {
+            const wrapper = document.getElementById('profile-links-container');
+            if (!wrapper) return;
+
+            wrapper.addEventListener('dragstart', (e) => {
+                const linkItem = e.target.closest('.nook-link-row');
+                if (!linkItem) { e.preventDefault(); return; }
                 
-                if (editIndex !== undefined && editIndex !== "") {
-                    // Güncelle
-                    EditManager.state.tempProfileLinks[editIndex] = { isim, url };
-                } else {
-                    // Yeni Ekle
-                    EditManager.state.tempProfileLinks.push({ isim, url });
-                }
-                
-                EditManager.Profile.anlikKaydet(); 
-                EditManager.Profile.renderLinks();
-                modaliKapat();
+                EditManager.Profile.isDraggingRow = true; 
+                linkItem.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', linkItem.dataset.index); 
             });
 
-            // Silme İşlemi
-            deleteBtn.addEventListener('click', () => {
-                const editIndex = addBtn.dataset.editIndex;
-                if (editIndex !== undefined && editIndex !== "") {
-                    EditManager.state.tempProfileLinks.splice(editIndex, 1);
-                    EditManager.Profile.anlikKaydet(); 
-                    EditManager.Profile.renderLinks();
-                    modaliKapat();
+            wrapper.addEventListener('dragover', (e) => {
+                e.preventDefault(); 
+                const draggingLink = wrapper.querySelector('.is-dragging');
+                if (!draggingLink) return;
+
+                const targetLink = e.target.closest('.nook-link-row:not(.is-dragging)');
+                if (targetLink) {
+                    const box = targetLink.getBoundingClientRect();
+                    const offset = e.clientY - box.top;
+                    
+                    if (offset > box.height / 2) {
+                        targetLink.after(draggingLink);
+                    } else {
+                        targetLink.before(draggingLink);
+                    }
+                }
+            });
+
+            wrapper.addEventListener('dragend', (e) => {
+                const draggingLink = e.target.closest('.nook-link-row');
+                if (draggingLink) draggingLink.classList.remove('is-dragging');
+
+                setTimeout(() => { EditManager.Profile.isDraggingRow = false; }, 50);
+
+                const actualWrapper = document.getElementById('links-wrapper');
+                if(!actualWrapper) return;
+                
+                const guncelSira = [...actualWrapper.querySelectorAll('.nook-link-row')];
+                const yeniDizi = guncelSira.map(el => {
+                    const oldIndex = parseInt(el.dataset.index);
+                    return EditManager.state.tempProfileLinks[oldIndex];
+                });
+
+                if (JSON.stringify(EditManager.state.tempProfileLinks) !== JSON.stringify(yeniDizi)) {
+                    EditManager.state.tempProfileLinks = yeniDizi;
+                    if (!siteVerisi.profil_metinleri_ve_linkler) siteVerisi.profil_metinleri_ve_linkler = {};
+                    siteVerisi.profil_metinleri_ve_linkler.linkler = yeniDizi;
+                    
+                    EditManager.Global.degisiklikYapildi();
+                    EditManager.Profile.renderLinks(); 
+                }
+            });
+        },
+
+        baslat() {
+            this.alanDuzenlemeyiBaslat('inline-name', 'gorunen_isim', 'Görünen İsim', 20);
+            this.alanDuzenlemeyiBaslat('inline-title', 'unvan', 'Ünvan Ekle (Örn: Designer)', 30);
+            this.alanDuzenlemeyiBaslat('inline-bio', 'aciklama', 'Kendinden bahset...', 160, true);
+
+            const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
+            EditManager.state.tempProfileLinks = [...(metinler.linkler || [])];
+            
+            this.renderLinks();
+            this.linkSurukleBirakSisteminiKur();
+
+            if (!this.isClickOutsideAttached) {
+                document.addEventListener('mousedown', (e) => {
+                    const wrapper = document.getElementById('links-wrapper');
+                    if (!wrapper) return;
+                    
+                    wrapper.querySelectorAll('.nook-link-row.is-expanded').forEach(openRow => {
+                        const idx = openRow.dataset.index;
+                        const linkData = EditManager.state.tempProfileLinks[idx];
+                        const urlInput = openRow.querySelector('.edit-url-input');
+                        
+                        const urlGecerliMi = (string) => {
+                            const res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+                            return (res !== null);
+                        };
+
+                        if (urlInput.value.trim() && !urlGecerliMi(urlInput.value.trim())) {
+                            urlInput.style.borderColor = "var(--color-danger-rgb)";
+                            openRow.querySelector('.inline-url-error').style.display = "block";
+                            return; 
+                        }
+
+                        if (linkData && !linkData.isim.trim() && !linkData.url.trim()) {
+                            openRow.classList.add('is-deleting');
+                            setTimeout(() => {
+                                EditManager.state.tempProfileLinks.splice(idx, 1);
+                                EditManager.Profile.renderLinks();
+                            }, 250);
+                        } else {
+                            const collapseEl = openRow.querySelector('.nook-link-collapse');
+                            collapseEl.style.height = collapseEl.scrollHeight + 'px';
+                            requestAnimationFrame(() => {
+                                requestAnimationFrame(() => { collapseEl.style.height = '0px'; });
+                            });
+                            
+                            openRow.classList.remove('is-expanded');
+                            openRow.setAttribute('draggable', 'true');
+                            
+                            const toggleBtn = openRow.querySelector('.nook-link-toggle');
+                            toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+                            toggleBtn.title = 'Düzenle';
+                            
+                            const nameInput = openRow.querySelector('.edit-isim-input');
+                            openRow.querySelector('.nook-link-name').textContent = nameInput.value.trim() || 'Yeni bağlantı';
+                            
+                            let domain = '';
+                            try { domain = new URL(urlInput.value.trim()).hostname.replace(/^www\./, ''); } catch(err) { domain = 'Bağlantı'; }
+                            openRow.querySelector('.nook-link-domain').textContent = domain;
+                        }
+                    });
+                });
+                this.isClickOutsideAttached = true;
+            }
+        },
+        
+        linkModaliBaslat() {
+            const addBtn = document.getElementById('inline-add-link-btn');
+            if (!addBtn) return;
+
+            addBtn.addEventListener('mousedown', (e) => e.stopPropagation()); 
+
+            addBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                if (EditManager.state.tempProfileLinks.length >= 10) {
+                    toastGoster("Profiline maksimum 10 link ekleyebilirsin.");
+                    return;
+                }
+                
+                const hasEmpty = EditManager.state.tempProfileLinks.some(l => !l.isim.trim() && !l.url.trim());
+                if (hasEmpty) {
+                    const expandedInput = document.querySelector('.nook-link-row.is-expanded .edit-isim-input');
+                    if (expandedInput) expandedInput.focus();
+                    return;
+                }
+                
+                EditManager.state.tempProfileLinks.push({ isim: '', url: '' });
+                EditManager.Global.degisiklikYapildi(); 
+                EditManager.Profile.renderLinks();
+                
+                const wrapper = document.getElementById('links-wrapper');
+                if (wrapper) {
+                    const newItem = wrapper.lastElementChild;
+                    if (newItem) {
+                        const toggleBtn = newItem.querySelector('.nook-link-toggle');
+                        if (toggleBtn) toggleBtn.click(); 
+                    }
                 }
             });
         }
@@ -1194,7 +1411,7 @@ const EditManager = {
             const sistemeRengiUygula = (hex) => {
                 const cleanHex = hex.toLowerCase();
                 siteVerisi.primary_color = cleanHex;
-                EditManager.Profile.anlikKaydet(); // Sadece değişikliği bildirmek için kullanıyoruz
+                EditManager.Global.degisiklikYapildi(); 
                 temaRenkleriniGuncelle(cleanHex);
 
                 hexInput.value = cleanHex.toUpperCase();
