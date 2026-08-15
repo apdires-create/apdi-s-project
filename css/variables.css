@@ -1,0 +1,248 @@
+/* #region 1: Temel Yapı ve Değişkenler (Variables, Reset, Starfield, Scrollbar) */
+:root {
+    /* 1a. PRIMITIVES (Boya Tüpleri - Sadece Varsayılan Tema İçin) */
+    --white-rgb: 255, 255, 255;
+    --taupe-500-rgb: 182, 168, 159;
+    --orange-500-rgb: 255, 136, 0;
+    --orange-600-rgb: 187, 128, 51;
+    --red-500-rgb: 220, 60, 60;
+    --red-200: #ffb8b8;
+    --green-500: #2ea043;
+    --green-400: #7fdc6d;
+    --amber-400: #f2a93b;
+    --amber-300: #ffcd7a;
+    --amber-600: #c97e1f;
+    --purple-glow: 120, 140, 255; 
+    --blue-500: #5ca8ff;
+
+    /* 1b. SEMANTIC / SİSTEM RENKLERİ */
+    --color-danger-rgb: var(--red-500-rgb);
+    --color-danger-light: var(--red-200);
+    --color-success: var(--green-500);
+    --color-success-light: var(--green-400);
+    --color-link: var(--blue-500);
+
+    /* 1c. THEME LAYER */
+    --accent-50: #fdf4e3;
+    --accent-100: #fbe8c2;
+    --accent-300: #f3c15a;
+    --accent-500: #ff8800; /* Klasik Nook Turuncusu */
+    --accent-700: #a87d1f;
+    --accent-text: #0b0d10;
+
+    --theme-primary: var(--accent-500); 
+    --theme-primary-hover: var(--accent-700); 
+    --theme-secondary-rgb: var(--taupe-500-rgb);
+    
+    --theme-bg-base: color-mix(in srgb, var(--accent-500) 3%, #060709);       
+    --theme-bg-panel: color-mix(in srgb, var(--accent-500) 8%, #0d0f14);
+
+    --theme-bg-input: rgba(255, 255, 255, 0.04);
+    --theme-border-input: rgba(var(--theme-secondary-rgb), 0.25);
+    
+    --theme-secondary: hsl(var(--primary-h, 32), 25%, 65%);
+    --theme-border-soft: color-mix(in srgb, var(--accent-500) 15%, transparent);
+
+    /* 1d. LANDING PAGE */
+    --landing-bg-void: #030409;      
+    --landing-bg-space: #070914;     
+    --landing-bg-panel: #0f1225;     
+    --landing-bg-panel-2: #161a33;
+    
+    --landing-glow-primary: rgba(var(--orange-500-rgb), 0.10); 
+    --landing-glow-secondary: rgba(var(--purple-glow), 0.06);
+
+    --landing-border-soft: rgba(255,255,255,0.09);
+    --landing-border-soft-2: rgba(255,255,255,0.14);
+    
+    --landing-text-primary: #f2f3f8;
+    --landing-text-muted: #8d92ab;
+    --landing-text-faint: #5b5f78;
+    
+    --landing-amber: var(--amber-400);
+    --landing-amber-hover: var(--amber-300);
+    --landing-amber-deep: var(--amber-600);
+    --landing-green: var(--green-400);
+
+    /* 1e. MARKA VE DIŞ ENTEGRASYONLAR */
+    --brand-monkeytype: #e2b714;
+    --brand-monkeytype-dark: #111;
+
+    /* 2. TYPOGRAPHY */
+    --font-primary: 'Montserrat', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+
+    --fs-xs: 0.65rem;
+    --fs-sm: 0.75rem;
+    --fs-base: 0.85rem;
+    --fs-md: 1rem;
+    --fs-lg: 1.2rem;
+    --fs-xl: 1.6rem;
+    
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+    --fw-extrabold: 800;
+
+    /* 3. RADIUS */
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-pill: 999px;
+    --radius-circle: 50%;
+
+    /* 4. SHADOWS & BLUR */
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 40px 80px -20px rgba(0, 0, 0, 0.9);
+    
+    --shadow-glass-inner: inset 1px 1px 2px rgba(255, 255, 255, 0.25), inset -1px -1px 3px rgba(0, 0, 0, 0.6);
+    
+    --blur-sm: blur(4px);
+    --blur-md: blur(8px);
+    --blur-lg: blur(20px);
+
+    --overlay-dim: rgba(0, 0, 0, 0.55);
+    --overlay-blur: blur(8px);
+
+    --text-stroke-dark: 0 1px 4px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9);
+    --icon-stroke-dark: drop-shadow(0px 1px 2px rgba(0,0,0,0.8)) drop-shadow(0px 0px 2px rgba(0,0,0,0.9));
+
+    /* 5. MOTION */
+    --transition-fast: 0.2s ease;
+    --transition-base: 0.3s ease;
+    --transition-smooth: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-flip: 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    /* 6. SPACING */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+    --space-4xl: 40px;
+    --space-5xl: 150px;
+
+    /* 8. LAYERS (z-index) */
+    --z-base: 1;
+    --z-inner-overlay: 10; 
+    --z-widget-pop: 20;    
+    --z-warning: 50;       
+    --z-banner: 99;
+    --z-mobile-nav: 100;   
+    --z-mobile-btn: 101;   
+    --z-dropdown: 200;
+    --z-modal: 500;
+    --z-modal-top: 600;
+}
+
+/* Starfield Arka Planı */
+#starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, var(--landing-glow-primary), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 15%, var(--landing-glow-secondary), transparent 60%),
+      var(--landing-bg-void);
+}
+
+.star {
+    position: absolute;
+    border-radius: var(--radius-circle);
+    background: #fff;
+    opacity: 0.6;
+    animation: twinkle var(--dur, 4s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.4); }
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+::selection {
+    background: var(--landing-amber);
+    color: #20140a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* Sıfırlama */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a, a:visited, a:hover, a:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Gövde */
+#app-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background-color: var(--theme-bg-base);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: var(--font-primary);
+    color: rgb(var(--white-rgb));
+}
+
+/* Ana Izgara */
+.container {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    padding: 8vh 2vw;
+    padding-top: 25vh;
+    gap: 2vw;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+/* Temel Kutu */
+.box {
+    background-color: var(--theme-bg-panel);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+}
+
+/* GLOBAL SCROLLBAR TASARIMI */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-secondary-rgb), 0.3);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--theme-secondary-rgb), 0.6);
+}
+/* #endregion */
