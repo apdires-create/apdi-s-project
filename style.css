@@ -1480,16 +1480,17 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 #inline-edit-trigger:hover .check-icon { stroke: var(--color-success); }
 
 .edit-name-input {
-    font-size: clamp(1rem, 1.5vw, 1.4rem) !important;
-    font-weight: 600 !important;
-    padding: 6px 10px !important;
+    font-size: clamp(0.9rem, 8cqw, 1.4rem) !important;
+    font-weight: var(--fw-semibold) !important;
+    padding: 4px 8px !important;
     height: auto !important;
     width: 100%;
 }
 
 .edit-input-rect {
+    font-size: clamp(0.75rem, 5.5cqw, 0.9rem);
     border-radius: 8px !important;
-    padding: 8px 12px !important;
+    padding: 6px 10px !important;
     width: 100%;
     margin-bottom: 6px;
 }
