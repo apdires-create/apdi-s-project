@@ -2551,12 +2551,6 @@ body.is-owner .widget-slot.is-draggable:active {
     flex-shrink: 0;
 }
 
-/* MOBİL UYUM */
-@media (max-width: 480px) {
-    .prompt-block { width: 92%; padding: 8px 0; }
-    .prompt-text { font-size: 0.86rem; }
-    .prompt-pill { padding: 12px 16px; border-radius: 12px; }
-    .prompt-btn { font-size: 0.82rem; padding: 10px 20px; }
 }
 /* #endregion */
 
@@ -3239,197 +3233,252 @@ body.is-owner .global-color-picker-wrapper {
 
 /* #endregion */
 
-/* #region Responsive Tasarım (Mobil Uyum - Faz 4) */
-@media (max-width: 480px) {
+/* #region Responsive Tasarım (Mobil Uyum - max-width: 640px) */
+@media (max-width: 640px) {
+    /* 1. SAHNE VE SAYFA AKIŞI */
     body {
         height: auto;
+        min-height: 100vh;
         overflow-y: auto;
         overflow-x: hidden;
     }
 
-    /* 1. BANNER VE GİRİŞ: %60 Küçültüldü ve Tepeye Sabitlendi */
+    #app-wrapper,
+    .stage {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 2. BANNER VE ÜST BUTONLAR */
     .banner {
-        position: fixed !important;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 80px !important; /* Eskiden ~200px'di, ince bir şerit oldu */
-        min-height: unset !important;
-        z-index: var(--z-mobile-nav);
+        flex: 0 0 90px;
+        height: 90px;
+        min-height: 90px;
+        position: relative;
+    }
+
+    .app-home-btn,
+    .home-trigger-btn {
+        top: 14px;
+        left: 14px;
+        width: 34px;
+        height: 34px;
     }
 
     .auth-trigger-btn {
-        position: fixed;
-        top: 20px; /* Banner'ın ortasına hizalı */
-        right: 20px;
-        z-index: var(--z-mobile-btn);
+        top: 14px;
+        right: 14px;
+        height: 34px;
+        padding: 0 12px;
     }
 
-    /* Sabitlenen banner içeriklerin üstünü örtmesin diye padding-top eklendi */
+    .global-color-picker-wrapper {
+        top: 14px;
+        right: 110px;
+    }
+
+    /* 3. ANA GRID -> DİKEY AKIŞ */
     .container {
-        display: flex; 
+        display: flex;
         flex-direction: column;
-        padding-top: 100px; /* 80px banner + 20px nefes boşluğu */
-        gap: var(--space-xl);
-        padding-bottom: 30px;
+        padding: 12px;
+        gap: 14px;
         height: auto;
+        flex: none;
     }
 
-    .profile, .content, .widgets {
+    .box {
+        border-radius: 16px;
+        min-height: auto;
+    }
+
+    .profile,
+    .content,
+    .widgets {
         width: 100%;
-        height: auto !important; 
+        height: auto !important;
         min-height: unset;
-        padding: 5vw;
+        order: unset;
     }
 
     .profile { order: 1; }
     .content { order: 2; }
     .widgets { order: 3; }
 
-    /* ==========================================
-       İÇERİK KARTLARI (Yatay Kaydırmalı Şerit)
-       ========================================== */
+    /* 4. PROFİL MOBİL DÜZENİ */
+    .profile {
+        height: auto;
+        min-height: auto;
+        perspective: none;
+    }
+
+    .profile-flip-inner {
+        height: auto;
+    }
+
+    .profile-flip-front,
+    .profile-flip-back {
+        position: relative;
+        inset: auto;
+        height: auto;
+        min-height: auto;
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .profile-flip-back {
+        position: absolute;
+        inset: 0;
+        height: 100%;
+    }
+
+    .profile-header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .profile-image {
+        width: 52px;
+        height: 52px;
+        flex-shrink: 0;
+    }
+
+    .profile-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .profile-title {
+        font-size: 0.82rem;
+        margin-top: 6px;
+    }
+
+    .profile-bio {
+        font-size: 0.85rem;
+        line-height: 1.45;
+        margin-top: 8px;
+        margin-bottom: 4px;
+        max-height: none;
+    }
+
+    /* 5. İÇERİK KUTUSU VE 2 SATIRLI YATAY KAYDIRMALI STRIP */
+    .box.content {
+        padding: 16px 12px;
+        overflow: hidden;
+        border-radius: 16px;
+    }
+
+    .content-tabs-row {
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    .tab {
+        height: 32px;
+        padding: 0 14px;
+        font-size: 0.75rem;
+    }
+
+    .add-content-btn {
+        width: 32px;
+        height: 32px;
+    }
+
     .content-body {
-        container-type: normal;
         flex: none;
         height: auto;
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 15px;
+        overflow: visible;
+        margin-top: 8px;
     }
 
     .content-grid {
-        display: grid;
+        overflow-x: auto;
+        overflow-y: hidden;
         grid-auto-flow: column;
-        grid-template-rows: repeat(2, minmax(190px, max-content));
-        grid-auto-columns: 105px;
-        column-gap: var(--space-md);
-        row-gap: 16px; 
-        align-items: start;
+        grid-template-columns: none;
+        grid-template-rows: repeat(2, auto);
+        grid-auto-columns: 110px;
+        scroll-snap-type: x mandatory;
+        scroll-padding-left: 12px;
+        justify-content: start;
+        gap: 12px;
+        padding-bottom: 8px;
+        scrollbar-gutter: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    .card { height: auto !important; }
-    .card-thumb { width: 105px; height: 150px; }
+    .content-card {
+        scroll-snap-align: start;
+        min-width: 110px;
+        width: 110px;
+    }
+
+    .card-thumb {
+        width: 110px;
+        aspect-ratio: 2 / 3;
+        border-radius: 10px;
+    }
+
     .card-label {
-        font-size: 0.75rem; 
-        margin-top: 6px; 
-        line-height: 1.3;
-        
-        /* Metni tam 2 satırda kısıtlar */
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        
-        height: 2.6em; /* Tam olarak 2 satırın yüksekliğine sabitliyoruz */
-        white-space: normal;
+        font-size: 0.75rem;
+        margin-top: 6px;
+        line-height: 1.25;
+        height: calc(1.25em * 2);
     }
-    .card-delete-btn { opacity: 1; transform: scale(1); width: 28px; height: 28px; top: -6px; right: -6px; }
 
-/* ==========================================
-       MODÜL 2: WIDGET'LAR (Taşma ve Çökme Çözümü)
-       ========================================== */
+    .card-delete-btn {
+        opacity: 1;
+        transform: scale(1);
+        width: 26px;
+        height: 26px;
+        top: 6px;
+        right: 6px;
+    }
+
+    .ghost-add-slot {
+        width: 110px;
+        aspect-ratio: 2 / 3;
+        border-radius: 10px;
+    }
+
+    .ghost-add-slot svg {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* 6. WIDGET KAPSAYICISI (MOBİL) */
     .widgets {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        width: 100%;
+        padding: 16px;
+        border-radius: 16px;
+        min-height: 100px;
     }
 
     .widget-slot {
         flex: none;
-        height: auto !important; 
-        min-height: 120px; /* Kutuya nefes aldırıyoruz */
-        position: relative;
-        z-index: 1;
-        width: 100%;
+        min-height: 100px;
     }
 
-    /* İŞTE ASIL SUÇLU BURADA: Mobilde container-type'ı sıfırlamalıyız! */
-    .widget-link {
-        container-type: normal !important; /* Yükseklik çökmesini engeller */
-        height: auto !important;
-        min-height: 120px;
-        padding: 15px 0; /* İçeriği kutunun ortasında tutar */
+    /* 7. PROMPT / BOŞ DURUM */
+    .prompt-block {
+        width: 92%;
+        padding: 8px 0;
     }
-
-    /* 1. KAPALI DURUM: Kesin 2x2 Izgara */
-    .stat-card {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        grid-template-rows: repeat(2, auto) !important;
-        gap: 15px 5px !important; /* Satırlar arasına boşluk eklendi */
-        height: auto !important;
-        padding: 10px !important;
-        align-content: center !important;
+    .prompt-text {
+        font-size: 0.86rem;
     }
-    
-    .stat-label, .stat-percent { font-size: 0.65rem !important; }
-    .stat-value { font-size: 1.1rem !important; }
-
-    .widget-slot:hover, 
-    .widget-slot:active {
-        z-index: var(--z-inner-overlay);
+    .prompt-pill {
+        padding: 12px 16px;
+        border-radius: 12px;
     }
-
-    /* 2. AÇILAN DURUM (OVERLAY): Sadece aşağı doğru büyür */
-    .widget-overlay {
-        top: 0;
-        left: 0;
-        width: 100%;
-        max-width: 100%;
-        height: auto; 
-        min-height: 160px; 
-        transform-origin: top center;
-        transform: scale(0.95);
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .widget-slot:hover .widget-overlay {
-        transform: scale(1);
-        opacity: 1;
-        pointer-events: auto;
-    }
-
-    /* 3. AÇILAN İÇERİK DÜZENİ */
-    .mt-hover-layout {
-        flex-direction: column !important; 
-        gap: 15px !important;
-        padding: 15px !important;
-    }
-
-    .mt-profile-section {
-        width: 100%;
-        flex: none !important;
-        flex-direction: row !important; 
-        justify-content: flex-start !important;
-    }
-
-    .mt-divider {
-        display: none !important; 
-    }
-
-    .mt-stats-section {
-        width: 100% !important;
-        flex: none !important;
-        padding: 0 !important;
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important; 
-        gap: 12px !important;
-    }
-
-    .mt-stat-label, .mt-stat-percent { font-size: 0.65rem !important; }
-    .mt-stat-value { font-size: 1.2rem !important; }
-    
-    .home-trigger-btn {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: var(--z-mobile-btn);
+    .prompt-btn {
+        font-size: 0.82rem;
+        padding: 10px 20px;
     }
 }
 /* #endregion */
