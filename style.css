@@ -949,6 +949,9 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     padding: 0; 
     background-color: transparent; 
     border: none;
+    container-type: inline-size;
+    min-width: 0;
+    min-height: 0;
 }
 
 .profile-flip-inner {
@@ -973,10 +976,12 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     -webkit-backface-visibility: hidden;
     background-color: var(--theme-bg-panel);
     border: 1px solid rgba(var(--white-rgb), 0.08);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
+    border-radius: var(--radius-box);
+    padding: var(--content-pad-y) var(--content-pad-x);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 /* Arka yüz başlangıçta ters durmalı */
@@ -989,20 +994,23 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
+    gap: 5cqw;
+    width: 100%;
+    flex-shrink: 0;
 }
 /* #endregion */
 
 /* #region 4.2: Profil Görseli ve Katmanı (Avatar & Overlay) */
 .profile-image {
-    width: clamp(48px, 6vw, 80px);
-    height: clamp(48px, 6vw, 80px);
+    width: 22cqw;
+    height: 22cqw;
+    aspect-ratio: 1 / 1;
     border-radius: var(--radius-circle);
     overflow: hidden;
     flex-shrink: 0;
     border: 2px solid rgba(var(--theme-secondary-rgb), 0.4);
     background-color: transparent;
-    position: relative; /* İçindeki hover katmanı için eklendi */
+    position: relative;
 }
 
 .profile-image img {
@@ -1038,50 +1046,55 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 /* #region 4.3: Profil Metinleri (İsim, Ünvan ve Biyografi) */
 .profile-name-wrapper {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 3cqw;
     flex: 1;
     min-width: 0;
 }
 
 .profile-name {
     flex: 1;
-    width: 100%;
-    font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem);
-    font-weight: var(--fw-semibold);
+    min-width: 0;
+    font-size: 9cqw;
+    font-weight: var(--fw-bold);
     letter-spacing: -0.01em;
-    line-height: 1.2;
-    color: rgba(var(--white-rgb), 0.8);
+    line-height: 1.15;
+    color: rgba(var(--white-rgb), 0.9);
     word-break: break-word;
     display: -webkit-box;
     -webkit-line-clamp: 2; 
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .profile-title {
-    font-size: clamp(0.75rem, 0.65rem + 0.4vw, 0.9rem);
-    line-height: 1.6;
-    letter-spacing: 0.1em;
+    font-size: 6cqw;
+    line-height: 1.35;
+    letter-spacing: 0.05em;
     color: rgba(var(--theme-secondary-rgb), 1);
-    margin-top: clamp(0.2rem, 1rem + 2vh, 0.6rem);
+    margin-top: 3cqw;
     font-weight: var(--fw-medium);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .profile-bio {
-    font-size: clamp(0.75rem, 0.65rem + 0.3vw, 0.85rem);
-    line-height: 1.5;
-    letter-spacing: 0.05em;
-    color: rgba(var(--white-rgb), 0.8);
-    margin-top: clamp(0.3rem, 1rem + 2vh, 0.3rem);
+    font-size: 5.5cqw;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    color: rgba(var(--white-rgb), 0.75);
+    margin-top: 3cqw;
     font-weight: var(--fw-regular);
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding-right: 8px;
+    padding-right: 4px;
+    word-break: break-word;
 }
 
 .profile-bio::-webkit-scrollbar { width: 4px; }
@@ -1107,6 +1120,36 @@ body.is-owner .profile-title:not(.is-input-active):hover,
 body.is-owner .profile-bio:not(.is-input-active):hover {
     background-color: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Kutu Daraldığında (max-width: 230px) Kompakt/Ortalı Düzen */
+@container (max-width: 230px) {
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 6px;
+    }
+    .profile-image {
+        width: 38cqw;
+        height: 38cqw;
+    }
+    .profile-name-wrapper {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .profile-name {
+        text-align: center;
+        white-space: normal;
+    }
+    .profile-title {
+        text-align: center;
+        white-space: normal;
+    }
+    .profile-bio {
+        text-align: center;
+    }
 }
 /* #endregion */
 
