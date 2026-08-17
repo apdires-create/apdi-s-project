@@ -2010,29 +2010,34 @@ body.is-owner .widget-slot.is-draggable:active {
     grid-row: 1 / 2;
     display: flex;
     flex-direction: column;
-    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    align-items: stretch;
+    justify-content: flex-start;
+    padding-inline: var(--content-pad-x);
+    padding-block: var(--content-pad-y);
+    overflow: hidden;
     min-height: 0;
+    container-type: inline-size;
 }
 
-/* NOT: Container-type ile iç responsive ölçüleri buradan hesaplanır */
 .content-body {
-    container-type: size;
-    container-name: contentgrid;
     flex: 1;
     min-height: 0;
-    overflow: hidden; 
-    padding: 15px 12px 20px 12px; /* Kartın esneme payı */
-    margin: -15px -12px -20px -12px; /* Dışarıdan görünmez alan açma hilesi */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin-top: clamp(0.6vh, 1vh, 1.6vh);
 }
 
 .content-grid {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
     display: grid;
-    grid-template-columns: repeat(auto-fit, 25.3cqh);
-    align-content: flex-start;
-    justify-content: flex-start;
-    column-gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem);
-    row-gap: 7cqh;
+    grid-template-columns: repeat(auto-fit, minmax(14cqw, 21cqw));
+    justify-content: center;
+    gap: 2cqw;
+    align-content: start;
 }
 /* #endregion */
 
@@ -2191,9 +2196,10 @@ body.is-owner .widget-slot.is-draggable:active {
 
 /* #region 6.3: İçerik Kartları (Standard Content Cards) */
 .content-card {
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    min-width: 0;
     cursor: pointer;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -2204,44 +2210,51 @@ body.is-owner .widget-slot.is-draggable:active {
 
 .card-thumb {
     position: relative;
-    border-radius: clamp(10px, 0.8vw + 6px, 18px);
+    aspect-ratio: 2 / 3;
+    width: 100%;
+    border-radius: var(--radius-card);
     overflow: hidden;
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.25);
     transition: border-color var(--transition-base), box-shadow var(--transition-base);
 }
 
 .card-thumb img {
     display: block;
-    width: 25.3cqh;
-    height: 36cqh;
-    background-color: var(--theme-primary);
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     transition: transform 0.4s ease;
 }
 
 .content-card:hover .card-thumb {
     border-color: rgba(var(--theme-secondary-rgb), 0.6);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 
 .content-card:hover .card-thumb img {
-    transform: scale(1.08);
+    transform: scale(1.06);
 }
 
 .card-label {
-    margin-top: 2cqh;
-    height: 8.5cqh;
-    font-size: 4cqh;
-    line-height: 1.1;
-    color: rgba(var(--white-rgb), 0.5);
+    margin-top: 6cqw;
+    font-size: 9cqw;
+    line-height: 1.25;
+    font-weight: 500;
     text-align: center;
-    font-weight: var(--fw-medium);
-    transition: color var(--transition-base);    
+    color: rgba(var(--white-rgb), 0.6);
+    transition: color var(--transition-base);
+
+    /* 2 satırlık sabit yükseklik */
+    height: calc(1.25em * 2);
+
+    /* Webkit ve standart line-clamp */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
-    -webkit-box-orient: vertical; 
+    -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .content-card:hover .card-label {
@@ -2315,8 +2328,8 @@ body.is-owner .widget-slot.is-draggable:active {
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 36cqh; 
-    border-radius: clamp(10px, 0.8vw + 6px, 18px);
+    aspect-ratio: 2 / 3;
+    border-radius: var(--radius-card);
 }
 
 .content-card.empty-add-card:hover .card-thumb.dashed-thumb {
@@ -2882,10 +2895,12 @@ body.is-owner #inline-add-link-btn {
    HAYALET YUVA (YENİ İÇERİK EKLEME POSTERİ)
    ========================================================================== */
 .ghost-add-slot {
-    width: 25.3cqh; /* Diğer afişlerle birebir aynı genişlik */
-    height: 36cqh;  /* Diğer afişlerle birebir aynı yükseklik */
-    border: 2px dashed rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: clamp(10px, 0.8vw + 6px, 18px);
+    container-type: inline-size;
+    aspect-ratio: 2 / 3;
+    width: 100%;
+    min-width: 0;
+    border: 2px dashed rgba(var(--theme-secondary-rgb), 0.35);
+    border-radius: var(--radius-card);
     display: none;
     align-items: center;
     justify-content: center;
@@ -2902,13 +2917,13 @@ body.is-owner .ghost-add-slot {
 .ghost-add-slot:hover {
     border-color: rgba(var(--theme-secondary-rgb), 0.8);
     background: rgba(var(--theme-secondary-rgb), 0.05);
-    transform: scale(1.03); /* Hover efekti diğer kartlara benzesin */
+    transform: translateY(-2px);
 }
 
 /* Sadece koca bir artı ikonu */
 .ghost-add-slot svg {
-    width: 48px;
-    height: 48px;
+    width: 32cqw;
+    height: 32cqw;
     color: rgba(var(--theme-secondary-rgb), 0.5);
     transition: color var(--transition-fast);
 }
