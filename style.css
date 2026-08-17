@@ -156,6 +156,17 @@
     --space-5xl: 150px;
 
     /* ============================================================
+       7. FLUID CONTAINER PROPORTIONS (Akıcı Oranlar & Grid)
+       ============================================================ */
+    --gap-x: clamp(1.6vw, 2.2vw, 3.2vw);
+    --gap-y: clamp(1.8vh, 2.4vh, 3.6vh);
+    --content-pad-x: clamp(1vw, 1.4vw, 2vw);
+    --content-pad-y: clamp(1vh, 1.6vh, 2.4vh);
+    --banner-h: clamp(15vh, 20vh, 25vh);
+    --radius-box: clamp(8px, 1vw + 1vh, 32px);
+    --radius-card: clamp(6px, 0.7vw + 0.7vh, 18px);
+
+    /* ============================================================
        8. LAYERS (z-index)
        ============================================================ */
 
@@ -223,12 +234,16 @@ a, a:visited, a:hover, a:active {
     color: inherit;
 }
 
-/* Gövde */
-#app-wrapper {
+/* Gövde ve Sahne (Stage) */
+#app-wrapper,
+.stage {
     position: relative;
     z-index: 1;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 body {
@@ -240,24 +255,30 @@ body {
     color: rgb(var(--white-rgb));
 }
 
-/* Ana Izgara */
+/* Ana Izgara (Row) */
 .container {
+    flex: 1;
+    min-height: 0;
     display: grid;
+    /* profil : widget : içerik = 1 : 1 : 2 */
+    grid-template-columns: 1fr 1fr 2fr;
+    column-gap: var(--gap-x);
+    row-gap: var(--gap-y);
+    padding-inline: var(--gap-x);
+    padding-block: var(--gap-y);
     width: 100%;
     height: 100%;
-    padding: 8vh 2vw;
-    padding-top: 25vh;
-    gap: 2vw;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 1fr);
+    box-sizing: border-box;
 }
 
 /* Temel Kutu */
 .box {
     background-color: var(--theme-bg-panel);
     border: 1px solid rgba(var(--white-rgb), 0.08);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
+    border-radius: var(--radius-box);
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
 }
 
 /* GLOBAL SCROLLBAR TASARIMI */
@@ -281,17 +302,15 @@ body {
 
 /* #region 2: Banner Alanı */
 .banner {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 20vh;
+    flex: 0 0 var(--banner-h);
+    position: relative;
+    width: 100%;
     background-color: var(--theme-bg-panel);
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    z-index: 90; 
+    z-index: 10;
 }
 
 .banner-image {
@@ -390,6 +409,8 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 /* #endregion */
 
 /* #region 3: Yeni Landing Page (Ana Vitrin) */
+
+/* #region 3.0: Yeni Landing Page (Ana Vitrin) */
 
 .landing-screen {
     width: 100vw;
@@ -916,14 +937,14 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 }
 /* #endregion */
 
-/* #region 4: Profil Alanı (Görünüm ve Düzenleme) */
+/* #endregion */
 
 /* #region 4: Profil Alanı */
 
 /* #region 4.1: Kapsayıcı ve Başlık (Layout & Header) */
 .profile {
     grid-column: 1 / 2;
-    grid-row: 1 / 4;
+    grid-row: 1 / 2;
     perspective: 1200px; /* 3D derinliği dış kasaya veriyoruz */
     padding: 0; 
     background-color: transparent; 
@@ -1537,7 +1558,7 @@ body.is-owner .ghost-text:hover {
 /* #region 1. GENEL WIDGET KASASI (Ortak Altyapı) */
 
 /* 1. GENEL KASA VE 3D PERSPEKTİF */
-.widgets { background-color: transparent; border: none; padding: 0; grid-column: 2/3; grid-row: 1/4; display: flex; flex-direction: column; gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem); position: relative; z-index: var(--z-banner); }
+.widgets { background-color: transparent; border: none; padding: 0; grid-column: 2/3; grid-row: 1/2; display: flex; flex-direction: column; gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem); position: relative; z-index: var(--z-banner); }
 
 .widget-slot { 
     flex: 1; min-height: 120px; position: relative; 
@@ -1985,8 +2006,8 @@ body.is-owner .widget-slot.is-draggable:active {
 
 /* #region 6.1: Ana Kapsayıcı ve Izgara (Main Layout & Grid) */
 .content {
-    grid-column: 3 / 5;
-    grid-row: 1 / 4;
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
     display: flex;
     flex-direction: column;
     gap: clamp(1rem, 0.5rem + 2vw, 2rem);

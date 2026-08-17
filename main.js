@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         // Kullanıcı adı varsa Ana Uygulamayı başlat
         document.getElementById('landing-screen').style.display = 'none';
-        document.getElementById('app-wrapper').style.display = 'block';
+        document.getElementById('app-wrapper').style.display = 'flex';
         
         // YENİ: Profil sayfasında o sarı ışık huzmesi gitsin, temamız düzgün çalışsın
         const starfield = document.getElementById('starfield');
