@@ -255,22 +255,41 @@ const EditManager = {
             const modaliKapat = () => catModal.classList.remove('is-open');
 
             addCategoryBtn.addEventListener('click', () => {                
-                catErrorBox.classList.remove('is-visible');
-                secilenTur = 'film';
+                if (catErrorBox) catErrorBox.classList.remove('is-visible');
                 
-                optionBtns.forEach(b => {
-                    b.classList.remove('active');
-                    if(b.dataset.value === 'film') b.classList.add('active');
+                const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
+                const kategoriler = metinler.kategoriler || [];
+                const ekliKategoriIdleri = new Set(kategoriler.map(k => k.id));
+
+                let ilkUygunTur = null;
+
+                optionBtns.forEach(btn => {
+                    const tur = btn.dataset.value;
+                    const zatenVar = ekliKategoriIdleri.has(tur);
+                    
+                    btn.classList.remove('active');
+                    btn.classList.toggle('is-disabled', zatenVar);
+                    btn.disabled = zatenVar;
+
+                    if (!zatenVar && !ilkUygunTur) {
+                        ilkUygunTur = tur;
+                        btn.classList.add('active');
+                    }
                 });
+
+                secilenTur = ilkUygunTur;
+                catSubmitBtn.disabled = !secilenTur;
                 
                 catModal.classList.add('is-open');
             });
 
             optionBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    if (btn.disabled || btn.classList.contains('is-disabled')) return;
                     optionBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     secilenTur = btn.dataset.value;
+                    catSubmitBtn.disabled = false;
                 });
             });
 
@@ -278,14 +297,17 @@ const EditManager = {
             catBackdrop.addEventListener('click', modaliKapat);
 
             catSubmitBtn.addEventListener('click', () => {
+                if (!secilenTur) return;
                 const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
                 const kategoriler = metinler.kategoriler || [];
                 
                 if (kategoriler.find(k => k.id === secilenTur)) {
-                    catErrorBox.textContent = "Bu kategori zaten arşivinizde mevcut.";
-                    catErrorBox.style.display = ''; 
-                    catErrorBox.classList.add('is-visible', 'shake-box-animation');
-                    setTimeout(() => catErrorBox.classList.remove('shake-box-animation'), 400);
+                    if (catErrorBox) {
+                        catErrorBox.textContent = "Bu kategori zaten arşivinizde mevcut.";
+                        catErrorBox.style.display = ''; 
+                        catErrorBox.classList.add('is-visible', 'shake-box-animation');
+                        setTimeout(() => catErrorBox.classList.remove('shake-box-animation'), 400);
+                    }
                     return;
                 }
 
@@ -1215,13 +1237,18 @@ const EditManager = {
                 inputEl.focus();
 
                 const kaydetVeKapat = () => {
-                    const yeniDeger = inputEl.value.trim();
-                    if (!siteVerisi.profil_metinleri_ve_linkler) siteVerisi.profil_metinleri_ve_linkler = {};
-                    siteVerisi.profil_metinleri_ve_linkler[alanAdi] = yeniDeger;
+                const yeniDeger = inputEl.value.trim();
+                if (yeniDeger === guncelDeger) { 
                     el.classList.remove('is-input-active');
-                    ekraniCiz(); 
-                    EditManager.Global.degisiklikYapildi(); 
-                };
+                    ekraniCiz();
+                    return;
+                }
+                if (!siteVerisi.profil_metinleri_ve_linkler) siteVerisi.profil_metinleri_ve_linkler = {};
+                siteVerisi.profil_metinleri_ve_linkler[alanAdi] = yeniDeger;
+                el.classList.remove('is-input-active');
+                ekraniCiz();
+                EditManager.Global.degisiklikYapildi();
+            };
 
                 inputEl.addEventListener('blur', kaydetVeKapat);
                 inputEl.addEventListener('keydown', (e) => {

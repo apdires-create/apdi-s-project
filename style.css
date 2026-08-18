@@ -759,9 +759,12 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 }
 .auth-switch-btn:hover { color: rgb(var(--white-rgb)); }
 
-.auth-submit-btn.is-locked {
-    opacity: 0.5;
+.auth-submit-btn.is-locked,
+.auth-submit-btn:disabled {
+    opacity: 0.35;
     cursor: not-allowed;
+    pointer-events: none;
+    box-shadow: none !important;
 }
 
 /* #endregion */
@@ -2105,15 +2108,16 @@ body.is-owner .widget-slot.is-draggable:active {
 .content-tabs-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+    width: 100%;
     flex-shrink: 0;
 }
 
 .content-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(0.5rem, 0.3rem + 1vw, 1rem);
+    align-items: center;
+    gap: clamp(0.4rem, 0.2rem + 0.8vw, 0.8rem);
+    width: 100%;
 }
 
 .tab {
@@ -2552,7 +2556,6 @@ body.is-owner .widget-slot.is-draggable:active {
     flex-shrink: 0;
 }
 
-}
 /* #endregion */
 
 /* #region 6.6: Modal Bileşenleri (Category Selection) */
@@ -2610,6 +2613,25 @@ body.is-owner .widget-slot.is-draggable:active {
     color: var(--accent-500);
     opacity: 1;
     transform: scale(1.15);
+}
+
+/* Zaten Ekli / Devre Dışı Durum */
+.category-option-btn:disabled,
+.category-option-btn.is-disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    pointer-events: none;
+    background-color: rgba(255, 255, 255, 0.01);
+    border-color: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.3);
+    box-shadow: none !important;
+}
+
+.category-option-btn:disabled svg,
+.category-option-btn.is-disabled svg {
+    opacity: 0.3;
+    transform: none !important;
+    color: currentColor !important;
 }
 /* #endregion */
 
@@ -2990,6 +3012,10 @@ body.is-owner .ghost-add-slot {
 /* #region 7.9: DİNAMİK KATEGORİ (SEKME) YÖNETİMİ */
 body.is-owner #add-content-btn {
     display: flex !important; 
+}
+
+#add-content-btn.is-hidden {
+    display: none !important;
 }
 
 /* Sekmeler Düzenleme Modunda Tutulabilir (Sürüklenebilir) Olur */

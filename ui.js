@@ -409,6 +409,7 @@ function getLinkIcon(url) {
 function sekmeleriVeIcerikleriHazirla() {
     const tabsContainer = document.getElementById('content-tabs');
     if (!tabsContainer) return;
+    const addBtn = document.getElementById('add-content-btn');
     tabsContainer.innerHTML = ''; 
 
     const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
@@ -489,11 +490,23 @@ function sekmeleriVeIcerikleriHazirla() {
             kartlariGriddeListele(siteVerisi.icerik[kat.id] || []);
             
             if (aktifKategoriId === kat.id) { 
-                        btn.classList.add('link-ready');
-                    }
+                btn.classList.add('link-ready');
+            }
         });
         tabsContainer.appendChild(btn);
     });
+
+    if (addBtn) {
+        const tumKategorilerEklendi = typeof SABIT_KATEGORILER !== 'undefined' && 
+            Object.keys(SABIT_KATEGORILER).every(tur => kategoriler.some(k => k.id === tur));
+
+        if (tumKategorilerEklendi) {
+            addBtn.classList.add('is-hidden');
+        } else {
+            addBtn.classList.remove('is-hidden');
+            tabsContainer.appendChild(addBtn);
+        }
+    }
 
     const contentGrid = document.getElementById('content-grid');
     

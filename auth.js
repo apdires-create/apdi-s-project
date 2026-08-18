@@ -97,7 +97,7 @@ async function sistemeKayitOl(email, password, username) {
             .insert([{ 
                 auth_id: data.user.id, 
                 kullanici_adi: temizKullaniciAdi,
-                profil_metinleri_ve_linkler: {},
+                profil_metinleri_ve_linkler: { unvan: "", aciklama: "", linkler: [] },
                 profil_gorselleri: {},
                 widgetlar: [],
                 icerik: {}
