@@ -232,7 +232,6 @@ const EditManager = {
             const catBackdrop = document.getElementById('category-modal-backdrop');
             const catCloseBtn = document.getElementById('category-modal-close');
             const catSubmitBtn = document.getElementById('category-submit-btn');
-            const catErrorBox = document.getElementById('category-error-box');
             const gridContainer = document.getElementById('custom-category-select');
             const catUrlInput = document.getElementById('category-url-input');
 
@@ -255,8 +254,6 @@ const EditManager = {
             const modaliKapat = () => catModal.classList.remove('is-open');
 
             addCategoryBtn.addEventListener('click', () => {                
-                if (catErrorBox) catErrorBox.classList.remove('is-visible');
-                
                 const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
                 const kategoriler = metinler.kategoriler || [];
                 const ekliKategoriIdleri = new Set(kategoriler.map(k => k.id));
@@ -300,16 +297,6 @@ const EditManager = {
                 if (!secilenTur) return;
                 const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
                 const kategoriler = metinler.kategoriler || [];
-                
-                if (kategoriler.find(k => k.id === secilenTur)) {
-                    if (catErrorBox) {
-                        catErrorBox.textContent = "Bu kategori zaten arşivinizde mevcut.";
-                        catErrorBox.style.display = ''; 
-                        catErrorBox.classList.add('is-visible', 'shake-box-animation');
-                        setTimeout(() => catErrorBox.classList.remove('shake-box-animation'), 400);
-                    }
-                    return;
-                }
 
                 let girilenUrl = catUrlInput ? catUrlInput.value.trim() : "";
                 if (girilenUrl && !girilenUrl.startsWith('http')) {
