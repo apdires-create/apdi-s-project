@@ -158,11 +158,11 @@
     /* ============================================================
        7. FLUID CONTAINER PROPORTIONS (Akıcı Oranlar & Grid)
        ============================================================ */
-    --gap-x: clamp(1.6vw, 2.2vw, 3.2vw);
-    --gap-y: clamp(1.8vh, 2.4vh, 3.6vh);
-    --content-pad-x: clamp(1vw, 1.4vw, 2vw);
-    --content-pad-y: clamp(1vh, 1.6vh, 2.4vh);
-    --banner-h: clamp(15vh, 20vh, 25vh);
+   --gap-x: clamp(12px, 1.8vw, 28px);
+    --gap-y: clamp(12px, 2vh, 28px);
+    --content-pad-x: clamp(16px, 1.8vw, 32px);
+    --content-pad-y: clamp(16px, 2.2vh, 32px);
+    --banner-h: 20vh;
     --radius-box: clamp(8px, 1vw + 1vh, 32px);
     --radius-card: clamp(6px, 0.7vw + 0.7vh, 18px);
 
@@ -1468,8 +1468,10 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     color: var(--accent-500);
     border: 1px solid color-mix(in srgb, var(--accent-500) 25%, transparent);
     border-radius: var(--radius-pill);
-    padding: clamp(4px, 1.2cqw, 6px) clamp(8px, 2.5cqw, 12px);
-    height: clamp(26px, 7cqw, 32px);
+    aspect-ratio: 1 / 1;
+    width: clamp(28px, 11cqw, 100px);
+    height: auto;
+    padding: 0;
     background: transparent;
     display: inline-flex;
     align-items: center;
@@ -1479,8 +1481,8 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 }
 
 #profile-flip-to-back svg {
-    width: clamp(14px, 3.8cqw, 16px);
-    height: clamp(14px, 3.8cqw, 16px);
+    width: 54%;
+    height: 54%;
     flex-shrink: 0;
 }
 
@@ -3391,6 +3393,17 @@ body.is-owner .global-color-picker-wrapper {
         font-size: 1.1rem;
         font-weight: 700;
         line-height: 1.2;
+    }
+
+    #profile-flip-to-back {
+        width: 32px;
+        height: 32px;
+        aspect-ratio: 1 / 1;
+    }
+
+    #profile-flip-to-back svg {
+        width: 16px;
+        height: 16px;
     }
 
     .profile-title {
