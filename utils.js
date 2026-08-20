@@ -42,8 +42,22 @@ function getContrastText(hex) {
     return luminance > 0.55 ? '#0b0d10' : '#ffffff';
 }
 
+function hslToRGB(h, s, l) {
+    s /= 100;
+    l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+    return {
+        r: Math.round(255 * f(0)),
+        g: Math.round(255 * f(8)),
+        b: Math.round(255 * f(4))
+    };
+}
+
 function temaRenkleriniGuncelle(secilenRenk) {
     if (!secilenRenk) return;
+    const { h } = hexToHSL(secilenRenk);
     const palette = generatePalette(secilenRenk);
     const root = document.documentElement;
     
@@ -52,5 +66,10 @@ function temaRenkleriniGuncelle(secilenRenk) {
     });
     root.style.setProperty('--accent-500', secilenRenk);
     root.style.setProperty('--accent-text', getContrastText(secilenRenk));
+    
+    // Kullanıcının seçtiği temanın Hue (renk tonu) ve Secondary RGB değerlerini dinamik bağla
+    root.style.setProperty('--primary-h', h);
+    const secRgb = hslToRGB(h, 25, 65);
+    root.style.setProperty('--theme-secondary-rgb', `${secRgb.r}, ${secRgb.g}, ${secRgb.b}`);
 }
 // #endregion
