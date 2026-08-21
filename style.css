@@ -43,7 +43,10 @@
     --theme-bg-input: rgba(255, 255, 255, 0.04);
     --theme-border-input: rgba(var(--theme-secondary-rgb), 0.25);
     
-    /* Göz yormayan pastel ikincil renk */
+    /* Göz yormayan pastel ikincil renk.
+       Not: --primary-h değişkeni varsayılan olarak turuncu tonunu (32) temsil eder;
+       kullanıcı tema rengini değiştirdiğinde utils.js -> temaRenkleriniGuncelle() tarafından dinamik olarak güncellenir. */
+    --primary-h: 32;
     --theme-secondary: hsl(var(--primary-h, 32), 25%, 65%);
     
     --theme-border-soft: color-mix(in srgb, var(--accent-500) 15%, transparent);
@@ -3253,9 +3256,8 @@ body.is-owner .global-color-picker-wrapper {
     align-items: center;
 }
 
-/* Damlalık (Color Picker) Butonu - SOLA ALINDI */
+/* Damlalık (Color Picker) Butonu */
 .nook-eyedropper-btn {
-    order: -1; /* SİHİRLİ DOKUNUŞ: HTML'i değiştirmeden butonu sola zorlar */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3279,13 +3281,26 @@ body.is-owner .global-color-picker-wrapper {
 
 /* Hex Input Düzeni */
 .nook-hex-input {
-    width: 100% !important; 
-    height: 36px !important;
-    margin: 0 !important;
+    flex: 1;
+    min-width: 0;
+    height: 36px;
+    padding: 0 10px;
+    margin: 0;
+    background-color: var(--theme-bg-input, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--theme-border-input, rgba(var(--theme-secondary-rgb), 0.25));
+    border-radius: 8px;
+    color: rgb(var(--white-rgb));
     font-family: var(--font-mono);
+    font-size: 0.85rem;
     text-transform: uppercase;
     text-align: center;
-    border-radius: 8px !important;
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.nook-hex-input:focus {
+    border-color: rgba(var(--theme-secondary-rgb), 0.8);
+    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
 }
 /* #endregion */
 

@@ -124,9 +124,6 @@
         <a href="/" class="app-home-btn" id="home-trigger-btn" title="Ana Sayfaya Dön">
             <div class="app-home-logo">N</div>
         </a>
-        <button id="auth-trigger-btn" class="auth-trigger-btn" title="Giriş / Ayarlar">
-            <span class="login-text" id="auth-trigger-text">Giriş Yap</span>
-        </button>
         <div id="global-color-picker-wrapper" class="global-color-picker-wrapper">
             <button type="button" class="nook-color-trigger" id="colorTrigger" title="Tema Rengini Değiştir"></button>
             
@@ -141,17 +138,20 @@
                     <div class="nook-hue-cursor" id="hueCursor"></div>
                 </div>
                 
-                <!-- YENİ ALT SATIR: Hex Kodu ve Damlalık Yan Yana -->
+                <!-- YENİ ALT SATIR: Damlalık ve Hex Kodu Yan Yana -->
                 <div class="nook-picker-bottom-row">
-                    <input type="text" id="hexInput" class="search-input nook-hex-input" maxlength="7" spellcheck="false" value="#FFFFFF">
                     <button type="button" class="nook-eyedropper-btn" id="eyedropperBtn" title="Ekrandan renk seç">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>
                         </svg>
                     </button>
+                    <input type="text" id="hexInput" class="nook-hex-input" maxlength="7" spellcheck="false" value="#FFFFFF">
                 </div>
             </div>
         </div>
+        <button id="auth-trigger-btn" class="auth-trigger-btn" title="Giriş / Ayarlar">
+            <span class="login-text" id="auth-trigger-text">Giriş Yap</span>
+        </button>
 
         <div class="banner">
             <img src="https://i.ibb.co/RTNFJZXT/banner-placeholder.png" alt="Banner" class="banner-image" id="banner-img">
