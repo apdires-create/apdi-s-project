@@ -869,10 +869,10 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
    ============================================================ */
 .app-home-btn {
     position: absolute;
-    top: 24px;
-    left: 24px;
-    width: 36px;
-    height: 36px;
+    top: 3vh;
+    left: 3vh;
+    width: 7vh;
+    height: 7vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -900,7 +900,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-clip: text;
     color: transparent;
     font-family: var(--font-primary);
-    font-size: 1.2rem;
+    font-size: 2.6vh;
     font-weight: var(--fw-extrabold);
 }
 /* ============================================================
@@ -908,10 +908,10 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
    ============================================================ */
 .home-trigger-btn {
     position: absolute;
-    top: 24px;
-    left: 24px;
-    width: 36px;
-    height: 36px;
+    top: 3vh;
+    left: 3vh;
+    width: 7vh;
+    height: 7vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -938,7 +938,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-clip: text;
     color: transparent;
     font-family: var(--font-primary);
-    font-size: 1.1rem;
+    font-size: 2.6vh;
     font-weight: var(--fw-extrabold);
 }
 /* #endregion */
@@ -2866,13 +2866,21 @@ body.is-owner .widget-slot.is-draggable:active {
 /* #endregion */
 
 /* #region 7.5: DIŞ ARAYÜZ (HEADER) KONTROLLERİ */
-.auth-trigger-btn {
+.header-actions {
     position: absolute;
-    top: 24px;
-    right: 24px;
+    top: 3vh;
+    right: 3vh;
+    display: flex;
+    align-items: center;
+    gap: 3vh;
+    z-index: var(--z-banner);
+}
+
+.auth-trigger-btn {
+    position: relative;
     width: auto; 
-    height: 36px;
-    padding: 0 16px;
+    height: 7vh;
+    padding: 0 2.2vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2883,13 +2891,12 @@ body.is-owner .widget-slot.is-draggable:active {
     border-radius: var(--radius-pill);
     color: rgba(var(--white-rgb), 0.6);
     cursor: pointer;
-    z-index: var(--z-banner); 
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .auth-trigger-btn .login-text {
     font-family: var(--font-primary);
-    font-size: 0.75rem;
+    font-size: 2.2vh;
     font-weight: var(--fw-semibold);
     letter-spacing: 0.02em;
 }
@@ -3146,24 +3153,20 @@ body.is-owner .tab:hover .tab-edit-badge {
 
 /* 1. Global Wrapper ve Açılma Animasyonu */
 .global-color-picker-wrapper {
-    position: absolute;
-    top: 24px;
-    right: 130px;
-    z-index: var(--z-banner);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease; 
+    position: relative;
+    display: none;
+    align-items: center;
+    justify-content: center;
 }
 
 body.is-owner .global-color-picker-wrapper {
-    opacity: 1;
-    pointer-events: auto;
+    display: flex;
 }
 
 /* 2. Tetikleyici Buton (Dış Renk Küresi) */
 .nook-color-trigger {
-    width: 38px;
-    height: 38px;
+    width: 7vh;
+    height: 7vh;
     border-radius: var(--radius-circle); 
     border: 2px solid rgba(255, 255, 255, 0.15); /* Temiz çerçeve */
     cursor: pointer;
@@ -3334,16 +3337,29 @@ body.is-owner .global-color-picker-wrapper {
         height: 34px;
     }
 
-    .auth-trigger-btn {
+    .app-home-logo,
+    .home-logo-n {
+        font-size: 1.1rem;
+    }
+
+    .header-actions {
         top: 14px;
         right: 14px;
+        gap: var(--space-sm);
+    }
+
+    .auth-trigger-btn {
         height: 34px;
         padding: 0 12px;
     }
 
-    .global-color-picker-wrapper {
-        top: 14px;
-        right: 110px;
+    .auth-trigger-btn .login-text {
+        font-size: 0.75rem;
+    }
+
+    .nook-color-trigger {
+        width: 34px;
+        height: 34px;
     }
 
     /* 3. ANA GRID -> DİKEY AKIŞ */
