@@ -2154,10 +2154,10 @@ body.is-owner .widget-slot.is-draggable:active {
     border: 1px solid color-mix(in srgb, var(--theme-secondary) 30%, transparent);
     color: var(--theme-secondary);
     border-radius: var(--radius-pill);
-    height: clamp(30px, 2vw + 0.8rem, 36px);
-    padding: 0 20px;
+    height: 5.9vh;
+    padding: 0 2.4vh;
     font-family: var(--font-primary);
-    font-size: 0.8rem;
+    font-size: 3.1vh;
     font-weight: var(--fw-medium);
     cursor: pointer;
     transition: all var(--transition-base);
@@ -2223,20 +2223,20 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .tab.active.link-ready .tab-link-icon {
-    width: 14px;
+    width: 3.3vh;
     opacity: 1;
-    margin-right: 6px;
+    margin-right: 0.8vh;
 }
 
 .tab-link-icon svg {
-    width: 14px;
-    height: 14px;
+    width: 3.3vh;
+    height: 3.3vh;
     flex-shrink: 0;
 }
 
 .tab-link-icon img {
-    width: 14px;
-    height: 14px;
+    width: 3.3vh;
+    height: 3.3vh;
     flex-shrink: 0;
     border-radius: 50%; /* İkonlar daha temiz ve modern dursun diye yuvarlak yapıyoruz */
     object-fit: contain;
