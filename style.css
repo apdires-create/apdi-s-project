@@ -685,14 +685,14 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     display: flex; flex-direction: column; justify-content: center; gap: 14px;
 }
 
-.search-input {
+.landing-auth-input {
     width: 100%; height: 48px; padding: 0 16px; border-radius: 14px;
     background: rgba(0, 0, 0, .2); border: 1px solid rgba(255, 255, 255, .08);
     color: rgb(var(--white-rgb)); font-family: var(--font-primary); font-size: .9rem;
     outline: none; transition: border-color .2s ease, background .2s ease;
 }
-.search-input::placeholder { color: rgba(var(--white-rgb), .35); }
-.search-input:focus { border-color: var(--landing-amber-hover); background: rgba(0, 0, 0, .4); }
+.landing-auth-input::placeholder { color: rgba(var(--white-rgb), .35); }
+.landing-auth-input:focus { border-color: var(--landing-amber-hover); background: rgba(0, 0, 0, .4); }
 
 /* Kayıt Modu (Kullanıcı Adı Açılması) */
 #landing-username-group { 
@@ -1500,23 +1500,32 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 #inline-edit-trigger:hover .check-icon { stroke: var(--color-success); }
 
 .edit-name-input {
-    font-size: clamp(0.9rem, 8cqw, 1.4rem) !important;
-    font-weight: var(--fw-semibold) !important;
-    padding: 4px 8px !important;
-    height: auto !important;
+    font-size: clamp(0.9rem, 8cqw, 1.4rem);
+    font-weight: var(--fw-semibold);
+    padding: 4px 8px;
+    height: auto;
     width: 100%;
 }
 
 .edit-input-rect {
-    font-size: clamp(0.75rem, 5.5cqw, 0.9rem);
-    border-radius: 8px !important;
-    padding: 6px 10px !important;
     width: 100%;
+    font-family: var(--font-primary);
+    font-size: clamp(0.75rem, 5.5cqw, 0.9rem);
+    color: rgb(var(--white-rgb));
+    background-color: rgba(var(--white-rgb), 0.04);
+    border: 1px solid rgba(var(--theme-secondary-rgb), 0.25);
+    border-radius: 8px;
+    padding: 6px 10px;
     margin-bottom: 6px;
+    outline: none;
+    resize: none;
+    box-sizing: border-box;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .edit-input-rect:focus {
-    border-color: rgba(var(--theme-secondary-rgb), 0.8) !important;
+    border-color: rgba(var(--theme-secondary-rgb), 0.8);
+    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
 }
 
 /* EKSİK/BOŞ VERİ GÖRÜNÜMLERİ */
@@ -1725,7 +1734,7 @@ body.is-owner .ghost-text:hover {
     font-size: 0.85rem;
     font-weight: var(--fw-semibold);
     outline: none;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .widget-username-input:focus {
@@ -1790,11 +1799,6 @@ body.is-owner .ghost-text:hover {
     margin-top: -2px; 
 }
 
-/* Kalem ikonunun metinle çakışmasını engellemek için sağdan biraz boşluk bırakıyoruz */
-.mt-front-view {
-    padding: 15px 45px 15px 25px !important; 
-}
-
 /* --- 9. WIDGET ARKA YÜZ (FORM UI) --- */
 .widget-edit-left {
     display: flex;
@@ -1819,26 +1823,6 @@ body.is-owner .ghost-text:hover {
     border-radius: 2px;
     margin: 0 16px;
     flex-shrink: 0;
-}
-
-.widget-username-input {
-    width: 100%;
-    height: 40px;
-    padding: 0 16px;
-    background-color: rgba(0, 0, 0, 0.25); 
-    border: 1px solid rgba(var(--white-rgb), 0.12);
-    border-radius: var(--radius-pill); 
-    color: rgb(var(--white-rgb));
-    font-family: var(--font-primary);
-    font-size: 0.85rem;
-    font-weight: var(--fw-semibold);
-    outline: none;
-    transition: border-color var(--transition-fast), background-color var(--transition-fast);
-}
-
-.widget-username-input:focus {
-    border-color: var(--accent-500);
-    background-color: rgba(0, 0, 0, 0.4);
 }
 
 /* --- 10. ZİYARETÇİ MODU İÇİN WIDGET HİZALAMASI --- */
@@ -1867,6 +1851,11 @@ body:not(.is-owner) .widget-slot {
     height: 100%; 
     padding: 15px 25px; 
     border-radius: inherit; 
+}
+
+/* Sayfa sahibi modunda düzenleme butonu için sağ boşluk */
+body.is-owner .mt-front-view {
+    padding-right: 40px;
 }
 
 /* 1. Sol Kısım (İkon ve İsim) */
@@ -1990,7 +1979,8 @@ body:not(.is-owner) .widget-slot {
 
 /* Mobilde Ön Yüzü Toparlama */
 @container widgetcard (max-width: 299px) {
-    .mt-front-view { gap: 10px; padding: 10px; }
+    .mt-front-view,
+    body.is-owner .mt-front-view { gap: 10px; padding: 10px; }
     .mt-front-right { gap: 10px; flex: 1.5; }
     .mt-stat-value { font-size: 1.5rem; }
     .mt-stat-label { font-size: 0.55rem; }
@@ -2705,9 +2695,11 @@ body.is-owner .widget-slot.is-draggable:active {
 
 /* #region 7.2: ORTAK INPUT VE KAPATMA YAPILARI */
 .search-input {
+    width: 100%;
     flex: 1;
     height: 40px;
     padding: 0 16px;
+    box-sizing: border-box;
     background-color: rgba(var(--white-rgb), 0.04);
     border: 1px solid rgba(var(--theme-secondary-rgb), 0.25);
     border-radius: var(--radius-pill);
@@ -2950,7 +2942,7 @@ body.has-unsaved-changes .edit-action-bar {
     gap: 10px;
 }
 
-.edit-btn {
+.edit-bar-btn {
     padding: 8px 16px;
     border-radius: 20px;
     font-size: 0.85rem;
@@ -3045,10 +3037,11 @@ body.is-owner .ghost-add-slot {
 
 /* #region 7.9: DİNAMİK KATEGORİ (SEKME) YÖNETİMİ */
 body.is-owner #add-content-btn {
-    display: flex !important; 
+    display: flex; 
 }
 
-#add-content-btn.is-hidden {
+#add-content-btn.is-hidden,
+body.is-owner #add-content-btn.is-hidden {
     display: none !important;
 }
 

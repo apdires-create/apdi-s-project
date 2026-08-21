@@ -409,7 +409,13 @@ function getLinkIcon(url) {
 function sekmeleriVeIcerikleriHazirla() {
     const tabsContainer = document.getElementById('content-tabs');
     if (!tabsContainer) return;
-    const addBtn = document.getElementById('add-content-btn');
+    let addBtn = document.getElementById('add-content-btn');
+    if (!addBtn && window._cachedAddCategoryBtn) {
+        addBtn = window._cachedAddCategoryBtn;
+    }
+    if (addBtn) {
+        window._cachedAddCategoryBtn = addBtn;
+    }
     tabsContainer.innerHTML = ''; 
 
     const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
@@ -504,8 +510,8 @@ function sekmeleriVeIcerikleriHazirla() {
             addBtn.classList.add('is-hidden');
         } else {
             addBtn.classList.remove('is-hidden');
-            tabsContainer.appendChild(addBtn);
         }
+        tabsContainer.appendChild(addBtn);
     }
 
     const contentGrid = document.getElementById('content-grid');

@@ -1197,13 +1197,13 @@ const EditManager = {
                 if (isTextarea) {
                     inputHTML = `
                         <div style="position: relative;">
-                            <textarea class="search-input edit-input-rect auto-expand-textarea" maxlength="${maxKarakter}" placeholder="${varsayilanMetin}" style="padding-bottom: 24px;">${guncelDeger}</textarea>
+                            <textarea class="edit-input-rect auto-expand-textarea" maxlength="${maxKarakter}" placeholder="${varsayilanMetin}" style="padding-bottom: 24px;">${guncelDeger}</textarea>
                             <span class="bio-counter" style="position: absolute; bottom: 12px; right: 12px; font-size: 0.7rem; color: rgba(255,255,255,0.4); font-family: var(--font-mono); pointer-events: none;">${guncelDeger.length}/${maxKarakter}</span>
                         </div>
                     `;
                     el.classList.remove('ghost-text');
                 } else {
-                    inputHTML = `<input type="text" class="search-input edit-input-rect edit-name-input" maxlength="${maxKarakter}" value="${guncelDeger}" placeholder="${varsayilanMetin}">`;
+                    inputHTML = `<input type="text" class="edit-input-rect edit-name-input" maxlength="${maxKarakter}" value="${guncelDeger}" placeholder="${varsayilanMetin}">`;
                     if (elementId !== 'inline-name') el.classList.remove('ghost-text');
                 }
                 
