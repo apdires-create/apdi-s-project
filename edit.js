@@ -792,6 +792,11 @@ const EditManager = {
                     siteVerisi.widgetlar.push({ tur: type, ayarlar: { kullanici: '' } });
                     if(type === 'monkeytype') siteVerisi.monkeytype_skorlari = null;
                     
+                    if (WidgetEngine && WidgetEngine.state) {
+                        const totalWidgets = siteVerisi.widgetlar.length;
+                        WidgetEngine.state.currentPage = Math.max(0, Math.ceil(totalWidgets / WidgetEngine.state.itemsPerPage) - 1);
+                    }
+                    
                     WidgetEngine.ciz();
                     EditManager.Global.degisiklikYapildi();
                     modaliKapat();
@@ -841,15 +846,19 @@ const EditManager = {
                 if (draggingSlot) draggingSlot.classList.remove('is-dragging');
 
                 const guncelSira = [...container.querySelectorAll('.widget-slot.is-draggable')];
-                const yeniWidgetDizisi = guncelSira.map(slot => {
+                const guncelSayfaWidgetlari = guncelSira.map(slot => {
                     const oldIndex = parseInt(slot.dataset.index);
                     return siteVerisi.widgetlar[oldIndex];
                 });
 
+                const startIndex = WidgetEngine.state.currentPage * WidgetEngine.state.itemsPerPage;
+                const yeniWidgetDizisi = [...siteVerisi.widgetlar];
+                yeniWidgetDizisi.splice(startIndex, guncelSayfaWidgetlari.length, ...guncelSayfaWidgetlari);
+
                 if (JSON.stringify(siteVerisi.widgetlar) !== JSON.stringify(yeniWidgetDizisi)) {
                     siteVerisi.widgetlar = yeniWidgetDizisi;
                     EditManager.Global.degisiklikYapildi();
-                    WidgetEngine.ciz(); // İndekslerin DOM'a işlemesi için arayüzü tekrar çiziyoruz
+                    WidgetEngine.ciz(); 
                 }
             });
         },

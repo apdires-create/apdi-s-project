@@ -1634,25 +1634,78 @@ body.is-owner .ghost-text:hover {
 .widgets {
     grid-column: 2 / 3;
     grid-row: 1 / 2;
-    background-color: var(--theme-bg-panel);
-    border: 1px solid rgba(var(--white-rgb), 0.08);
-    border-radius: var(--radius-box);
-    padding: var(--content-pad-y) var(--content-pad-x);
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding-block: 3%;
+    padding-inline: var(--space-sm);
     overflow: hidden;
     min-width: 0;
     min-height: 0;
     container-type: inline-size;
+    container-name: widgetcard;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem);
     position: relative;
     box-sizing: border-box;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.widgets.is-ready {
+    visibility: visible;
+    opacity: 1;
+}
+
+.widget-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    height: 12px;
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+.widget-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: rgba(var(--white-rgb), 0.2);
+    border: none;
+    cursor: pointer;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+    padding: 0;
+}
+
+.widget-dot:hover {
+    background-color: rgba(var(--white-rgb), 0.5);
+    transform: scale(1.2);
+}
+
+.widget-dot.is-active {
+    background-color: rgba(var(--white-rgb), 0.9);
+    transform: scale(1.2);
 }
 
 .widget-slot { 
-    flex: 1; min-height: 120px; position: relative; 
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: 10 / 4.5;
+    position: relative; 
     perspective: 1000px; /* 3D DÜNYASI BURADA BAŞLAR */
-    background-color: transparent; border: none;
+    background-color: transparent;
+    border: none;
+    box-sizing: border-box;
+    transition: z-index var(--transition-fast);
+}
+
+.widget-slot:hover {
+    z-index: var(--z-widget-pop);
 }
 
 /* --- 2. DÖNEN İÇ MEKANİZMA (FLIP INNER) --- */
@@ -1825,17 +1878,9 @@ body.is-owner .ghost-text:hover {
     flex-shrink: 0;
 }
 
-/* --- 10. ZİYARETÇİ MODU İÇİN WIDGET HİZALAMASI --- */
-
 body:not(.is-owner) .widgets {
-    justify-content: center;
-    padding-bottom: var(--space-5xl);
-    gap: clamp(0.8rem, 0.6rem + 1vw, 1.4rem);
-}
-
-body:not(.is-owner) .widget-slot {
-    flex: 0 0 auto;
-    height: 130px;
+    justify-content: flex-start;
+    gap: clamp(0.6rem, 0.4rem + 1vw, 1.2rem);
 }
 
 /* #endregion */
@@ -3565,14 +3610,14 @@ body.is-owner .global-color-picker-wrapper {
 
     /* 6. WIDGET KAPSAYICISI (MOBİL) */
     .widgets {
-        padding: 16px;
-        border-radius: 16px;
-        min-height: 100px;
+        padding: 0;
+        background-color: transparent;
+        border: none;
+        min-height: auto;
     }
 
     .widget-slot {
         flex: none;
-        min-height: 100px;
     }
 
     /* 7. PROMPT / BOŞ DURUM */

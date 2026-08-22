@@ -135,6 +135,66 @@ const WidgetEngine = {
             }
         }
     },
+    state: {
+        currentPage: 0,
+        itemsPerPage: 1,
+        totalPages: 1,
+        isReady: false
+    },
+
+    initPagination() {
+        const container = document.getElementById('widgets-container');
+        if (!container) return;
+
+        const measureAndRender = () => {
+            const compStyle = getComputedStyle(container);
+            const gap = parseFloat(compStyle.rowGap) || 0;
+            const padTop = parseFloat(compStyle.paddingTop) || 0;
+            const padBot = parseFloat(compStyle.paddingBottom) || 0;
+
+            const dummy = document.createElement('div');
+            dummy.className = 'widget-slot';
+            dummy.style.visibility = 'hidden';
+            dummy.style.flex = '0 0 auto';
+            container.appendChild(dummy);
+            
+            const dummyHeight = dummy.getBoundingClientRect().height;
+            container.removeChild(dummy);
+
+            if (dummyHeight <= 0) return;
+
+            const paginationHeight = 24; 
+            const availableHeight = container.clientHeight - padTop - padBot - paginationHeight;
+
+            let items = Math.floor((availableHeight + gap) / (dummyHeight + gap));
+            items = Math.max(1, items);
+
+            this.state.itemsPerPage = items;
+            
+            const widgets = siteVerisi.widgetlar || [];
+            const isOwnerMode = typeof isOwner !== 'undefined' && isOwner;
+            const totalItems = widgets.length + (isOwnerMode && widgets.length < 9 ? 1 : 0);
+            
+            this.state.totalPages = Math.ceil(totalItems / items) || 1;
+
+            if (this.state.currentPage >= this.state.totalPages) {
+                this.state.currentPage = Math.max(0, this.state.totalPages - 1);
+            }
+
+            if (!this.state.isReady) {
+                this.state.isReady = true;
+                container.classList.add('is-ready');
+            }
+            
+            this.ciz();
+        };
+
+        const resizeObserver = new ResizeObserver(() => {
+            requestAnimationFrame(measureAndRender);
+        });
+        
+        resizeObserver.observe(container);
+    },
 
     ciz() {
         const container = document.getElementById('widgets-container');
@@ -142,22 +202,31 @@ const WidgetEngine = {
         container.innerHTML = ''; 
 
         const mountedTypes = new Set(); 
+        
+        const widgets = siteVerisi.widgetlar || [];
+        const isOwnerMode = typeof isOwner !== 'undefined' && isOwner;
+        const totalItems = widgets.length + (isOwnerMode && widgets.length < 9 ? 1 : 0);
+        
+        this.state.totalPages = Math.ceil(totalItems / this.state.itemsPerPage) || 1;
+        if (this.state.currentPage >= this.state.totalPages) {
+            this.state.currentPage = Math.max(0, this.state.totalPages - 1);
+        }
 
-        for (let i = 0; i < 3; i++) {
-            const widgetData = (siteVerisi.widgetlar && siteVerisi.widgetlar[i]) ? siteVerisi.widgetlar[i] : null;
+        const startIndex = this.state.currentPage * this.state.itemsPerPage;
+        const endIndex = Math.min(startIndex + this.state.itemsPerPage, totalItems);
+
+        for (let i = startIndex; i < endIndex; i++) {
+            const isGhost = i >= widgets.length;
+            const widgetData = isGhost ? null : widgets[i];
             
-            // YENİ: Ziyaretçiyse ve o slotta widget yoksa, boş şeffaf kutu oluşturmak yerine işlemi tamamen atla!
-            if (typeof isOwner !== 'undefined' && !isOwner && !widgetData) {
-                continue;
-            }
+            if (!isOwnerMode && !widgetData) continue;
 
             const slot = document.createElement('div');
             slot.className = 'widget-slot';
             slot.dataset.index = i;
 
             if (widgetData) {
-                // DOLU SLOT (3D Flip Kasa)
-                if (typeof isOwner !== 'undefined' && isOwner) {
+                if (isOwnerMode) {
                     slot.setAttribute('draggable', 'true');
                     slot.classList.add('is-draggable');
                 }
@@ -168,8 +237,7 @@ const WidgetEngine = {
                 let ownerToolsFront = '';
                 let ownerToolsBack = '';
 
-                if (typeof isOwner !== 'undefined' && isOwner) {
-                    // Sayfa sahibine özel ön yüz kalemi ve arka yüz silme/onay tuşları
+                if (isOwnerMode) {
                     ownerToolsFront = `
                         <button class="widget-tool-btn edit-trigger-btn" title="Düzenle">
                             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
@@ -188,7 +256,6 @@ const WidgetEngine = {
 
                 slot.innerHTML = `
                     <div class="widget-flip-inner">
-                        <!-- ÖN YÜZ -->
                         <div class="widget-flip-front">
                             <div class="widget-link" data-type="${typeId}" data-username="${widgetData.ayarlar.kullanici || ''}">
                                 <div class="widget-front-content">
@@ -197,8 +264,6 @@ const WidgetEngine = {
                             </div>
                             ${ownerToolsFront}
                         </div>
-                        
-                        <!-- ARKA YÜZ -->
                         <div class="widget-flip-back">
                             <div class="widget-back-content">
                                 ${wType ? wType.renderBack(widgetData.ayarlar) : ''}
@@ -211,18 +276,13 @@ const WidgetEngine = {
                 if (wType) mountedTypes.add(widgetData.tur);
 
             } else {
-                // BOŞ SLOT 
-                if (typeof isOwner !== 'undefined' && isOwner) {
+                if (isOwnerMode) {
                     slot.innerHTML = `
                         <div class="widget-ghost-slot">
                             <div class="ghost-plus-icon">+</div>
                             <span class="ghost-slot-text">Widget Ekle</span>
                         </div>
                     `;
-                } else {
-                    slot.innerHTML = ``;
-                    slot.style.border = "none";
-                    slot.style.background = "transparent";
                 }
             }
             container.appendChild(slot);
@@ -231,6 +291,30 @@ const WidgetEngine = {
         mountedTypes.forEach(type => {
             if (this.types[type].onMount) this.types[type].onMount();
         });
+
+        this.renderPagination();
+    },
+
+    renderPagination() {
+        if (this.state.totalPages <= 1) return;
+        
+        const container = document.getElementById('widgets-container');
+        if (!container) return;
+
+        const pagContainer = document.createElement('div');
+        pagContainer.className = 'widget-pagination';
+
+        for (let i = 0; i < this.state.totalPages; i++) {
+            const dot = document.createElement('button');
+            dot.className = 'widget-dot' + (i === this.state.currentPage ? ' is-active' : '');
+            dot.addEventListener('click', () => {
+                this.state.currentPage = i;
+                this.ciz();
+            });
+            pagContainer.appendChild(dot);
+        }
+        
+        container.appendChild(pagContainer);
     },
 
     etkilesimBaslat() {
@@ -386,8 +470,12 @@ function ekraniCiz() {
         EditManager.Profile.renderLinks();
     }
 
-    WidgetEngine.ciz();
-    
+    if (!WidgetEngine.state.isReady) {
+        WidgetEngine.initPagination();
+    } else {
+        WidgetEngine.ciz();
+    }
+
     sekmeleriVeIcerikleriHazirla();
     
 }
