@@ -2181,19 +2181,32 @@ body.is-owner .widget-slot.is-draggable:active {
 .tab.has-link::after {
     content: '';
     position: absolute;
-    bottom: 6px;
+    bottom: 0.6vh;
     left: 50%;
     width: 0;
-    height: 2px;
+    height: clamp(2px, 0.35vh, 4px);
     background-color: currentColor;
     transform: translateX(-50%);
     transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border-radius: 2px;
+    border-radius: var(--radius-pill);
 }
 
 /* COOLDOWN BİTİNCE (Link Hazır Durumu) */
 .tab.active.link-ready::after {
-    width: calc(100% - 40px);
+    width: calc(100% - 4.8vh);
+}
+
+/* Link ve Alt Çizgi Hazır Durumunda Hafifçe Yukarı İtme */
+.tab.active.link-ready .tab-text,
+.tab.active.link-ready .tab-link-icon {
+    transform: translateY(-0.2vh);
+}
+
+.tab-text {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .tab.has-link.active.link-ready:hover {
@@ -2211,7 +2224,7 @@ body.is-owner .widget-slot.is-draggable:active {
     filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-link) 50%, transparent));
 }
 
-/* İkonun Başlangıç Durumu (Gizli ve Genişliği Sıfır) */
+/* İkonun Başlangıç Durumu (Tüm animasyonlar tek bir cubic-bezier yaylanma eğrisinde senkron) */
 .tab-link-icon {
     display: inline-flex;
     align-items: center;
@@ -2219,7 +2232,12 @@ body.is-owner .widget-slot.is-draggable:active {
     width: 0;
     opacity: 0;
     overflow: hidden;
-    transition: width 0.4s ease, opacity 0.4s ease, margin-right 0.4s ease;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                margin-right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .tab.active.link-ready .tab-link-icon {
