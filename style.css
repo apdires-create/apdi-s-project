@@ -1002,6 +1002,17 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-color: var(--theme-bg-panel);
 }
 
+/* Ters Yüz ve Dönüş Güvenliği (Misclick Koruması) */
+.profile-flip-inner:not(.is-flipped) .profile-flip-back {
+    pointer-events: none;
+}
+.profile-flip-inner.is-flipped .profile-flip-front {
+    pointer-events: none;
+}
+.profile-flip-inner.is-flipping {
+    pointer-events: none;
+}
+
 .profile-header {
     display: flex;
     flex-direction: row;
@@ -1735,7 +1746,23 @@ body.is-owner .ghost-text:hover {
 
 .widget-flip-back {
     transform: rotateY(180deg);
-    background-color: rgba(var(--white-rgb), 0.02); 
+    background-color: var(--theme-bg-panel); 
+}
+
+/* Ters Yüz ve Dönüş Güvenliği (Misclick Koruması) */
+.widget-flip-inner:not(.is-flipped) .widget-flip-back {
+    pointer-events: none;
+}
+.widget-flip-inner.is-flipped .widget-flip-front {
+    pointer-events: none;
+}
+.widget-flip-inner.is-flipping {
+    pointer-events: none;
+}
+
+/* Sürükleme anında arka yüzün ön yüze taşmasını engelle */
+.widget-slot.is-dragging .widget-flip-back {
+    display: none;
 }
 
 /* Hover olduğunda çerçevenin parlaması */

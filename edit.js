@@ -982,7 +982,12 @@ const EditManager = {
         kartiKapat(slot) {
             if (!slot) return;
             const inner = slot.querySelector('.widget-flip-inner');
-            if (inner) inner.classList.remove('is-flipped');
+            if (inner) {
+                if (inner.classList.contains('is-flipping')) return;
+                inner.classList.add('is-flipping');
+                inner.classList.remove('is-flipped');
+                setTimeout(() => inner.classList.remove('is-flipping'), 500);
+            }
 
             const input = slot.querySelector('.widget-username-input');
             const frontUserLink = slot.querySelector('.mt-front-username');
@@ -1022,6 +1027,8 @@ const EditManager = {
 
                 // 2. Kalem (Düzenle) Butonuna Tıklandıysa -> Kartı Döndür
                 if (e.target.closest('.edit-trigger-btn')) {
+                    if (inner && inner.classList.contains('is-flipping')) return;
+
                     // Eğer açık başka bir kart varsa ve onda değişiklik yoksa kapat
                     if (this.aktifDüzenlenenSlot && this.aktifDüzenlenenSlot !== slot) {
                         if (!this.slottaDegisiklikVarMi(this.aktifDüzenlenenSlot)) {
@@ -1029,7 +1036,11 @@ const EditManager = {
                         }
                     }
 
-                    inner.classList.add('is-flipped');
+                    if (inner) {
+                        inner.classList.add('is-flipping');
+                        inner.classList.add('is-flipped');
+                        setTimeout(() => inner.classList.remove('is-flipping'), 500);
+                    }
                     this.aktifDüzenlenenSlot = slot;
                     
                     // Inputa odaklan ve metnin sonuna git

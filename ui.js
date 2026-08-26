@@ -840,15 +840,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnToBack = document.getElementById('profile-flip-to-back');
     const btnToFront = document.getElementById('profile-flip-to-front');
 
-    if (btnToBack && flipInner) {
-        btnToBack.addEventListener('click', () => {
+    let isFlipping = false;
+    const triggerProfileFlip = (toFlipped) => {
+        if (isFlipping || !flipInner) return;
+        isFlipping = true;
+        flipInner.classList.add('is-flipping');
+        
+        if (toFlipped) {
             flipInner.classList.add('is-flipped');
+        } else {
+            flipInner.classList.remove('is-flipped');
+        }
+
+        setTimeout(() => {
+            if (flipInner) flipInner.classList.remove('is-flipping');
+            isFlipping = false;
+        }, 500);
+    };
+
+    if (btnToBack) {
+        btnToBack.addEventListener('click', (e) => {
+            e.stopPropagation();
+            triggerProfileFlip(true);
         });
     }
 
-    if (btnToFront && flipInner) {
-        btnToFront.addEventListener('click', () => {
-            flipInner.classList.remove('is-flipped');
+    if (btnToFront) {
+        btnToFront.addEventListener('click', (e) => {
+            e.stopPropagation();
+            triggerProfileFlip(false);
         });
     }
 });
