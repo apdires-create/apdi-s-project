@@ -771,7 +771,6 @@ const EditManager = {
     // #region 4. WIDGET YÖNETİMİ
     Widget: {
         aktifDüzenlenenSlot: null, // Hangi widget'ın arkası dönük?
-        orijinalInputDegeri: "",   // İptal edilirse geri dönmek için yedeğimiz
 
         modaliGuncelleVeAc() {
             const modal = document.getElementById('widget-selection-modal');
@@ -903,13 +902,23 @@ const EditManager = {
             });
         },
 
-        // Kartı kapatan güvenlik fonksiyonu
+        // Kartı kapatan fonksiyon (Ön yüze geri döndürür ve ön yüz linkini günceller)
         kartiKapat(slot) {
+            if (!slot) return;
             const inner = slot.querySelector('.widget-flip-inner');
             if (inner) inner.classList.remove('is-flipped');
+
+            const input = slot.querySelector('.widget-username-input');
+            const frontUserLink = slot.querySelector('.mt-front-username');
+            if (frontUserLink && input) {
+                const val = input.value.trim();
+                frontUserLink.textContent = val || 'Bilinmiyor';
+                frontUserLink.title = val;
+                frontUserLink.href = val ? `https://monkeytype.com/profile/${val}` : '#';
+            }
+
             if (this.aktifDüzenlenenSlot === slot) {
                 this.aktifDüzenlenenSlot = null;
-                this.orijinalInputDegeri = "";
             }
         },
 
@@ -937,22 +946,13 @@ const EditManager = {
 
                 // 2. Kalem (Düzenle) Butonuna Tıklandıysa -> Kartı Döndür
                 if (e.target.closest('.edit-trigger-btn')) {
-                    // Eğer açık bir kart varsa onu güvenlice kapatmayı dene
+                    // Eğer açık başka bir kart varsa onu kapat
                     if (this.aktifDüzenlenenSlot && this.aktifDüzenlenenSlot !== slot) {
-                        const aktifInput = this.aktifDüzenlenenSlot.querySelector('.widget-username-input');
-                        if (aktifInput && aktifInput.value.trim() !== this.orijinalInputDegeri) {
-                            // Diğer kartta değişiklik var, kapatılamaz! Onu titretip uyar.
-                            this.aktifDüzenlenenSlot.classList.add('shake-box-animation');
-                            setTimeout(() => { if(this.aktifDüzenlenenSlot) this.aktifDüzenlenenSlot.classList.remove('shake-box-animation') }, 400);
-                            return; 
-                        } else {
-                            this.kartiKapat(this.aktifDüzenlenenSlot); // Değişiklik yoksa eski kartı kapat
-                        }
+                        this.kartiKapat(this.aktifDüzenlenenSlot);
                     }
 
                     inner.classList.add('is-flipped');
                     this.aktifDüzenlenenSlot = slot;
-                    this.orijinalInputDegeri = input ? input.value.trim() : "";
                     
                     // Inputa odaklan ve metnin sonuna git
                     if (input) {
@@ -964,30 +964,7 @@ const EditManager = {
                     return;
                 }
 
-                // 3. İptal (X) Butonuna Tıklandıysa -> Yazıyı Geri Al ve Kapat
-                if (e.target.closest('.cancel-btn')) {
-                    if (input) input.value = this.orijinalInputDegeri;
-                    const actions = slot.querySelector('.widget-save-actions');
-                    if(actions) actions.classList.remove('is-visible');
-                    this.kartiKapat(slot);
-                    return;
-                }
-
-                // 4. Onayla (Check) Butonuna Tıklandıysa -> Sistemi Güncelle ve Kapat
-                if (e.target.closest('.confirm-btn')) {
-                    if (siteVerisi.widgetlar[index] && input) {
-                        const yeniDeger = input.value.trim();
-                        siteVerisi.widgetlar[index].ayarlar.kullanici = yeniDeger;
-                        if(siteVerisi.widgetlar[index].tur === 'monkeytype') siteVerisi.monkeytype_skorlari = null;
-                        
-                        EditManager.Global.degisiklikYapildi();
-                        WidgetEngine.ciz(); 
-                        this.aktifDüzenlenenSlot = null; 
-                    }
-                    return;
-                }
-
-                // 5. Sil (Çöp Kutusu) Butonuna Tıklandıysa -> Direkt Sil
+                // 3. Sil (Çöp Kutusu) Butonuna Tıklandıysa -> Direkt Sil & Global Bara Bildir
                 if (e.target.closest('.delete-trigger-btn')) {
                     siteVerisi.widgetlar.splice(index, 1);
                     siteVerisi.monkeytype_skorlari = null; 
@@ -998,58 +975,43 @@ const EditManager = {
                 }
             });
 
-            // Girdi Dinleyicisi (Sadece değişiklik varsa Onay butonlarını gösterir)
+            // Girdi Dinleyicisi: Kullanıcı yazdığı anda veriyi canlı günceller ve Global Bar'ı tetikler
             container.addEventListener('input', (e) => {
                 const input = e.target.closest('.widget-username-input');
                 if (input) {
                     const slot = input.closest('.widget-slot');
-                    const actions = slot.querySelector('.widget-save-actions');
-                    if (actions) {
-                        if (input.value.trim() !== this.orijinalInputDegeri) {
-                            actions.classList.add('is-visible');
-                        } else {
-                            actions.classList.remove('is-visible');
+                    if (!slot) return;
+                    const index = parseInt(slot.dataset.index);
+
+                    if (siteVerisi.widgetlar && siteVerisi.widgetlar[index]) {
+                        const yeniDeger = input.value.trim();
+                        siteVerisi.widgetlar[index].ayarlar.kullanici = yeniDeger;
+                        if (siteVerisi.widgetlar[index].tur === 'monkeytype') {
+                            siteVerisi.monkeytype_skorlari = null;
                         }
+                        EditManager.Global.degisiklikYapildi();
                     }
                 }
             });
 
-            // Ekranda boşluğa tıklama sensörü (Click Outside)
+            // Ekranda boşluğa tıklama sensörü (Click Outside) -> Açık kartı doğalca kapat
             document.addEventListener('click', (e) => {
                 if (!this.aktifDüzenlenenSlot) return;
 
-                // Tıklanan yer aktif widget değilse ve yeni widget ekleme ekranında değilsek
+                // Tıklanan yer aktif widget değilse ve yeni widget ekleme ekranında değilsek kapat
                 if (!this.aktifDüzenlenenSlot.contains(e.target) && !e.target.closest('.widget-selection-grid')) {
-                    const input = this.aktifDüzenlenenSlot.querySelector('.widget-username-input');
-                    const actions = this.aktifDüzenlenenSlot.querySelector('.widget-save-actions');
-                    
-                    if (input && input.value.trim() !== this.orijinalInputDegeri) {
-                        // Kilit mekanizması: Değişiklik varsa kapatmayı reddet ve titret
-                        this.aktifDüzenlenenSlot.classList.add('shake-box-animation');
-                        setTimeout(() => {
-                            if(this.aktifDüzenlenenSlot) this.aktifDüzenlenenSlot.classList.remove('shake-box-animation');
-                        }, 400);
-                    } else {
-                        // Değişiklik yoksa kartı geri kapat
-                        if(actions) actions.classList.remove('is-visible');
-                        this.kartiKapat(this.aktifDüzenlenenSlot);
-                    }
+                    this.kartiKapat(this.aktifDüzenlenenSlot);
                 }
             });
             
-            // Enter tuşu ile hızlı onay
+            // Enter tuşu ile ön yüze dön
             container.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     const input = e.target.closest('.widget-username-input');
                     if (input) {
                         e.preventDefault();
                         const slot = input.closest('.widget-slot');
-                        const confirmBtn = slot.querySelector('.confirm-btn');
-                        if (confirmBtn && slot.querySelector('.widget-save-actions.is-visible')) {
-                            confirmBtn.click();
-                        } else if (input.value.trim() === this.orijinalInputDegeri) {
-                            this.kartiKapat(slot);
-                        }
+                        this.kartiKapat(slot);
                     }
                 }
             });

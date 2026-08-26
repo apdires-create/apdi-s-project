@@ -1821,20 +1821,6 @@ body.is-owner .ghost-text:hover {
 .delete-trigger-btn { opacity: 1; transform: scale(1); background: rgba(var(--color-danger-rgb), 0.15); border-color: rgba(var(--color-danger-rgb), 0.3); color: var(--color-danger-light); }
 .delete-trigger-btn:hover { background: var(--color-danger-rgb); color: #fff; }
 
-/* 7. ONAY VE İPTAL BUTON GRUBU (Input değişince ortaya çıkar) */
-.widget-save-actions {
-    position: absolute; right: 50px; top: 50%; transform: translateY(-50%);
-    display: flex; gap: 8px; z-index: 20; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-}
-.widget-save-actions.is-visible { opacity: 1; pointer-events: auto; }
-
-.widget-action-btn {
-    width: 32px; height: 32px; border-radius: var(--radius-circle); border: none;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; transition: transform var(--transition-fast);
-}
-.widget-action-btn:hover { transform: scale(1.1); }
-.widget-action-btn.confirm-btn { background-color: var(--color-success); box-shadow: 0 4px 10px rgba(46, 160, 67, 0.3); }
-.widget-action-btn.cancel-btn { background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); }
 
 /* --- 8. WIDGET İKONLARI VE HİZALAMA DÜZELTMELERİ --- */
 /* MT ikon */
