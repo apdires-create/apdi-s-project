@@ -343,14 +343,14 @@ const WidgetEngine = {
     }
 };
 
-function ekraniCiz() {
+function renderTema() {
     const secilenRenk = siteVerisi.primary_color || '#ff8800'; 
     temaRenkleriniGuncelle(secilenRenk);
     const colorTrigger = document.getElementById('colorTrigger');
     if (colorTrigger) colorTrigger.style.backgroundColor = secilenRenk;
+}
 
-    
-    const metinVeLinkler = siteVerisi.profil_metinleri_ve_linkler || {};
+function renderGorseller() {
     const bannerEl = document.getElementById('banner-img');
     const bannerContainer = document.querySelector('.banner');
     const pfpEl = document.getElementById('pfp-img');
@@ -375,7 +375,11 @@ function ekraniCiz() {
             if (pfpEl) pfpEl.src = "https://i.ibb.co/8gvf4SNF/pfp-placeholder.png"; 
         }
     }
+}
 
+function renderProfilMetinleri() {
+    const metinVeLinkler = siteVerisi.profil_metinleri_ve_linkler || {};
+    
     const isimEl = document.getElementById('inline-name');
     if (isimEl) {
         const gorunenIsim = metinVeLinkler.gorunen_isim;
@@ -385,20 +389,32 @@ function ekraniCiz() {
     }
 
     const unvanEl = document.getElementById('inline-title');
-    const aciklamaEl = document.getElementById('inline-bio');
-
     if (unvanEl) {
         const unvanMetni = metinVeLinkler.unvan;
-        if (unvanMetni) { unvanEl.textContent = unvanMetni; unvanEl.classList.remove('ghost-text'); } 
-        else { unvanEl.textContent = isOwner ? "Ünvan Ekle (Örn: Designer)" : ""; if (isOwner) unvanEl.classList.add('ghost-text'); }
+        if (unvanMetni) { 
+            unvanEl.textContent = unvanMetni; 
+            unvanEl.classList.remove('ghost-text'); 
+        } else { 
+            unvanEl.textContent = isOwner ? "Ünvan Ekle (Örn: Designer)" : ""; 
+            if (isOwner) unvanEl.classList.add('ghost-text'); 
+        }
     }
 
+    const aciklamaEl = document.getElementById('inline-bio');
     if (aciklamaEl) {
         const bioMetni = metinVeLinkler.aciklama;
-        if (bioMetni) { aciklamaEl.textContent = bioMetni; aciklamaEl.classList.remove('ghost-text'); } 
-        else { aciklamaEl.textContent = isOwner ? "Kendinden bahset, arşivini tanıt..." : ""; if (isOwner) aciklamaEl.classList.add('ghost-text'); }
+        if (bioMetni) { 
+            aciklamaEl.textContent = bioMetni; 
+            aciklamaEl.classList.remove('ghost-text'); 
+        } else { 
+            aciklamaEl.textContent = isOwner ? "Kendinden bahset, arşivini tanıt..." : ""; 
+            if (isOwner) aciklamaEl.classList.add('ghost-text'); 
+        }
     }
+}
 
+function renderProfilLinkleri() {
+    const metinVeLinkler = siteVerisi.profil_metinleri_ve_linkler || {};
     const linksContainer = document.getElementById('profile-links-container');
     const addLinkBtn = document.getElementById('inline-add-link-btn');
     
@@ -410,7 +426,6 @@ function ekraniCiz() {
         wrapper.style.display = 'contents';
 
         linkler.forEach(link => {
-            // Domain'i ayıklayıp alt başlık (subtitle) yapıyoruz
             let domain = '';
             try { 
                 domain = new URL(link.url).hostname.replace(/^www\./, ''); 
@@ -419,18 +434,17 @@ function ekraniCiz() {
             }
 
             const a = document.createElement('a');
-            a.className = 'nook-link-row'; // YENİ CLASS
+            a.className = 'nook-link-row';
             a.href = link.url;
             a.target = '_blank';
             a.rel = 'noopener';
-            a.style.display = 'block'; // 'a' etiketi olduğu için bloğa çeviriyoruz
+            a.style.display = 'block';
             a.style.textDecoration = 'none';
 
             a.innerHTML = `
                 <div class="nook-link-main">
                     <div class="nook-link-icon">${getLinkIcon(link.url)}</div>
                     <div class="nook-link-info">
-                        <!-- Ziyaretçide düzenleme çizgisi olmaması için CSS'i eziyoruz -->
                         <span class="nook-link-name" style="border: none; cursor: pointer;">${escapeHtml(link.isim)}</span>
                         <span class="nook-link-domain">${domain}</span>
                     </div>
@@ -465,15 +479,27 @@ function ekraniCiz() {
     if (typeof EditManager !== 'undefined' && isOwner && EditManager.Profile) {
         EditManager.Profile.renderLinks();
     }
+}
 
+function renderWidgetlar() {
     if (!WidgetEngine.state.isReady) {
         WidgetEngine.initPagination();
     } else {
         WidgetEngine.ciz();
     }
+}
 
+function renderIcerikAlani() {
     sekmeleriVeIcerikleriHazirla();
-    
+}
+
+function ekraniCiz() {
+    renderTema();
+    renderGorseller();
+    renderProfilMetinleri();
+    renderProfilLinkleri();
+    renderWidgetlar();
+    renderIcerikAlani();
 }
 
 function getLinkIcon(url) {
@@ -557,10 +583,8 @@ function sekmeleriVeIcerikleriHazirla() {
             btn.appendChild(editBtn);
         }
         
-        let cooldownTimer;
-        
         if (kat.id === aktifKategoriId && kat.url) {
-            cooldownTimer = setTimeout(() => btn.classList.add('link-ready'), 100); 
+            btn.classList.add('link-ready');
         }
         
         btn.addEventListener('click', () => {

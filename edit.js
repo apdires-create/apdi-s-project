@@ -685,7 +685,7 @@ const EditManager = {
         siteVerisi.profil_gorselleri = yeniGorseller;
         
         EditManager.Global.degisiklikYapildi();
-        ekraniCiz(); 
+        renderGorseller(); 
         toastGoster("Görsel başarıyla güncellendi!");
 
         // YENİ: Eski dosyayı arka planda temizle, hataysa sessizce logla (kritik yol değil)
@@ -1289,18 +1289,18 @@ const EditManager = {
                 inputEl.focus();
 
                 const kaydetVeKapat = () => {
-                const yeniDeger = inputEl.value.trim();
-                if (yeniDeger === guncelDeger) { 
+                    const yeniDeger = inputEl.value.trim();
+                    if (yeniDeger === guncelDeger) { 
+                        el.classList.remove('is-input-active');
+                        renderProfilMetinleri();
+                        return;
+                    }
+                    if (!siteVerisi.profil_metinleri_ve_linkler) siteVerisi.profil_metinleri_ve_linkler = {};
+                    siteVerisi.profil_metinleri_ve_linkler[alanAdi] = yeniDeger;
                     el.classList.remove('is-input-active');
-                    ekraniCiz();
-                    return;
-                }
-                if (!siteVerisi.profil_metinleri_ve_linkler) siteVerisi.profil_metinleri_ve_linkler = {};
-                siteVerisi.profil_metinleri_ve_linkler[alanAdi] = yeniDeger;
-                el.classList.remove('is-input-active');
-                ekraniCiz();
-                EditManager.Global.degisiklikYapildi();
-            };
+                    renderProfilMetinleri();
+                    EditManager.Global.degisiklikYapildi();
+                };
 
                 inputEl.addEventListener('blur', kaydetVeKapat);
                 inputEl.addEventListener('keydown', (e) => {
