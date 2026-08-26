@@ -773,11 +773,44 @@ const EditManager = {
         aktifDüzenlenenSlot: null, // Hangi widget'ın arkası dönük?
         orijinalInputDegeri: "",   // İptal edilirse geri dönmek için yedeğimiz
 
+        modaliGuncelleVeAc() {
+            const modal = document.getElementById('widget-selection-modal');
+            if (!modal) return;
+
+            // Güncel canlı durum kontrolü (Henüz kaydedilmemiş bile olsa anlık siteVerisi.widgetlar taranır)
+            const monkeytypeEkli = (siteVerisi.widgetlar || []).some(w => w && w.tur === 'monkeytype');
+            const mtBtn = modal.querySelector('.widget-select-btn[data-type="monkeytype"]');
+
+            if (mtBtn) {
+                let badge = mtBtn.querySelector('.widget-added-badge');
+                if (monkeytypeEkli) {
+                    mtBtn.classList.add('disabled');
+                    mtBtn.disabled = true;
+                    if (!badge) {
+                        const title = mtBtn.querySelector('.widget-select-title');
+                        if (title) {
+                            const span = document.createElement('span');
+                            span.className = 'widget-added-badge';
+                            span.style.cssText = 'font-size: 0.65rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: var(--radius-full); margin-left: 8px; color: rgba(255,255,255,0.6);';
+                            span.textContent = 'Eklendi';
+                            title.appendChild(span);
+                        }
+                    }
+                } else {
+                    mtBtn.classList.remove('disabled');
+                    mtBtn.disabled = false;
+                    if (badge) badge.remove();
+                }
+            }
+
+            modal.classList.add('is-open');
+        },
+
         modalBaslat() {
             const modal = document.getElementById('widget-selection-modal');
             const closeBtn = document.getElementById('widget-modal-close');
             const backdrop = document.getElementById('widget-modal-backdrop');
-            const buttons = document.querySelectorAll('.widget-select-btn:not(.disabled)');
+            const buttons = document.querySelectorAll('.widget-select-btn');
 
             if (!modal) return;
             const modaliKapat = () => modal.classList.remove('is-open');
@@ -786,8 +819,15 @@ const EditManager = {
 
             buttons.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    if (btn.disabled || btn.classList.contains('disabled')) return;
                     const type = btn.dataset.type;
                     if (!siteVerisi.widgetlar) siteVerisi.widgetlar = [];
+
+                    // Güvenlik Kilidi: Canlı state'te zaten varsa ikinciyi ekletme
+                    if (type === 'monkeytype' && siteVerisi.widgetlar.some(w => w && w.tur === 'monkeytype')) {
+                        toastGoster("Monkeytype widget'ı zaten ekli!");
+                        return;
+                    }
                     
                     siteVerisi.widgetlar.push({ tur: type, ayarlar: { kullanici: '' } });
                     if(type === 'monkeytype') siteVerisi.monkeytype_skorlari = null;
@@ -888,8 +928,7 @@ const EditManager = {
 
                 // 1. Yeni Ekle (+)'ya Tıklandıysa (Hayalet Yuva)
                 if (e.target.closest('.widget-ghost-slot')) {
-                    const modal = document.getElementById('widget-selection-modal');
-                    if (modal) modal.classList.add('is-open');
+                    this.modaliGuncelleVeAc();
                     return;
                 }
 
