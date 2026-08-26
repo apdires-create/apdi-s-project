@@ -1252,8 +1252,43 @@ const EditManager = {
                     EditManager.Global.degisiklikYapildi(); 
                 };
 
+                let iconDebounceTimer = null;
+                const updateLinkIconAndDomain = (forceImmediate = false) => {
+                    let val = urlInput.value.trim();
+                    if (!val) return;
+                    if (!val.startsWith('http')) val = 'https://' + val;
+
+                    const doUpdate = () => {
+                        const iconEl = row.querySelector('.nook-link-icon');
+                        const domainEl = row.querySelector('.nook-link-domain');
+
+                        if (urlGecerliMi(val)) {
+                            let domain = 'Bağlantı';
+                            try {
+                                domain = new URL(val).hostname.replace(/^www\./, '');
+                            } catch(e) {}
+                            
+                            if (domainEl) domainEl.textContent = domain;
+                            if (iconEl) iconEl.innerHTML = getLinkIcon(val);
+                        }
+                    };
+
+                    clearTimeout(iconDebounceTimer);
+                    if (forceImmediate) {
+                        doUpdate();
+                    } else {
+                        iconDebounceTimer = setTimeout(doUpdate, 300);
+                    }
+                };
+
                 nameInput.addEventListener('input', autoSave);
-                urlInput.addEventListener('input', autoSave);
+                urlInput.addEventListener('input', () => {
+                    autoSave();
+                    updateLinkIconAndDomain(false);
+                });
+                urlInput.addEventListener('blur', () => {
+                    updateLinkIconAndDomain(true);
+                });
 
                 row.addEventListener('mousedown', (e) => e.stopPropagation());
 

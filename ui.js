@@ -803,14 +803,16 @@ function ozelOnayAl(mesaj, callback) {
     btnOk.onclick = () => { kapat(); callback(); };
 }
 
+let _toastTimeout;
 function toastGoster(mesaj) {
     const toast = document.getElementById('toast-notification');
     if (!toast) return;
     toast.textContent = mesaj;
     toast.classList.add('show');
     
-    // 3 Saniye sonra kendi kendine kapanır
-    setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    // 1 Saniye sonra kendi kendine kapanır
+    clearTimeout(_toastTimeout);
+    _toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 1000);
 }
 
 function starfieldOlustur() {
