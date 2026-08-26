@@ -970,7 +970,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
 }
 
@@ -1717,7 +1717,7 @@ body.is-owner .ghost-text:hover {
 /* --- 2. DÖNEN İÇ MEKANİZMA (FLIP INNER) --- */
 .widget-flip-inner {
     position: relative; width: 100%; height: 100%;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
 }
 /* X ekseni hatası giderildi, Y eksenine alındı */
