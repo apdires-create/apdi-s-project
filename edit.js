@@ -115,6 +115,8 @@ const EditManager = {
             const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
             EditManager.state.tempProfileLinks = [...(metinler.linkler || [])];
             
+            if (EditManager.Widget) EditManager.Widget.aktifDüzenlenenSlot = null;
+
             try { ekraniCiz(); } catch(error) { console.error("Çizim hatası:", error); }
         },
 
@@ -174,6 +176,13 @@ const EditManager = {
                 EditManager.state.hasUnsavedChanges = false;
                 document.body.classList.remove('has-unsaved-changes');
                 
+                // Açık olan tüm widget kartlarını ön yüze çevir
+                document.querySelectorAll('.widget-flip-inner.is-flipped').forEach(inner => {
+                    inner.classList.remove('is-flipped');
+                });
+                if (EditManager.Widget) EditManager.Widget.aktifDüzenlenenSlot = null;
+                WidgetEngine.ciz();
+
                 saveBtn.textContent = "Onayla";
                 saveBtn.disabled = false;
                 toastGoster("Değişiklikler başarıyla kaydedildi!");
@@ -902,6 +911,23 @@ const EditManager = {
             });
         },
 
+        // İlgili slotta kaydedilmemiş bir değişiklik olup olmadığını denetler
+        slottaDegisiklikVarMi(slot) {
+            if (!slot) return false;
+            const index = parseInt(slot.dataset.index);
+            const input = slot.querySelector('.widget-username-input');
+            if (!input) return false;
+            
+            const guncelDeger = input.value.trim();
+            const orijinalWidget = EditManager.state.orijinalVeri?.widgetlar?.[index];
+            
+            // Eğer widget orijinal veride yoksa (yeni eklenmişse), kaydedilene kadar değişiklik sayılır
+            if (!orijinalWidget) return true;
+            
+            const orijinalDeger = (orijinalWidget.ayarlar?.kullanici || '').trim();
+            return guncelDeger !== orijinalDeger;
+        },
+
         // Kartı kapatan fonksiyon (Ön yüze geri döndürür ve ön yüz linkini günceller)
         kartiKapat(slot) {
             if (!slot) return;
@@ -946,9 +972,11 @@ const EditManager = {
 
                 // 2. Kalem (Düzenle) Butonuna Tıklandıysa -> Kartı Döndür
                 if (e.target.closest('.edit-trigger-btn')) {
-                    // Eğer açık başka bir kart varsa onu kapat
+                    // Eğer açık başka bir kart varsa ve onda değişiklik yoksa kapat
                     if (this.aktifDüzenlenenSlot && this.aktifDüzenlenenSlot !== slot) {
-                        this.kartiKapat(this.aktifDüzenlenenSlot);
+                        if (!this.slottaDegisiklikVarMi(this.aktifDüzenlenenSlot)) {
+                            this.kartiKapat(this.aktifDüzenlenenSlot);
+                        }
                     }
 
                     inner.classList.add('is-flipped');
@@ -994,24 +1022,28 @@ const EditManager = {
                 }
             });
 
-            // Ekranda boşluğa tıklama sensörü (Click Outside) -> Açık kartı doğalca kapat
+            // Ekranda boşluğa tıklama sensörü (Click Outside) -> Sadece değişiklik YOKSA kartı kapat
             document.addEventListener('click', (e) => {
                 if (!this.aktifDüzenlenenSlot) return;
 
-                // Tıklanan yer aktif widget değilse ve yeni widget ekleme ekranında değilsek kapat
+                // Tıklanan yer aktif widget değilse ve yeni widget ekleme ekranında değilsek
                 if (!this.aktifDüzenlenenSlot.contains(e.target) && !e.target.closest('.widget-selection-grid')) {
-                    this.kartiKapat(this.aktifDüzenlenenSlot);
+                    if (!this.slottaDegisiklikVarMi(this.aktifDüzenlenenSlot)) {
+                        this.kartiKapat(this.aktifDüzenlenenSlot);
+                    }
                 }
             });
             
-            // Enter tuşu ile ön yüze dön
+            // Enter tuşu ile ön yüze dön (Sadece değişiklik YOKSA)
             container.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     const input = e.target.closest('.widget-username-input');
                     if (input) {
                         e.preventDefault();
                         const slot = input.closest('.widget-slot');
-                        this.kartiKapat(slot);
+                        if (!this.slottaDegisiklikVarMi(slot)) {
+                            this.kartiKapat(slot);
+                        }
                     }
                 }
             });
