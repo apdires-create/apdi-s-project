@@ -1181,15 +1181,21 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    gap: 3cqw;
+    width: 100%;
+    min-height: 22cqw;
+    flex-shrink: 0;
+    margin-bottom: 2cqw;
 }
 
-.profile-back-header h3 {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    color: rgba(255, 255, 255, 0.5);
+.profile-back-header h3,
+.profile-back-title {
+    font-size: clamp(0.9rem, 7cqw, 1.25rem);
+    font-weight: var(--fw-bold);
+    letter-spacing: -0.01em;
+    color: rgba(var(--white-rgb), 0.9);
     margin: 0;
+    line-height: 1.15;
 }
 
 .profile-links-back {
@@ -1484,7 +1490,8 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     transform: scale(1.05);
 }
 
-#profile-flip-to-back {
+#profile-flip-to-back,
+#profile-flip-to-front {
     color: var(--accent-500);
     border: 1px solid color-mix(in srgb, var(--accent-500) 25%, transparent);
     border-radius: var(--radius-full);
@@ -1497,16 +1504,19 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    cursor: pointer;
     transition: all var(--transition-fast);
 }
 
-#profile-flip-to-back svg {
+#profile-flip-to-back svg,
+#profile-flip-to-front svg {
     width: 54%;
     height: 54%;
     flex-shrink: 0;
 }
 
-#profile-flip-to-back:hover {
+#profile-flip-to-back:hover,
+#profile-flip-to-front:hover {
     border-color: var(--accent-500);
     background-color: color-mix(in srgb, var(--accent-500) 12%, transparent);
     box-shadow: 0 0 10px color-mix(in srgb, var(--accent-500) 20%, transparent);
@@ -3523,13 +3533,15 @@ body.is-owner .global-color-picker-wrapper {
         line-height: 1.2;
     }
 
-    #profile-flip-to-back {
+    #profile-flip-to-back,
+    #profile-flip-to-front {
         width: 32px;
         height: 32px;
         aspect-ratio: 1 / 1;
     }
 
-    #profile-flip-to-back svg {
+    #profile-flip-to-back svg,
+    #profile-flip-to-front svg {
         width: 16px;
         height: 16px;
     }
