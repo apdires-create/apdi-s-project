@@ -540,7 +540,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 
 /* Kasa İçi Sabit Boyutlandırma (Garantili Çözüm) */
 .flip-card-front .nook-profile-card {
-    font-size: 18px; /* !important'a gerek yok, seçici gücü yeterli */
+    font-size: 18px;
 }
 
 .nook-profile-card {
@@ -2091,7 +2091,7 @@ body.is-owner .mt-front-view {
     border: 2px dashed var(--accent-500);
     border-radius: var(--radius-lg);
     z-index: 100;
-    border-color: rgba(var(--accent-500), .3);
+    border-color: color-mix(in srgb, var(--accent-500) 30%, transparent);
 }
 
 /* Sürükleme esnasında iç elemanların fare olaylarını engelle (Pürüzsüz taşıma için) */
@@ -2445,17 +2445,6 @@ body.is-owner .widget-slot.is-draggable:active {
     background-color: rgba(var(--color-danger-rgb), 0.85);
 }
 
-.card-delete-btn.confirm-delete {
-    opacity: 1;
-    pointer-events: auto;
-    transform: scale(1);
-    background-color: rgba(var(--color-danger-rgb), 0.9);
-    color: rgb(var(--white-rgb));
-}
-
-.card-delete-btn.confirm-delete:hover {
-    background-color: rgba(190, 40, 40, 0.95);
-}
 
 /* YENİ KART EKLEME SLOTU (Düzenleme Modu) */
 .content-card.empty-add-card {

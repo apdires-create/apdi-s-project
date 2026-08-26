@@ -560,21 +560,6 @@ const EditManager = {
                 const cardEl = silBtn.closest('.content-card');
                 if (!cardEl) return;
 
-                if (!silBtn.classList.contains('confirm-delete')) {
-                    silBtn.classList.add('confirm-delete');
-                    silBtn.innerHTML = TIK_IKONU_SVG;
-                    silBtn.title = 'Silmek için tekrar tıkla';
-                    clearTimeout(silBtn._geriDonTimeout);
-                    
-                    silBtn._geriDonTimeout = setTimeout(() => {
-                        silBtn.classList.remove('confirm-delete');
-                        silBtn.innerHTML = SIL_IKONU_SVG;
-                        silBtn.title = 'Sil';
-                    }, 3000);
-                    return;
-                }
-
-                clearTimeout(silBtn._geriDonTimeout);
                 const kimlik = cardEl.dataset.kimlik;
                 if (!kimlik || !aktifKategoriId) return;
                 
