@@ -157,6 +157,19 @@ const EditManager = {
             saveBtn.disabled = true;
 
             try {
+                // Eğer Monkeytype widget'ı varsa canlı skorları doğrudan Monkeytype API'sinden çek
+                const mtWidget = (siteVerisi.widgetlar || []).find(w => w && w.tur === 'monkeytype');
+                if (mtWidget && mtWidget.ayarlar && mtWidget.ayarlar.kullanici) {
+                    try {
+                        const mtData = await EditManager.fetchMonkeytypeProfile(mtWidget.ayarlar.kullanici.trim());
+                        if (mtData) {
+                            siteVerisi.monkeytype_skorlari = mtData.personalBests || mtData;
+                        }
+                    } catch (mtErr) {
+                        console.warn("Monkeytype canlı verisi çekilemedi:", mtErr.message);
+                    }
+                }
+
                 const { error } = await supabaseClient
                     .from('profiles')
                     .update({
@@ -198,6 +211,16 @@ const EditManager = {
     // #endregion
     
     // #region 1. YARDIMCI API FONKSİYONLARI
+    async fetchMonkeytypeProfile(username) {
+        if (!username) return null;
+        const res = await fetch(`https://api.monkeytype.com/users/${encodeURIComponent(username)}/profile`);
+        if (!res.ok) {
+            throw new Error('MonkeyType profili alınamadı');
+        }
+        const json = await res.json();
+        return json.data; // wpm, acc, xp, personalBests, streak vs.
+    },
+
     async edgeCagir(payload) {
         const token = aktifKullaniciOturumu ? aktifKullaniciOturumu.access_token : SUPABASE_ANON_KEY;
         const response = await fetch('https://acvpjytvkfxbsuiivqir.supabase.co/functions/v1/bright-task', {
