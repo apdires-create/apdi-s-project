@@ -87,6 +87,9 @@ const EditManager = {
         },
 
         degisiklikYapildi() {
+            // Kullanıcı herhangi bir etkileşime girdiğinde aktif hata durumunu sıfırla
+            this.hataTemizle();
+
             if (EditManager.state.orijinalVeri) {
                 const guncelVeriString = JSON.stringify(siteVerisi);
                 const orijinalVeriString = JSON.stringify(EditManager.state.orijinalVeri);
@@ -104,6 +107,7 @@ const EditManager = {
         },
 
         sifirla() {
+            this.hataTemizle();
             EditManager.state.hasUnsavedChanges = false;
             document.body.classList.remove('has-unsaved-changes');
             
@@ -118,6 +122,51 @@ const EditManager = {
             if (EditManager.Widget) EditManager.Widget.aktifDüzenlenenSlot = null;
 
             try { ekraniCiz(); } catch(error) { console.error("Çizim hatası:", error); }
+        },
+
+        hataGoster(mesaj = "Bir hata oluştu!", otomatikTemizle = true) {
+            const bar = document.getElementById('edit-action-bar');
+            const statusText = bar ? bar.querySelector('.edit-status-text') : null;
+            const saveBtn = document.getElementById('edit-save-btn');
+            
+            if (bar) {
+                bar.classList.remove('has-error');
+                void bar.offsetWidth; // Reflow tetikleyip animasyonu yenile
+                bar.classList.add('has-error');
+
+                if (statusText) {
+                    statusText.textContent = mesaj;
+                    statusText.style.color = "rgb(var(--white-rgb))"; // Tam düz beyaz
+                }
+                
+                clearTimeout(this._hataTimeout);
+                if (otomatikTemizle) {
+                    this._hataTimeout = setTimeout(() => {
+                        this.hataTemizle();
+                    }, 2000);
+                }
+            }
+
+            if (saveBtn) {
+                saveBtn.textContent = "Onayla";
+                saveBtn.disabled = false;
+            }
+        },
+
+        hataTemizle() {
+            const bar = document.getElementById('edit-action-bar');
+            const statusText = bar ? bar.querySelector('.edit-status-text') : null;
+            const saveBtn = document.getElementById('edit-save-btn');
+
+            if (bar) bar.classList.remove('has-error');
+            if (statusText) {
+                statusText.textContent = "Değişiklikler yapıldı...";
+                statusText.style.color = "";
+            }
+            if (saveBtn) {
+                saveBtn.style.backgroundColor = "";
+            }
+            clearTimeout(this._hataTimeout);
         },
 
         async kaydet() {
@@ -142,12 +191,7 @@ const EditManager = {
                     }
                 });
                 if (bosWidgetVarMi) {
-                    toastGoster("Lütfen eklediğiniz widget'ı doldurun veya silin!");
-                    const saveBtn = document.getElementById('edit-save-btn');
-                    if(saveBtn) {
-                        saveBtn.classList.add('shake-box-animation');
-                        setTimeout(() => saveBtn.classList.remove('shake-box-animation'), 400);
-                    }
+                    this.hataGoster("Lütfen boş widget'ı doldurun!", false);
                     return; 
                 }
             }
@@ -202,9 +246,7 @@ const EditManager = {
 
             } catch (err) {
                 console.error("Veritabanı Kayıt Hatası:", err);
-                toastGoster("Kayıt sırasında bir hata oluştu!"); 
-                saveBtn.textContent = "Onayla";
-                saveBtn.disabled = false;
+                this.hataGoster("Bir hata oluştu!", true); 
             }
         }
     },

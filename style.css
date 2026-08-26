@@ -2969,13 +2969,27 @@ body.is-owner .widget-slot.is-draggable:active {
     border-radius: var(--radius-full);
     z-index: var(--z-modal-top, 600);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    transition: bottom var(--transition-smooth);
+    transition: bottom var(--transition-smooth), background-color var(--transition-fast), border-color var(--transition-fast);
     width: max-content;
     max-width: 90%;
 }
 
 body.has-unsaved-changes .edit-action-bar {
     bottom: 30px;
+}
+
+.edit-action-bar.has-error {
+    border-color: rgba(var(--color-danger-rgb), 0.7);
+    background-color: color-mix(in srgb, var(--color-danger) 30%, rgba(20, 20, 20, 0.95));
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: shakeActionBar 0.35s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shakeActionBar {
+    10%, 90% { transform: translateX(calc(-50% - 1px)); }
+    20%, 80% { transform: translateX(calc(-50% + 2px)); }
+    30%, 50%, 70% { transform: translateX(calc(-50% - 3px)); }
+    40%, 60% { transform: translateX(calc(-50% + 3px)); }
 }
 
 .edit-bar-content {
