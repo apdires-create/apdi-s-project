@@ -2102,8 +2102,10 @@ body.is-owner .mt-front-view {
 .widget-slot.is-dragging {
     opacity: 0.4;
     transform: scale(0.95);
-    border: 2px dashed var(--accent-500) !important;
+    border: 2px dashed var(--accent-500);
+    border-radius: var(--radius-lg);
     z-index: 100;
+    border-color: rgba(var(--accent-500), .3);
 }
 
 /* Sürükleme esnasında iç elemanların fare olaylarını engelle (Pürüzsüz taşıma için) */
