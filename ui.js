@@ -163,7 +163,7 @@ const WidgetEngine = {
 
             if (dummyHeight <= 0) return;
 
-            const paginationHeight = window.innerHeight * 0.025; 
+            const paginationHeight = container.clientHeight * 0.025; 
             const availableHeight = container.clientHeight - padTop - padBot - paginationHeight;
 
             let items = Math.floor((availableHeight + gap) / (dummyHeight + gap));

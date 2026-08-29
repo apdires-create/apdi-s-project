@@ -191,6 +191,38 @@
     --z-modal-top: 600;
 }
 
+/* #region 1.5: 16:9 SAHNE SİSTEMİ */
+.scene-viewport {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    container-type: size;
+    container-name: nook-scene;
+    overflow: hidden;
+    background-color: var(--theme-bg-base); /* letterbox rengi, ileride bg görseli buraya eklenecek */
+}
+
+.scene-viewport .container {
+    aspect-ratio: 16 / 9;
+    width: min(100cqw, 100cqh * 16 / 9);
+    height: min(100cqh, 100cqw * 9 / 16);
+    max-width: 2200px; /* güvenlik tavanı — sadece çok büyük ekranlarda devreye girer */
+
+    /* Kök değişkenleri artık gerçek viewport'a değil, bu sahnenin kendi
+       container'ına bağlıyoruz. Böylece vw/vh oranı ne olursa olsun
+       sahne içi oran hep 16:9'a kilitli kalır. */
+    --gap-x: 1.8cqw;
+    --gap-y: 2cqh;
+    --content-pad-x: 1.8cqw;
+    --content-pad-y: 2.2cqh;
+    --radius-base: 1cqw;
+
+    margin: 0 auto;
+}
+/* #endregion */
+
 /* ---------- Starfield Arka Planı ---------- */
   #starfield{
     position:fixed;
@@ -1213,7 +1245,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 /* --- 1. TEKİL BAĞLANTI SATIRI (LinkRow) --- */
 .nook-link-row {
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: var(--radius-sm);
+    border-radius: 8px;
     background: rgba(0, 0, 0, 0.2);
     overflow: hidden;
     transition: border-color 150ms ease;
@@ -1228,13 +1260,14 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
+    min-width: 0;
 }
 
 /* İkon Alanı */
 .nook-link-icon {
     width: 30px;
     height: 30px;
-    border-radius: var(--radius-xs);
+    border-radius: 6px;
     background: rgba(255, 255, 255, 0.05);
     display: flex;
     align-items: center;
@@ -1254,7 +1287,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 }
 
 .nook-link-name {
-    font-size: 13.5px;
+    font-size: clamp(13.5px, calc(9.18px + 0.674cqw), 24px);
     line-height: 1.3;
     font-weight: 600;
     color: rgb(var(--white-rgb));
@@ -1266,7 +1299,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-name:hover { border-color: rgba(255, 255, 255, 0.3); }
 
 .nook-link-domain {
-    font-size: 11.5px;
+    font-size: clamp(11.5px, calc(8px + 0.545cqw), 20px);
     color: rgba(255, 255, 255, 0.5);
     white-space: nowrap;
     overflow: hidden;
@@ -1277,7 +1310,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-toggle {
     width: 28px;
     height: 28px;
-    border-radius: var(--radius-xs);
+    border-radius: 6px;
     border: 1px solid transparent;
     background: transparent;
     color: rgba(255, 255, 255, 0.5);
@@ -1337,10 +1370,10 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-input {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-xs);
+    border-radius: 6px;
     padding: 7px 9px;
     color: rgb(var(--white-rgb));
-    font-size: 12.5px;
+    font-size: clamp(12.5px, calc(8.59px + 0.609cqw), 22px);
     outline: none;
     transition: border-color 150ms ease;
     font-family: inherit;
@@ -1386,7 +1419,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-toggle {
     width: 28px;
     height: 28px;
-    border-radius: var(--radius-xs);
+    border-radius: 6px;
     border: 1px solid transparent;
     background: transparent;
     color: rgba(255, 255, 255, 0.5);
@@ -1417,7 +1450,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 /* --- 4. YENİ BAĞLANTI EKLE BUTONU (AddLinkRow) --- */
 .nook-add-btn {
     border: 1.5px dashed rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-sm);
+    border-radius: 8px;
     background: transparent;
     color: rgba(255, 255, 255, 0.5);
     padding: 9px 0;
@@ -1454,6 +1487,40 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     opacity: 0;
     transform: scale(0.9) translateY(-10px);
     pointer-events: none;
+}
+
+/* Kutu Daraldığında (max-width: 260px) Link Düzeni */
+@container (max-width: 260px) {
+    .nook-link-domain {
+        display: none;
+    }
+    .nook-link-main {
+        gap: 6px;
+        padding: 6px 8px;
+    }
+}
+
+/* Daha da Daraldığında (max-width: 190px) Kompakt İkonlar ve Metin */
+@container (max-width: 190px) {
+    .nook-link-icon {
+        width: 24px;
+        height: 24px;
+    }
+    .nook-link-icon img, .nook-link-icon svg { 
+        width: 14px; 
+        height: 14px; 
+    }
+    .nook-link-toggle {
+        width: 24px;
+        height: 24px;
+    }
+    .nook-link-toggle svg {
+        width: 14px;
+        height: 14px;
+    }
+    .nook-link-name {
+        font-size: 12px;
+    }
 }
 /* #endregion */
 
@@ -1675,7 +1742,7 @@ body.is-owner .ghost-text:hover {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.5vh;
+    gap: 1.5cqh;
     position: relative;
     box-sizing: border-box;
     visibility: hidden;
@@ -1693,14 +1760,14 @@ body.is-owner .ghost-text:hover {
     justify-content: center;
     align-items: center;
     gap: 0.5vw;
-    height: 1.5vh;
+    height: 1.5cqh;
     margin-top: auto;
     flex-shrink: 0;
 }
 
 .widget-dot {
-    width: 0.7vh;
-    height: 0.7vh;
+    width: 0.7cqh;
+    height: 0.7cqh;
     border-radius: 50%;
     background-color: rgba(var(--white-rgb), 0.2);
     border: none;
@@ -1781,7 +1848,7 @@ body.is-owner .ghost-text:hover {
 /* 4. İÇERİK KAPSAYICILARI */
 .widget-link { width: 100%; height: 100%; position: relative; border-radius: inherit; cursor: pointer; }
 .widget-front-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; }
-.widget-back-content { width: 100%; height: 100%; padding: 1.5vh 2vh; display: flex; align-items: center; }
+.widget-back-content { width: 100%; height: 100%; padding: 1.5cqh 2cqw; display: flex; align-items: center; }
 
 /* --- 5. HAYALET YUVA (BOŞ SLOT) --- */
 .widget-ghost-slot {
@@ -1827,7 +1894,7 @@ body.is-owner .ghost-text:hover {
     border-radius: var(--radius-full); 
     color: rgb(var(--white-rgb));
     font-family: var(--font-primary);
-    font-size: 1.5vh;
+    font-size: 1.5cqh;
     font-weight: var(--fw-semibold);
     outline: none;
     transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -1876,7 +1943,7 @@ body.is-owner .ghost-text:hover {
     content: 'mt'; 
     font-family: var(--font-mono); 
     color: var(--brand-monkeytype-dark, #111); 
-    font-size: 2.5vh; 
+    font-size: 2.5cqh; 
     font-weight: var(--fw-extrabold); 
     margin-top: -2px; 
 }
@@ -1892,7 +1959,7 @@ body.is-owner .ghost-text:hover {
 
 .widget-edit-brand-text {
     font-family: var(--font-primary);
-    font-size: 1.2vh;
+    font-size: 1.2cqh;
     font-weight: var(--fw-bold);
     color: rgb(var(--white-rgb));
     letter-spacing: 0.03em;
@@ -1909,7 +1976,7 @@ body.is-owner .ghost-text:hover {
 
 body:not(.is-owner) .widgets {
     justify-content: flex-start;
-    gap: 1.5vh;
+    gap: 1.5cqh;
 }
 
 /* #endregion */
@@ -1923,7 +1990,7 @@ body:not(.is-owner) .widgets {
     justify-content: space-between; 
     width: 100%; 
     height: 100%; 
-    padding: 1.5vh 2vh; 
+    padding: 1.5cqh 2cqw; 
     border-radius: inherit; 
 }
 
@@ -1966,7 +2033,7 @@ body.is-owner .mt-front-view {
 /* Kullanıcı İsmi (Link, 3 Nokta ve Alt Çizgi Yapısı) */
 .mt-front-username { 
     font-family: var(--font-primary); 
-    font-size: 1.5vh; 
+    font-size: 1.5cqh; 
     font-weight: var(--fw-bold); 
     color: rgb(var(--white-rgb)); 
     letter-spacing: 0.5px;
@@ -2010,7 +2077,7 @@ body.is-owner .mt-front-view {
     opacity: 0.7; /* Göz yormaması ve arka plan gibi durması için saydamlık eklendi */
     font-family: var(--font-primary); 
     font-weight: var(--fw-medium); /* 800'den 500'e inceltildi */
-    font-size: 2.8vh; 
+    font-size: 2.8cqh; 
     letter-spacing: 2px; 
     margin-top: 30px; 
     pointer-events: none; 
@@ -2027,7 +2094,7 @@ body.is-owner .mt-front-view {
 
 .mt-stat-label { 
     font-family: var(--font-primary); 
-    font-size: 1.2vh; 
+    font-size: 1.2cqh; 
     color: rgba(var(--white-rgb), 0.5); 
     text-transform: uppercase; 
     font-weight: var(--fw-medium); /* 600'den 500'e inceltildi */
@@ -2037,7 +2104,7 @@ body.is-owner .mt-front-view {
 
 .mt-stat-value { 
     font-family: var(--font-mono); 
-    font-size: 3.5vh; 
+    font-size: 3.5cqh; 
     font-weight: var(--fw-medium); /* 700'den 500'e inceltildi */
     color: rgb(var(--white-rgb)); 
     line-height: 1; 
@@ -2045,7 +2112,7 @@ body.is-owner .mt-front-view {
 
 .mt-stat-percent { 
     font-family: var(--font-primary); 
-    font-size: 1.2vh; 
+    font-size: 1.2cqh; 
     color: rgba(var(--white-rgb), 0.4); 
     font-weight: var(--fw-regular); /* 600'den 400'e inceltildi */
     margin-top: 2px; 
@@ -2056,9 +2123,9 @@ body.is-owner .mt-front-view {
     .mt-front-view,
     body.is-owner .mt-front-view { gap: 10px; padding: 10px; }
     .mt-front-right { gap: 10px; flex: 1.5; }
-    .mt-stat-value { font-size: 2.5vh; }
-    .mt-stat-label { font-size: 1vh; }
-    .mt-front-username { font-size: 1.3vh; }
+    .mt-stat-value { font-size: 2.5cqh; }
+    .mt-stat-label { font-size: 1cqh; }
+    .mt-front-username { font-size: 1.3cqh; }
     .mt-front-divider { margin: 0 5px; }
 }
 /* #endregion */
@@ -3407,6 +3474,22 @@ body.is-owner .global-color-picker-wrapper {
         min-height: 100vh;
         overflow-y: auto;
         overflow-x: hidden;
+    }
+
+    .scene-viewport {
+        display: contents;
+    }
+
+    .scene-viewport .container {
+        aspect-ratio: unset;
+        width: 100%;
+        height: auto;
+        max-width: none;
+        --gap-x: 1.8vw;      /* mobilde eski vw tabanına geri dön */
+        --gap-y: 2vh;
+        --content-pad-x: 1.8vw;
+        --content-pad-y: 2.2vh;
+        --radius-base: 1vw;
     }
 
     #app-wrapper,
