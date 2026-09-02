@@ -1021,7 +1021,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-color: var(--theme-bg-panel);
     border: 1px solid rgba(var(--white-rgb), 0.08);
     border-radius: var(--radius-box);
-    padding: var(--content-pad-y) var(--content-pad-x);
+    padding: 6cqw 6cqw;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -1142,9 +1142,9 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
     line-height: 1.4;
     letter-spacing: 0.02em;
     color: rgba(var(--white-rgb), 0.75);
-    margin-top: 3cqw;
+    margin-top: 2cqw;
     font-weight: var(--fw-regular);
-    margin-bottom: 8px;
+    margin-bottom: 2cqw;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
