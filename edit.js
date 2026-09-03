@@ -849,7 +849,7 @@ const EditManager = {
                         if (title) {
                             const span = document.createElement('span');
                             span.className = 'widget-added-badge';
-                            span.style.cssText = 'font-size: 0.65rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: var(--radius-full); margin-left: 8px; color: rgba(255,255,255,0.6);';
+                            span.style.cssText = 'font-size: var(--fs-2xs); background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: var(--radius-full); margin-left: 8px; color: rgba(255,255,255,0.6);';
                             span.textContent = 'Eklendi';
                             title.appendChild(span);
                         }
@@ -1222,7 +1222,7 @@ const EditManager = {
                     <div class="nook-link-collapse" style="height: 0px;">
                         <div class="nook-link-form">
                             <input type="url" class="nook-link-input edit-url-input" placeholder="https://ornek.com" value="${escapeHtml(link.url)}" autocomplete="off" spellcheck="false">
-                            <span class="inline-url-error" style="display: none; color: var(--color-danger-light); font-size: 11px; margin-top: 2px;">Lütfen geçerli bir internet adresi girin.</span>
+                            <span class="inline-url-error" style="display: none; color: var(--color-danger-light); font-size: var(--fs-2xs); margin-top: 2px;">Lütfen geçerli bir internet adresi girin.</span>
                         </div>
                     </div>
                 `;
@@ -1336,7 +1336,7 @@ const EditManager = {
                     inputHTML = `
                         <div style="position: relative;">
                             <textarea class="edit-input-rect auto-expand-textarea" maxlength="${maxKarakter}" placeholder="${varsayilanMetin}" style="padding-bottom: 24px;">${guncelDeger}</textarea>
-                            <span class="bio-counter" style="position: absolute; bottom: 12px; right: 12px; font-size: 0.7rem; color: rgba(255,255,255,0.4); font-family: var(--font-mono); pointer-events: none;">${guncelDeger.length}/${maxKarakter}</span>
+                            <span class="bio-counter" style="position: absolute; bottom: 12px; right: 12px; font-size: var(--fs-xs); color: rgba(255,255,255,0.4); font-family: var(--font-mono); pointer-events: none;">${guncelDeger.length}/${maxKarakter}</span>
                         </div>
                     `;
                     el.classList.remove('ghost-text');

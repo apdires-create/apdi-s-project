@@ -744,7 +744,7 @@ function kartlariGriddeListele(kartlar) {
         if (doluMu) {
             ghostCard.style.opacity = '0.3';
             ghostCard.style.cursor = 'not-allowed';
-            ghostCard.innerHTML = `<span style="font-size: 0.8rem;">Kategori Dolu (12/12)</span>`;
+            ghostCard.innerHTML = `<span style="font-size: var(--fs-xs);">Kategori Dolu (12/12)</span>`;
         } else {
             ghostCard.innerHTML = `
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

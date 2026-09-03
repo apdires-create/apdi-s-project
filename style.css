@@ -83,25 +83,39 @@
     
     
     /* ============================================================
-       2. TYPOGRAPHY (Yazı Tipleri ve Kalınlıklar)
+       2. TYPOGRAPHY (Yazı Tipleri, Kalınlıklar ve Fluid Scale Engine)
        ============================================================ */
        
     --font-primary: 'Montserrat', sans-serif;
     --font-mono: 'Roboto Mono', monospace;
 
-    --fs-xs: 0.65rem;
-    --fs-sm: 0.75rem;
-    --fs-base: 0.85rem;
-    --fs-md: 1rem;
-    --fs-lg: 1.2rem;
-    --fs-xl: 1.6rem;
-    
     --fw-regular: 400;
     --fw-medium: 500;
     --fw-semibold: 600;
     --fw-bold: 700;
     --fw-extrabold: 800;
 
+    /* ============================================================
+       TİPOGRAFİK ÇEKİRDEK (Fluid Scale Engine)
+       ============================================================ */
+    .scene-viewport .container {
+    /* Sahne genişliğinin %1'i dinamik ana birimdir */
+    --font-fluid-base: 3cqw;
+
+    /* Taban metin katsayısı: 1080p sahnede ~15.5px - 16px bandına oturur */
+    --font-fluid-step: calc(var(--font-fluid-base) * 1.5);
+
+    /* Minor Third (1.200) Skalası */
+    --fs-2xs:  calc(var(--font-fluid-step) * 0.578); /* ~9px  | İkincil sayaç altı metinler, minik etiketler */
+    --fs-xs:   calc(var(--font-fluid-step) * 0.694); /* ~11px | Domain adları, footer detayları */
+    --fs-sm:   calc(var(--font-fluid-step) * 0.833); /* ~13px | Unvan ("Designer"), input içi metinler */
+    --fs-base: var(--font-fluid-step);               /* ~16px | Biyografi, standart açıklamalar */
+    --fs-md:   calc(var(--font-fluid-step) * 1.200); /* ~19px | Sekmeler, birincil butonlar */
+    --fs-lg:   calc(var(--font-fluid-step) * 1.440); /* ~23px | Panel başlıkları ("Bağlantılar") */
+    --fs-xl:   calc(var(--font-fluid-step) * 1.728); /* ~27px | Profil ana ismi ("Reaper" / "Apdi") */
+    --fs-2xl:  calc(var(--font-fluid-step) * 2.074); /* ~33px | Büyük sayaç rakamları (Monkeytype WPM) */
+    --fs-3xl:  calc(var(--font-fluid-step) * 2.488); /* ~40px | Hero ve devasa vurgular */
+    }
     /* ============================================================
        3. RADIUS (Köşe Kıvrımları - Akıcı Responsive Sistem)
        ============================================================ */
@@ -188,6 +202,24 @@
     --z-dropdown: 200;
     --z-modal: 500;
     --z-modal-top: 600;
+}
+
+/* ============================================================
+   STRATEJİK EKRAN EŞİKLERİ (Tek Satırda Global Ölçekleme)
+   ============================================================ */
+
+/* Kompakt Masaüstü & Dar Pencereler (~1080px altı) */
+@media (max-width: 1080px) {
+  :root {
+    --font-fluid-base: 0.92cqw; /* Yazılar taşmasın diye sistemi %8 sıkılaştırır */
+  }
+}
+
+/* 2K / 4K / Geniş Monitörler (~2000px üstü) */
+@media (min-width: 2000px) {
+  :root {
+    --font-fluid-base: 1.25cqw; /* 4K'da metinlerin minik kalmasını önleyip %25 büyütür */
+  }
 }
 
 /* #region 1.5: 16:9 SAHNE SİSTEMİ */
@@ -377,7 +409,7 @@ body {
     gap: 12px;
     
     color: #ffffff; 
-    font-size: 1.1rem;
+    font-size: var(--fs-md);
     font-weight: var(--fw-semibold);
     letter-spacing: 0.02em;
     
@@ -482,11 +514,11 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 }
 .nav-brand { display: flex; align-items: center; gap: var(--space-md); cursor: pointer; }
 .nav-logo-box { background: linear-gradient(135deg, var(--landing-amber), var(--landing-amber-hover)); color: #111; width: 32px; height: 32px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-weight: var(--fw-extrabold); font-family: var(--font-primary); box-shadow: 0 4px 15px rgba(242, 169, 59, 0.4); }
-.nav-brand-text { font-size: 1.5rem; font-weight: var(--fw-bold); color: rgb(var(--white-rgb)); }
+.nav-brand-text { font-size: var(--fs-xl); font-weight: var(--fw-bold); color: rgb(var(--white-rgb)); }
 .nav-links { display: flex; gap: 2.5rem; }
-.nav-links a { color: var(--landing-text-muted); font-size: 0.9rem; font-weight: var(--fw-medium); transition: color var(--transition-fast); }
+.nav-links a { color: var(--landing-text-muted); font-size: var(--fs-base); font-weight: var(--fw-medium); transition: color var(--transition-fast); }
 .nav-links a:hover { color: rgb(var(--white-rgb)); }
-.nav-login-btn { background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); color: rgb(var(--white-rgb)); padding: 8px 20px; border-radius: var(--radius-pill); font-size: 0.9rem; font-weight: var(--fw-semibold); cursor: pointer; transition: all var(--transition-fast); }
+.nav-login-btn { background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); color: rgb(var(--white-rgb)); padding: 8px 20px; border-radius: var(--radius-pill); font-size: var(--fs-base); font-weight: var(--fw-semibold); cursor: pointer; transition: all var(--transition-fast); }
 .nav-login-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); }
 
 /* #endregion */
@@ -504,10 +536,10 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 }
 
 .hero-left { flex: 1; max-width: 440px; }
-.hero-title { font-size: clamp(3.5rem, 5vw, 5rem); font-weight: var(--fw-extrabold); color: #fdf5e6; margin-bottom: 1.2rem; line-height: 1.1; letter-spacing: -0.02em; }
-.hero-subtitle { font-size: 1.05rem; color: var(--landing-text-muted); line-height: 1.5; margin-bottom: 2.2rem; font-weight: var(--fw-regular); }
+.hero-title { font-size: var(--fs-3xl); font-weight: var(--fw-extrabold); color: #fdf5e6; margin-bottom: 1.2rem; line-height: 1.1; letter-spacing: -0.02em; }
+.hero-subtitle { font-size: var(--fs-md); color: var(--landing-text-muted); line-height: 1.5; margin-bottom: 2.2rem; font-weight: var(--fw-regular); }
 .hero-subtitle strong { color: rgb(var(--white-rgb)); font-weight: var(--fw-semibold); }
-.hero-cta-btn { background: linear-gradient(135deg, var(--landing-amber), var(--landing-amber-hover)); color: #1a1005; border: none; padding: 14px 28px; border-radius: var(--radius-lg); font-size: 1rem; font-weight: var(--fw-bold); cursor: pointer; display: inline-flex; align-items: center; gap: var(--space-sm); box-shadow: 0 10px 25px rgba(242, 169, 59, 0.3); transition: transform var(--transition-fast), box-shadow var(--transition-fast); }
+.hero-cta-btn { background: linear-gradient(135deg, var(--landing-amber), var(--landing-amber-hover)); color: #1a1005; border: none; padding: 14px 28px; border-radius: var(--radius-lg); font-size: var(--fs-base); font-weight: var(--fw-bold); cursor: pointer; display: inline-flex; align-items: center; gap: var(--space-sm); box-shadow: 0 10px 25px rgba(242, 169, 59, 0.3); transition: transform var(--transition-fast), box-shadow var(--transition-fast); }
 .hero-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(242, 169, 59, 0.4); }
 
 .hero-right {
@@ -571,7 +603,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 
 /* Kasa İçi Sabit Boyutlandırma (Garantili Çözüm) */
 .flip-card-front .nook-profile-card {
-    font-size: 18px;
+    font-size: var(--fs-md);
 }
 
 .nook-profile-card {
@@ -638,13 +670,13 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 /* Profil İçeriği Hiyerarşisi */
 .nook-card__avatar { 
     width: 3.5em; height: 3.5em; border-radius: var(--radius-circle); display: flex; align-items: center; justify-content: center; 
-    font-family: var(--font-primary); font-weight: var(--fw-bold); font-size: 1.4em; color: #111; 
+    font-family: var(--font-primary); font-weight: var(--fw-bold); font-size: var(--fs-lg); color: #111; 
     margin-bottom: 1em; flex-shrink: 0; 
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2), 0 8px 16px rgba(0,0,0,0.4); 
 }
-.nook-card__name { font-family: var(--font-primary); font-weight: var(--fw-bold); font-size: 1.6em; line-height: 1.2; letter-spacing: -0.02em; }
-.nook-card__role { color: var(--nook-accent-live); font-size: 0.85em; font-weight: var(--fw-semibold); margin-top: 0.15em; }
-.nook-card__bio { color: #a4a9c3; font-size: 0.92em; line-height: 1.55; margin-top: 0.9em; }
+.nook-card__name { font-family: var(--font-primary); font-weight: var(--fw-bold); font-size: var(--fs-xl); line-height: 1.2; letter-spacing: -0.02em; }
+.nook-card__role { color: var(--nook-accent-live); font-size: var(--fs-sm); font-weight: var(--fw-semibold); margin-top: 0.15em; }
+.nook-card__bio { color: #a4a9c3; font-size: var(--fs-base); line-height: 1.55; margin-top: 0.9em; }
 
 /* Çipler ve Çizgiler */
 .nook-card__links { 
@@ -656,7 +688,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     padding: 0.4em 0.8em; border-radius: var(--radius-pill); 
     background: rgba(255, 255, 255, 0.08); 
     border: 1px solid rgba(255, 255, 255, 0.12); 
-    font-size: 0.78em; color: #c5c9d8; font-weight: var(--fw-semibold); white-space: nowrap; 
+    font-size: var(--fs-xs); color: #c5c9d8; font-weight: var(--fw-semibold); white-space: nowrap; 
     box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
 }
 
@@ -701,14 +733,14 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 .landing-box-close {
     position: absolute; top: 15px; right: 15px; 
     background: transparent; border: none;
-    color: rgba(var(--white-rgb), .3); font-size: 1.8rem; line-height: 1; 
+    color: rgba(var(--white-rgb), .3); font-size: var(--fs-xl); line-height: 1; 
     cursor: pointer; transition: color .2s ease; z-index: 2;
 }
 .landing-box-close:hover { color: rgb(var(--white-rgb)); }
 
 /* Başlık */
 .landing-title {
-    font-size: 2.2rem; font-weight: var(--fw-bold); letter-spacing: -.02em; margin: 0 0 20px;
+    font-size: var(--fs-2xl); font-weight: var(--fw-bold); letter-spacing: -.02em; margin: 0 0 20px;
     flex-shrink: 0; /* Başlık asla küçülmez */
     background: linear-gradient(180deg, #fff 20%, var(--landing-amber-hover) 130%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -725,7 +757,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 .landing-auth-input {
     width: 100%; height: 48px; padding: 0 16px; border-radius: var(--radius-sm);
     background: rgba(0, 0, 0, .2); border: 1px solid rgba(255, 255, 255, .08);
-    color: rgb(var(--white-rgb)); font-family: var(--font-primary); font-size: .9rem;
+    color: rgb(var(--white-rgb)); font-family: var(--font-primary); font-size: var(--fs-base);
     outline: none; transition: border-color .2s ease, background .2s ease;
 }
 .landing-auth-input::placeholder { color: rgba(var(--white-rgb), .35); }
@@ -745,7 +777,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     width: 100%; height: 40px; margin-top: 2px;
     background-color: rgba(var(--theme-secondary-rgb), .15); border: 1px solid rgba(var(--theme-secondary-rgb), .4);
     border-radius: var(--radius-full); color: rgb(var(--white-rgb)); font-family: var(--font-primary);
-    font-size: .85rem; font-weight: var(--fw-semibold); cursor: pointer; transition: all .2s ease;
+    font-size: var(--fs-sm); font-weight: var(--fw-semibold); cursor: pointer; transition: all .2s ease;
 }
 .auth-submit-btn:hover { background-color: rgba(var(--theme-secondary-rgb), .25); box-shadow: 0 0 12px rgba(var(--theme-secondary-rgb), .2); }
 
@@ -768,7 +800,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-color: rgba(var(--color-danger-rgb), .15);
     border: 1px solid rgba(var(--color-danger-rgb), .4);
     color: var(--color-danger-light);
-    border-radius: var(--radius-sm); font-size: .75rem; line-height: 1.4; text-align: center;
+    border-radius: var(--radius-sm); font-size: var(--fs-xs); line-height: 1.4; text-align: center;
     box-sizing: border-box;
     transition: max-height .3s ease, opacity .3s ease, margin-top .3s ease, padding .3s ease;
 }
@@ -790,7 +822,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     flex-shrink: 0;
     padding-top: 20px;
     display: flex; align-items: center; justify-content: center; gap: 6px;
-    font-size: .75rem; color: rgba(var(--white-rgb), .5);
+    font-size: var(--fs-xs); color: rgba(var(--white-rgb), .5);
 }
 .auth-switch-btn {
     background: transparent; border: none; color: rgba(var(--theme-secondary-rgb), .9);
@@ -937,7 +969,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-clip: text;
     color: transparent;
     font-family: var(--font-primary);
-    font-size: 2.6vh;
+    font-size: var(--fs-xl);
     font-weight: var(--fw-extrabold);
 }
 /* ============================================================
@@ -975,7 +1007,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-clip: text;
     color: transparent;
     font-family: var(--font-primary);
-    font-size: 2.6vh;
+    font-size: var(--fs-xl);
     font-weight: var(--fw-extrabold);
 }
 /* #endregion */
@@ -1110,7 +1142,7 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 .profile-name {
     flex: 1;
     min-width: 0;
-    font-size: 9cqw;
+    font-size: var(--fs-xl);
     font-weight: var(--fw-bold);
     letter-spacing: -0.01em;
     line-height: 1.15;
@@ -1125,7 +1157,7 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 }
 
 .profile-title {
-    font-size: 6cqw;
+    font-size: var(--fs-sm);
     line-height: 1.35;
     letter-spacing: 0.05em;
     color: rgba(var(--theme-secondary-rgb), 1);
@@ -1137,7 +1169,7 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 }
 
 .profile-bio {
-    font-size: 5.5cqw;
+    font-size: var(--fs-base);
     line-height: 1.4;
     letter-spacing: 0.02em;
     color: rgba(var(--white-rgb), 0.75);
@@ -1221,7 +1253,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 
 .profile-back-header h3,
 .profile-back-title {
-    font-size: clamp(1rem, 7.5cqw, 1.35rem);
+    font-size: var(--fs-lg);
     font-weight: var(--fw-bold);
     letter-spacing: -0.01em;
     color: rgba(var(--white-rgb), 0.9);
@@ -1291,9 +1323,9 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 }
 
 .nook-link-name {
-    font-size: clamp(13px, 4.6cqw, 16px);
+    font-size: var(--fs-base);
     line-height: 1.25;
-    font-weight: 600;
+    font-weight: var(--fw-semibold);
     color: rgb(var(--white-rgb));
     cursor: text;
     border-bottom: 1px dashed transparent;
@@ -1303,7 +1335,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-name:hover { border-color: rgba(255, 255, 255, 0.3); }
 
 .nook-link-domain {
-    font-size: clamp(10.5px, 3.4cqw, 13px);
+    font-size: var(--fs-xs);
     color: rgba(255, 255, 255, 0.5);
     white-space: nowrap;
     overflow: hidden;
@@ -1344,7 +1376,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
         justify-content: center;
     }
     .nook-link-name {
-        font-size: clamp(12px, 5.2cqw, 15px);
+        font-size: var(--fs-sm);
     }
 }
 
@@ -1394,10 +1426,10 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     border-radius: 6px;
     padding: 7px 9px;
     color: rgb(var(--white-rgb));
-    font-size: clamp(12.5px, calc(8.59px + 0.609cqw), 22px);
+    font-size: var(--fs-sm);
     outline: none;
     transition: border-color 150ms ease;
-    font-family: inherit;
+    font-family: var(--font-primary);
     width: 100%;
 }
 .nook-link-input:focus { border-color: var(--accent-500); }
@@ -1480,10 +1512,10 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-size: clamp(12px, 4cqw, 14px);
+    font-size: var(--fs-xs);
     cursor: pointer;
     transition: border-color 120ms ease, color 120ms ease;
-    font-family: inherit;
+    font-family: var(--font-primary);
 }
 .nook-add-btn svg {
     width: clamp(14px, 4.2cqw, 18px);
@@ -1544,7 +1576,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
         height: 14px;
     }
     .nook-link-name {
-        font-size: 12px;
+        font-size: var(--fs-xs);
     }
 }
 /* #endregion */
@@ -1619,7 +1651,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 #inline-edit-trigger:hover .check-icon { stroke: var(--color-success); }
 
 .edit-name-input {
-    font-size: clamp(0.9rem, 8cqw, 1.4rem);
+    font-size: var(--fs-lg);
     font-weight: var(--fw-semibold);
     padding: 4px 8px;
     height: auto;
@@ -1629,7 +1661,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .edit-input-rect {
     width: 100%;
     font-family: var(--font-primary);
-    font-size: clamp(0.75rem, 5.5cqw, 0.9rem);
+    font-size: var(--fs-sm);
     color: rgb(var(--white-rgb));
     background-color: rgba(var(--white-rgb), 0.04);
     border: 1px solid rgba(var(--theme-secondary-rgb), 0.25);
@@ -1666,7 +1698,7 @@ body.is-owner .ghost-text:hover {
 
 .dashed-add-btn {
     padding: 6px 12px;
-    font-size: 0.75rem;
+    font-size: var(--fs-xs);
     font-weight: var(--fw-medium);
     color: var(--theme-secondary);
     background: transparent;
@@ -1694,7 +1726,7 @@ body.is-owner .ghost-text:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     min-height: 48px;
     border: 1px dashed rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.02);
@@ -1727,7 +1759,7 @@ body.is-owner .ghost-text:hover {
     left: 50%;
     transform: translateX(-50%);
     color: rgb(var(--white-rgb));
-    font-size: 0.75rem;
+    font-size: var(--fs-xs);
     font-weight: var(--fw-semibold);
     padding: 6px 16px;
     background: rgba(var(--color-danger-rgb), 0.95);
@@ -1893,13 +1925,13 @@ body.is-owner .ghost-text:hover {
 }
 
 .ghost-plus-icon { 
-    font-size: 2rem; font-weight: 300; 
+    font-size: var(--fs-2xl); font-weight: var(--fw-regular); 
     color: rgba(var(--white-rgb), 0.3); 
     transition: color var(--transition-fast); line-height: 1; 
 }
 
 .ghost-slot-text { 
-    font-size: 0.75rem; font-weight: var(--fw-medium); 
+    font-size: var(--fs-xs); font-weight: var(--fw-medium); 
     color: rgba(var(--white-rgb), 0.3); 
     letter-spacing: 0.05em; transition: color var(--transition-fast); 
 }
@@ -1912,14 +1944,13 @@ body.is-owner .ghost-text:hover {
 /* --- WIDGET ARKA YÜZ (FORM UI) --- */
 .widget-username-input {
     width: 100%;
-    height: 40px;
-    padding: 0 16px;
+    padding: 1cqh 2cqw;
     background-color: rgba(var(--white-rgb), 0.04); 
     border: 1px solid rgba(var(--white-rgb), 0.12);
     border-radius: var(--radius-full); 
     color: rgb(var(--white-rgb));
     font-family: var(--font-primary);
-    font-size: 1.5cqh;
+    font-size: var(--fs-sm);
     font-weight: var(--fw-semibold);
     outline: none;
     transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -1968,7 +1999,7 @@ body.is-owner .ghost-text:hover {
     content: 'mt'; 
     font-family: var(--font-mono); 
     color: var(--brand-monkeytype-dark, #111); 
-    font-size: 2.5cqh; 
+    font-size: var(--fs-md); 
     font-weight: var(--fw-extrabold); 
     margin-top: -2px; 
 }
@@ -1984,7 +2015,7 @@ body.is-owner .ghost-text:hover {
 
 .widget-edit-brand-text {
     font-family: var(--font-primary);
-    font-size: 1.2cqh;
+    font-size: var(--fs-xs);
     font-weight: var(--fw-bold);
     color: rgb(var(--white-rgb));
     letter-spacing: 0.03em;
@@ -2058,7 +2089,7 @@ body.is-owner .mt-front-view {
 /* Kullanıcı İsmi (Link, 3 Nokta ve Alt Çizgi Yapısı) */
 .mt-front-username { 
     font-family: var(--font-primary); 
-    font-size: 1.5cqh; 
+    font-size: var(--fs-sm); 
     font-weight: var(--fw-bold); 
     color: rgb(var(--white-rgb)); 
     letter-spacing: 0.5px;
@@ -2102,7 +2133,7 @@ body.is-owner .mt-front-view {
     opacity: 0.7; /* Göz yormaması ve arka plan gibi durması için saydamlık eklendi */
     font-family: var(--font-primary); 
     font-weight: var(--fw-medium); /* 800'den 500'e inceltildi */
-    font-size: 2.8cqh; 
+    font-size: var(--fs-lg); 
     letter-spacing: 2px; 
     margin-top: 30px; 
     pointer-events: none; 
@@ -2119,7 +2150,7 @@ body.is-owner .mt-front-view {
 
 .mt-stat-label { 
     font-family: var(--font-primary); 
-    font-size: 1.2cqh; 
+    font-size: var(--fs-xs); 
     color: rgba(var(--white-rgb), 0.5); 
     text-transform: uppercase; 
     font-weight: var(--fw-medium); /* 600'den 500'e inceltildi */
@@ -2129,7 +2160,7 @@ body.is-owner .mt-front-view {
 
 .mt-stat-value { 
     font-family: var(--font-mono); 
-    font-size: 3.5cqh; 
+    font-size: var(--fs-2xl); 
     font-weight: var(--fw-medium); /* 700'den 500'e inceltildi */
     color: rgb(var(--white-rgb)); 
     line-height: 1; 
@@ -2137,7 +2168,7 @@ body.is-owner .mt-front-view {
 
 .mt-stat-percent { 
     font-family: var(--font-primary); 
-    font-size: 1.2cqh; 
+    font-size: var(--fs-2xs); 
     color: rgba(var(--white-rgb), 0.4); 
     font-weight: var(--fw-regular); /* 600'den 400'e inceltildi */
     margin-top: 2px; 
@@ -2148,9 +2179,9 @@ body.is-owner .mt-front-view {
     .mt-front-view,
     body.is-owner .mt-front-view { gap: 10px; padding: 10px; }
     .mt-front-right { gap: 10px; flex: 1.5; }
-    .mt-stat-value { font-size: 2.5cqh; }
-    .mt-stat-label { font-size: 1cqh; }
-    .mt-front-username { font-size: 1.3cqh; }
+    .mt-stat-value { font-size: var(--fs-xl); }
+    .mt-stat-label { font-size: var(--fs-2xs); }
+    .mt-front-username { font-size: var(--fs-xs); }
     .mt-front-divider { margin: 0 5px; }
 }
 /* #endregion */
@@ -2200,7 +2231,7 @@ body.is-owner .mt-front-view {
 .widget-select-title {
     color: rgb(var(--white-rgb));
     font-weight: var(--fw-semibold);
-    font-size: 0.95rem;
+    font-size: var(--fs-base);
     font-family: var(--font-primary);
     display: flex;
     align-items: center;
@@ -2208,7 +2239,7 @@ body.is-owner .mt-front-view {
 
 .widget-select-desc {
     color: rgba(var(--white-rgb), 0.5);
-    font-size: 0.75rem;
+    font-size: var(--fs-xs);
     font-family: var(--font-primary);
 }
 /* #endregion */
@@ -2325,7 +2356,7 @@ body.is-owner .widget-slot.is-draggable:active {
     height: 5.9vh;
     padding: 0 2.4vh;
     font-family: var(--font-primary);
-    font-size: 3.1vh;
+    font-size: calc(var(--fs-md) * 0.55);
     font-weight: var(--fw-medium);
     cursor: pointer;
     transition: all var(--transition-base);
@@ -2349,63 +2380,32 @@ body.is-owner .widget-slot.is-draggable:active {
 .tab.has-link::after {
     content: '';
     position: absolute;
-    bottom: 0.6vh;
-    left: 50%;
+    bottom: -1px;
+    left: 20%;
     width: 0;
-    height: clamp(2px, 0.35vh, 4px);
-    background-color: currentColor;
-    transform: translateX(-50%);
-    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 2px;
+    background: var(--accent-500);
     border-radius: var(--radius-full);
+    box-shadow: 0 0 8px var(--accent-500);
+    transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* COOLDOWN BİTİNCE (Link Hazır Durumu) */
-.tab.active.link-ready::after {
-    width: calc(100% - 4.8vh);
+/* Aktif kategorinin çizgisi tam genişliğe açılır */
+.tab.active.has-link::after {
+    width: 60%;
 }
 
-/* Link ve Alt Çizgi Hazır Durumunda Hafifçe Yukarı İtme */
-.tab.active.link-ready .tab-text,
-.tab.active.link-ready .tab-link-icon {
-    transform: translateY(-0.2vh);
-}
-
-.tab-text {
-    display: inline-flex;
-    align-items: center;
-    line-height: 1;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.tab.has-link.active.link-ready:hover {
-    color: var(--color-link);
-    text-shadow: 0 0 10px color-mix(in srgb, var(--color-link) 50%, transparent);
-}
-
-.tab.has-link.active.link-ready:hover::after {
-    background-color: var(--color-link);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--color-link) 50%, transparent);
-}
-
-.tab.has-link.active.link-ready:hover .tab-link-icon svg {
-    color: var(--color-link);
-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--color-link) 50%, transparent));
-}
-
-/* İkonun Başlangıç Durumu (Tüm animasyonlar tek bir cubic-bezier yaylanma eğrisinde senkron) */
 .tab-link-icon {
+    width: 0;
+    opacity: 0;
+    margin-right: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 0;
-    opacity: 0;
     overflow: hidden;
-    line-height: 1;
-    flex-shrink: 0;
-    transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                margin-right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                opacity 0.25s ease, 
+                margin-right 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .tab.active.link-ready .tab-link-icon {
@@ -2445,7 +2445,7 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .add-content-btn .plus-icon {
-    font-size: 1.2rem;
+    font-size: var(--fs-lg);
     font-weight: var(--fw-regular);
     line-height: 1;
     color: inherit;
@@ -2512,9 +2512,9 @@ body.is-owner .widget-slot.is-draggable:active {
 
 .card-label {
     margin-top: 6cqw;
-    font-size: 9cqw;
+    font-size: var(--fs-sm);
     line-height: 1.25;
-    font-weight: 500;
+    font-weight: var(--fw-medium);
     text-align: center;
     color: rgba(var(--white-rgb), 0.6);
     transition: color var(--transition-base);
@@ -2602,9 +2602,9 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .content-card.empty-add-card .plus-icon {
-    font-size: 3rem;
+    font-size: var(--fs-3xl);
     color: rgba(var(--theme-secondary-rgb), 0.5);
-    font-weight: 300;
+    font-weight: var(--fw-regular);
     transition: color var(--transition-base);
 }
 
@@ -2660,7 +2660,7 @@ body.is-owner .widget-slot.is-draggable:active {
 
 .empty-state-text {
     font-family: var(--font-primary);
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     color: rgba(var(--white-rgb), 0.6);
     font-weight: var(--fw-medium);
     letter-spacing: 0.02em;
@@ -2699,7 +2699,7 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .prompt-text {
-    font-size: clamp(0.76rem, 2.9cqi, 0.94rem);
+    font-size: var(--fs-sm);
     color: rgba(var(--white-rgb), 0.55);
     font-family: var(--font-primary);
     letter-spacing: .01em;
@@ -2727,7 +2727,7 @@ body.is-owner .widget-slot.is-draggable:active {
     gap: clamp(6px, 1.8cqi, 9px);
     padding: clamp(8px, 2.6cqi, 11px) clamp(16px, 5.2cqi, 24px);
     border-radius: var(--radius-full);
-    font-size: clamp(0.74rem, 2.7cqi, 0.86rem);
+    font-size: var(--fs-sm);
     font-family: var(--font-primary);
     font-weight: var(--fw-semibold);
     letter-spacing: .01em;
@@ -2789,7 +2789,7 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .category-option-btn span {
-    font-size: 0.8rem;
+    font-size: var(--fs-xs);
     font-weight: var(--fw-semibold);
     letter-spacing: 0.02em;
 }
@@ -2880,7 +2880,7 @@ body.is-owner .widget-slot.is-draggable:active {
     border-radius: var(--radius-full);
     color: rgb(var(--white-rgb));
     font-family: var(--font-primary);
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     outline: none;
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -2901,7 +2901,7 @@ body.is-owner .widget-slot.is-draggable:active {
     background: transparent;
     border: none;
     color: rgba(var(--white-rgb), 0.5);
-    font-size: 1.4rem;
+    font-size: var(--fs-lg);
     line-height: 1;
     cursor: pointer;
     border-radius: var(--radius-circle);
@@ -2958,7 +2958,7 @@ body.is-owner .widget-slot.is-draggable:active {
     grid-column: 1 / -1;
     text-align: center;
     color: rgba(var(--white-rgb), 0.4);
-    font-size: 0.8rem;
+    font-size: var(--fs-xs);
     padding: 20px 0;
 }
 
@@ -2992,7 +2992,7 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .search-result-label {
-    font-size: 0.7rem;
+    font-size: var(--fs-xs);
     text-align: center;
     color: rgba(var(--white-rgb), 0.7);
     line-height: 1.2;
@@ -3022,14 +3022,14 @@ body.is-owner .widget-slot.is-draggable:active {
 .auth-modal.is-open .auth-modal-box { transform: translateY(0) scale(1); }
 
 .auth-modal-title {
-    font-size: 1.1rem;
+    font-size: var(--fs-md);
     font-weight: var(--fw-semibold);
     color: rgb(var(--white-rgb));
     flex: 1;
 }
 
 .edit-section-title {
-    font-size: 0.75rem;
+    font-size: var(--fs-xs);
     font-weight: var(--fw-semibold);
     color: rgba(var(--theme-secondary-rgb), 1);
     letter-spacing: 0.05em;
@@ -3071,7 +3071,7 @@ body.is-owner .widget-slot.is-draggable:active {
 
 .auth-trigger-btn .login-text {
     font-family: var(--font-primary);
-    font-size: 2.2vh;
+    font-size: var(--fs-md);
     font-weight: var(--fw-semibold);
     letter-spacing: 0.02em;
 }
@@ -3129,7 +3129,7 @@ body.has-unsaved-changes .edit-action-bar {
 
 .edit-status-text {
     color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
     font-weight: var(--fw-medium);
 }
 
@@ -3141,7 +3141,7 @@ body.has-unsaved-changes .edit-action-bar {
 .edit-bar-btn {
     padding: 8px 16px;
     border-radius: var(--radius-full);
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     font-weight: var(--fw-semibold);
     cursor: pointer;
     border: none;
@@ -3266,7 +3266,7 @@ body.is-owner .tab:active {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     cursor: pointer;
     opacity: 0;
     transform: scale(0.8);
@@ -3307,7 +3307,7 @@ body.is-owner .tab:hover .tab-edit-badge {
     padding: 60px 0;
     color: rgba(var(--white-rgb), 0.4);
     gap: 10px;
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
 }
 /* #endregion */
 
@@ -3325,7 +3325,7 @@ body.is-owner .tab:hover .tab-edit-badge {
     padding: 12px 24px;
     border-radius: var(--radius-full);
     font-family: var(--font-primary);
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     font-weight: var(--fw-semibold);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     z-index: 9999;
@@ -3476,7 +3476,7 @@ body.is-owner .global-color-picker-wrapper {
     border-radius: var(--radius-xs);
     color: rgb(var(--white-rgb));
     font-family: var(--font-mono);
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     text-transform: uppercase;
     text-align: center;
     outline: none;
@@ -3493,6 +3493,19 @@ body.is-owner .global-color-picker-wrapper {
 
 /* #region Responsive Tasarım (Mobil Uyum - max-width: 640px) */
 @media (max-width: 640px) {
+    /* Mobil Dikey Akış (Mobil Breakpoint devreye girdiğinde rem'e geri dönüş) */
+    :root {
+        --fs-2xs:  0.65rem;
+        --fs-xs:   0.75rem;
+        --fs-sm:   0.82rem;
+        --fs-base: 0.90rem;
+        --fs-md:   1.00rem;
+        --fs-lg:   1.15rem;
+        --fs-xl:   1.35rem;
+        --fs-2xl:  1.65rem;
+        --fs-3xl:  2.00rem;
+    }
+
     /* 1. SAHNE VE SAYFA AKIŞI */
     body {
         height: auto;
@@ -3544,7 +3557,7 @@ body.is-owner .global-color-picker-wrapper {
 
     .app-home-logo,
     .home-logo-n {
-        font-size: 1.1rem;
+        font-size: var(--fs-lg);
     }
 
     .header-actions {
@@ -3559,7 +3572,7 @@ body.is-owner .global-color-picker-wrapper {
     }
 
     .auth-trigger-btn .login-text {
-        font-size: 0.75rem;
+        font-size: var(--fs-xs);
     }
 
     .nook-color-trigger {
@@ -3636,8 +3649,8 @@ body.is-owner .global-color-picker-wrapper {
     }
 
     .profile-name {
-        font-size: 1.1rem;
-        font-weight: 700;
+        font-size: var(--fs-md);
+        font-weight: var(--fw-bold);
         line-height: 1.2;
     }
 
@@ -3655,12 +3668,12 @@ body.is-owner .global-color-picker-wrapper {
     }
 
     .profile-title {
-        font-size: 0.82rem;
+        font-size: var(--fs-sm);
         margin-top: 6px;
     }
 
     .profile-bio {
-        font-size: 0.85rem;
+        font-size: var(--fs-sm);
         line-height: 1.45;
         margin-top: 8px;
         margin-bottom: 4px;
@@ -3682,7 +3695,7 @@ body.is-owner .global-color-picker-wrapper {
     .tab {
         height: 32px;
         padding: 0 14px;
-        font-size: 0.75rem;
+        font-size: var(--fs-xs);
     }
 
     .add-content-btn {
@@ -3726,7 +3739,7 @@ body.is-owner .global-color-picker-wrapper {
     }
 
     .card-label {
-        font-size: 0.75rem;
+        font-size: var(--fs-xs);
         margin-top: 6px;
         line-height: 1.25;
         height: calc(1.25em * 2);
@@ -3770,14 +3783,14 @@ body.is-owner .global-color-picker-wrapper {
         padding: 8px 0;
     }
     .prompt-text {
-        font-size: 0.86rem;
+        font-size: var(--fs-sm);
     }
     .prompt-pill {
         padding: 12px 16px;
         border-radius: var(--radius-sm);
     }
     .prompt-btn {
-        font-size: 0.82rem;
+        font-size: var(--fs-sm);
         padding: 10px 20px;
     }
 }
