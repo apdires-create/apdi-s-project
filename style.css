@@ -96,28 +96,6 @@
     --fw-extrabold: 800;
 
     /* ============================================================
-       TİPOGRAFİK ÇEKİRDEK (Fluid Scale Engine)
-       ============================================================ */
-    .scene-viewport .container {
-    /* Sahne genişliğinin %1'i dinamik ana birimdir */
-    --font-fluid-base: 3cqw;
-
-    /* Taban metin katsayısı: 1080p sahnede ~15.5px - 16px bandına oturur */
-    --font-fluid-step: calc(var(--font-fluid-base) * 1.5);
-
-    /* Minor Third (1.200) Skalası */
-    --fs-2xs:  calc(var(--font-fluid-step) * 0.578); /* ~9px  | İkincil sayaç altı metinler, minik etiketler */
-    --fs-xs:   calc(var(--font-fluid-step) * 0.694); /* ~11px | Domain adları, footer detayları */
-    --fs-sm:   calc(var(--font-fluid-step) * 0.833); /* ~13px | Unvan ("Designer"), input içi metinler */
-    --fs-base: var(--font-fluid-step);               /* ~16px | Biyografi, standart açıklamalar */
-    --fs-md:   calc(var(--font-fluid-step) * 1.200); /* ~19px | Sekmeler, birincil butonlar */
-    --fs-lg:   calc(var(--font-fluid-step) * 1.440); /* ~23px | Panel başlıkları ("Bağlantılar") */
-    --fs-xl:   calc(var(--font-fluid-step) * 1.728); /* ~27px | Profil ana ismi ("Reaper" / "Apdi") */
-    --fs-2xl:  calc(var(--font-fluid-step) * 2.074); /* ~33px | Büyük sayaç rakamları (Monkeytype WPM) */
-    --fs-3xl:  calc(var(--font-fluid-step) * 2.488); /* ~40px | Hero ve devasa vurgular */
-    --fs-card-title: calc(0.9cqw(nook-scene));
-    }
-    /* ============================================================
        3. RADIUS (Köşe Kıvrımları - Akıcı Responsive Sistem)
        ============================================================ */
     --radius-base: 1vw;
@@ -205,24 +183,6 @@
     --z-modal-top: 600;
 }
 
-/* ============================================================
-   STRATEJİK EKRAN EŞİKLERİ (Tek Satırda Global Ölçekleme)
-   ============================================================ */
-
-/* Kompakt Masaüstü & Dar Pencereler (~1080px altı) */
-@media (max-width: 1080px) {
-  :root {
-    --font-fluid-base: 0.92cqw; /* Yazılar taşmasın diye sistemi %8 sıkılaştırır */
-  }
-}
-
-/* 2K / 4K / Geniş Monitörler (~2000px üstü) */
-@media (min-width: 2000px) {
-  :root {
-    --font-fluid-base: 1.25cqw; /* 4K'da metinlerin minik kalmasını önleyip %25 büyütür */
-  }
-}
-
 /* #region 1.5: 16:9 SAHNE SİSTEMİ */
 .scene-viewport {
     flex: 1;
@@ -240,18 +200,43 @@
     aspect-ratio: 16 / 9;
     width: min(100cqw, 100cqh * 16 / 9);
     height: min(100cqh, 100cqw * 9 / 16);
-    max-width: 2200px; /* güvenlik tavanı — sadece çok büyük ekranlarda devreye girer */
+    max-width: 2200px;
 
-    /* Kök değişkenleri artık gerçek viewport'a değil, bu sahnenin kendi
-       container'ına bağlıyoruz. Böylece vw/vh oranı ne olursa olsun
-       sahne içi oran hep 16:9'a kilitli kalır. */
     --gap-x: 1.8cqw;
     --gap-y: 2cqh;
     --content-pad-x: 1.8cqw;
     --content-pad-y: 2.2cqh;
     --radius-base: 1cqw;
 
+    /* TAŞINDI (eski :root .scene-viewport .container nesting bug'ı çözüldü) */
+    --font-fluid-base: 3cqw;
+    --font-fluid-step: calc(var(--font-fluid-base) * 1.5);
+
+    --fs-2xs:  calc(var(--font-fluid-step) * 0.578);
+    --fs-xs:   calc(var(--font-fluid-step) * 0.694);
+    --fs-sm:   calc(var(--font-fluid-step) * 0.833);
+    --fs-base: var(--font-fluid-step);
+    --fs-md:   calc(var(--font-fluid-step) * 1.200);
+    --fs-lg:   calc(var(--font-fluid-step) * 1.440);
+    --fs-xl:   calc(var(--font-fluid-step) * 1.728);
+    --fs-2xl:  calc(var(--font-fluid-step) * 2.074);
+    --fs-3xl:  calc(var(--font-fluid-step) * 2.488);
+
     margin: 0 auto;
+}
+
+/* Kompakt Masaüstü & Dar Pencereler (~1080px altı) */
+@media (max-width: 1080px) {
+    .scene-viewport .container {
+        --font-fluid-base: 2.76cqw; /* 3cqw * 0.92 — orijinal "%8 sıkılaştırır" yorumunun doğru karşılığı */
+    }
+}
+
+/* 2K / 4K / Geniş Monitörler (~2000px üstü) */
+@media (min-width: 2000px) {
+    .scene-viewport .container {
+        --font-fluid-base: 3cqw;
+    }
 }
 /* #endregion */
 
@@ -2513,7 +2498,7 @@ body.is-owner .widget-slot.is-draggable:active {
 
 .card-label {
     margin-top: 6cqw;
-    font-size: var(--fs-card-title);
+    font-size: var(--fs-3xl);
     line-height: 1.25;
     font-weight: var(--fw-medium);
     text-align: center;
@@ -3494,18 +3479,6 @@ body.is-owner .global-color-picker-wrapper {
 
 /* #region Responsive Tasarım (Mobil Uyum - max-width: 640px) */
 @media (max-width: 640px) {
-    /* Mobil Dikey Akış (Mobil Breakpoint devreye girdiğinde rem'e geri dönüş) */
-    :root {
-        --fs-2xs:  0.65rem;
-        --fs-xs:   0.75rem;
-        --fs-sm:   0.82rem;
-        --fs-base: 0.90rem;
-        --fs-md:   1.00rem;
-        --fs-lg:   1.15rem;
-        --fs-xl:   1.35rem;
-        --fs-2xl:  1.65rem;
-        --fs-3xl:  2.00rem;
-    }
 
     /* 1. SAHNE VE SAYFA AKIŞI */
     body {
@@ -3529,6 +3502,16 @@ body.is-owner .global-color-picker-wrapper {
         --content-pad-x: 1.8vw;
         --content-pad-y: 2.2vh;
         --radius-base: 1vw;
+
+        --fs-2xs:  0.65rem;
+        --fs-xs:   0.75rem;
+        --fs-sm:   0.82rem;
+        --fs-base: 0.90rem;
+        --fs-md:   1.00rem;
+        --fs-lg:   1.15rem;
+        --fs-xl:   1.35rem;
+        --fs-2xl:  1.65rem;
+        --fs-3xl:  2.00rem;
     }
 
     #app-wrapper,
