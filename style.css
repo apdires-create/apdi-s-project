@@ -95,6 +95,11 @@
     --fw-bold: 700;
     --fw-extrabold: 800;
 
+    /* Dış Arayüz / Banner Buton Ölçekleri (Sahne Konteynerı Dışında Kalanlar) */
+    --fs-banner-btn: clamp(0.88rem, 2.2vh, 1.05rem);
+    --fs-banner-logo: clamp(1.25rem, 3.2vh, 1.85rem);
+    --btn-banner-size: clamp(44px, 7vh, 60px);
+
     /* ============================================================
        3. RADIUS (Köşe Kıvrımları - Akıcı Responsive Sistem)
        ============================================================ */
@@ -227,6 +232,12 @@
 
 /* Kompakt Masaüstü & Dar Pencereler (~1080px altı) */
 @media (max-width: 1080px) {
+    :root {
+        --btn-banner-size: clamp(38px, 6.5vh, 48px);
+        --fs-banner-btn: clamp(0.78rem, 2vh, 0.92rem);
+        --fs-banner-logo: clamp(1.1rem, 2.8vh, 1.45rem);
+    }
+
     .scene-viewport .container {
         --font-fluid-base: 2.76cqw; /* 3cqw * 0.92 — orijinal "%8 sıkılaştırır" yorumunun doğru karşılığı */
     }
@@ -234,8 +245,14 @@
 
 /* 2K / 4K / Geniş Monitörler (~2000px üstü) */
 @media (min-width: 2000px) {
+    :root {
+        --btn-banner-size: clamp(68px, 7.5vh, 92px);
+        --fs-banner-btn: clamp(1.25rem, 2.4vh, 1.65rem);
+        --fs-banner-logo: clamp(1.85rem, 3.8vh, 2.6rem);
+    }
+
     .scene-viewport .container {
-        --font-fluid-base: 3cqw;
+        --font-fluid-base: 3.75cqw; /* 3cqw * 1.25 — orijinal "%25 büyütür" yorumunun doğru karşılığı */
     }
 }
 /* #endregion */
@@ -955,7 +972,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-clip: text;
     color: transparent;
     font-family: var(--font-primary);
-    font-size: var(--fs-xl);
+    font-size: var(--fs-banner-logo);
     font-weight: var(--fw-extrabold);
 }
 /* ============================================================
@@ -965,8 +982,8 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     position: absolute;
     top: 3vh;
     left: 3vh;
-    width: 7vh;
-    height: 7vh;
+    width: var(--btn-banner-size);
+    height: var(--btn-banner-size);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -993,7 +1010,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-clip: text;
     color: transparent;
     font-family: var(--font-primary);
-    font-size: var(--fs-xl);
+    font-size: var(--fs-banner-logo);
     font-weight: var(--fw-extrabold);
 }
 /* #endregion */
@@ -3040,7 +3057,7 @@ body.is-owner .widget-slot.is-draggable:active {
 .auth-trigger-btn {
     position: relative;
     width: auto; 
-    height: 7vh;
+    height: var(--btn-banner-size);
     padding: 0 2.2vh;
     display: flex;
     align-items: center;
@@ -3057,7 +3074,7 @@ body.is-owner .widget-slot.is-draggable:active {
 
 .auth-trigger-btn .login-text {
     font-family: var(--font-primary);
-    font-size: var(--fs-md);
+    font-size: var(--fs-banner-btn);
     font-weight: var(--fw-semibold);
     letter-spacing: 0.02em;
 }
@@ -3340,8 +3357,8 @@ body.is-owner .global-color-picker-wrapper {
 
 /* 2. Tetikleyici Buton (Dış Renk Küresi) */
 .nook-color-trigger {
-    width: 7vh;
-    height: 7vh;
+    width: var(--btn-banner-size);
+    height: var(--btn-banner-size);
     border-radius: var(--radius-circle); 
     border: 2px solid rgba(255, 255, 255, 0.15); /* Temiz çerçeve */
     cursor: pointer;
