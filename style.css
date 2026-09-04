@@ -586,7 +586,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     height: 100%;
     backface-visibility: hidden; 
     -webkit-backface-visibility: hidden;
-    border-radius: 1.4em;
+    border-radius: var(--radius-xl);
     -webkit-font-smoothing: antialiased; 
     -moz-osx-font-smoothing: grayscale;
 }
@@ -621,7 +621,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     justify-content: center; 
     box-sizing: border-box;
     padding: 1.8em; 
-    border-radius: inherit;
+    border-radius: var(--radius-xl);
     
     /* Premium Cam Efekti ve Rim Light (Dış Işık Kesişimi) */
     background: linear-gradient(165deg, rgba(35, 38, 65, 0.45), rgba(15, 17, 30, 0.9));
@@ -646,7 +646,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     filter: blur(40px);
     opacity: 0.18; /* Rengi "hissetmeni" sağlayacak tatlı bir parlaklık */
     z-index: -1;
-    border-radius: inherit;
+    border-radius: var(--radius-xl);
     pointer-events: none;
     transition: background 0.4s ease; /* Yeni profil geldiğinde ışık rengi yumuşakça değişir */
 }
@@ -659,7 +659,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
     pointer-events: none;
     z-index: 0;
-    border-radius: inherit;
+    border-radius: var(--radius-xl);
 }
 
 .nook-card__body { 
@@ -708,7 +708,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: var(--shadow-glass-inner), var(--shadow-xl);
     
-    border-radius: inherit;
+    border-radius: var(--radius-xl);
     padding: 36px 24px 24px 24px;
 
     /* Dikey Esnek Akış (Kusursuz Layout) */
@@ -1424,7 +1424,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-input {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     padding: 7px 9px;
     color: rgb(var(--white-rgb));
     font-size: var(--fs-sm);
@@ -1473,7 +1473,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-toggle {
     width: 28px;
     height: 28px;
-    border-radius: 6px;
+    border-radius: var(--radius-xs);
     border: 1px solid transparent;
     background: transparent;
     color: rgba(255, 255, 255, 0.5);
@@ -1826,7 +1826,7 @@ body.is-owner .ghost-text:hover {
 .widget-dot {
     width: 0.7cqh;
     height: 0.7cqh;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     background-color: rgba(var(--white-rgb), 0.2);
     border: none;
     cursor: pointer;
@@ -1904,7 +1904,7 @@ body.is-owner .ghost-text:hover {
 .widget-slot:hover .widget-flip-front { border-color: rgba(var(--theme-secondary-rgb), 0.4); }
 
 /* 4. İÇERİK KAPSAYICILARI */
-.widget-link { width: 100%; height: 100%; position: relative; border-radius: inherit; cursor: pointer; }
+.widget-link { width: 100%; height: 100%; position: relative; border-radius: var(--radius-lg); cursor: pointer; }
 .widget-front-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; }
 .widget-back-content { width: 100%; height: 100%; padding: 1.5cqh 2cqw; display: flex; align-items: center; }
 
@@ -2048,7 +2048,7 @@ body:not(.is-owner) .widgets {
     width: 100%; 
     height: 100%; 
     padding: 1.5cqh 2cqw; 
-    border-radius: inherit; 
+    border-radius: var(--radius-lg); 
 }
 
 /* Sayfa sahibi modunda düzenleme butonu için sağ boşluk */
@@ -3404,7 +3404,7 @@ body.is-owner .global-color-picker-wrapper {
     position: absolute;
     width: 14px;
     height: 14px;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     border: 2px solid #fff;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4);
     transform: translate(-50%, -50%);
@@ -3427,7 +3427,7 @@ body.is-owner .global-color-picker-wrapper {
     top: 50%;
     width: 16px;
     height: 16px;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     border: 2px solid #fff;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4);
     transform: translate(-50%, -50%);
