@@ -937,14 +937,13 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 }
 
 /* ============================================================
-   YENİ: Profil Sayfası Ana Sayfa (N) Butonu
+   Profil Sayfası Ana Sayfa (N) Butonu
    ============================================================ */
-.app-home-btn {
-    position: absolute;
-    top: 3vh;
-    left: 3vh;
-    width: 7vh;
-    height: 7vh;
+.app-home-btn,
+.home-trigger-btn {
+    position: relative;
+    width: var(--btn-banner-size);
+    height: var(--btn-banner-size);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -954,49 +953,13 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     -webkit-backdrop-filter: var(--blur-md);
     border-radius: var(--radius-sm);
     cursor: pointer;
-    z-index: var(--z-banner);
     transition: var(--transition-fast);
     text-decoration: none;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
-.app-home-btn:hover {
-    border-color: var(--theme-primary);
-    background-color: color-mix(in srgb, var(--accent-500) 15%, transparent); 
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-500) 15%, transparent);
-}
-
-.app-home-logo {
-    background: linear-gradient(135deg, var(--accent-300), var(--accent-500));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    font-family: var(--font-primary);
-    font-size: var(--fs-banner-logo);
-    font-weight: var(--fw-extrabold);
-}
-/* ============================================================
-   Profil Sayfası -> Ana Sayfaya Dönüş Butonu (Sol Üst)
-   ============================================================ */
-.home-trigger-btn {
-    position: absolute;
-    top: 3vh;
-    left: 3vh;
-    width: var(--btn-banner-size);
-    height: var(--btn-banner-size);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(22, 27, 34, 0.4);
-    border: 1px solid var(--theme-border-soft);
-    backdrop-filter: var(--blur-md);
-    -webkit-backdrop-filter: var(--blur-md);
-    border-radius: var(--radius-sm); /* Tam yuvarlak değil, logoya uygun hafif köşeli */
-    cursor: pointer;
-    z-index: var(--z-banner);
-    transition: var(--transition-fast);
-}
-
+.app-home-btn:hover,
 .home-trigger-btn:hover {
     border-color: var(--theme-primary);
     background-color: color-mix(in srgb, var(--accent-500) 15%, transparent); 
@@ -1004,14 +967,20 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-500) 15%, transparent);
 }
 
+.app-home-logo,
 .home-logo-n {
     background: linear-gradient(135deg, var(--accent-300), var(--accent-500));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     font-family: var(--font-primary);
-    font-size: var(--fs-banner-logo);
+    font-size: calc(var(--btn-banner-size) * 0.62);
     font-weight: var(--fw-extrabold);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
 }
 /* #endregion */
 
@@ -3043,15 +3012,31 @@ body.is-owner .widget-slot.is-draggable:active {
 
 /* #endregion */
 
-/* #region 7.5: DIŞ ARAYÜZ (HEADER) KONTROLLERİ */
-.header-actions {
+/* #region 7.5: DIŞ ARAYÜZ (HEADER & BANNER) KONTROLLERİ */
+.banner-controls {
     position: absolute;
-    top: 3vh;
-    right: 3vh;
+    top: clamp(16px, 3vh, 32px);
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 clamp(20px, 2.5vw, 48px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: var(--z-banner);
+}
+
+.banner-controls > * {
+    pointer-events: auto;
+}
+
+.header-actions {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 3vh;
-    z-index: var(--z-banner);
+    gap: clamp(10px, 1.2vw, 18px);
+    flex-shrink: 0;
 }
 
 .auth-trigger-btn {
@@ -3365,6 +3350,8 @@ body.is-owner .global-color-picker-wrapper {
     padding: 0;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5); /* Sadece dış gölge */
     transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 .nook-color-trigger:hover {
@@ -3548,22 +3535,26 @@ body.is-owner .global-color-picker-wrapper {
         position: relative;
     }
 
+    .banner-controls {
+        top: 14px;
+        left: 0;
+        transform: none;
+        width: 100%;
+        padding: 0 14px;
+    }
+
     .app-home-btn,
     .home-trigger-btn {
-        top: 14px;
-        left: 14px;
         width: 34px;
         height: 34px;
     }
 
     .app-home-logo,
     .home-logo-n {
-        font-size: var(--fs-lg);
+        font-size: var(--fs-md);
     }
 
     .header-actions {
-        top: 14px;
-        right: 14px;
         gap: var(--space-sm);
     }
 
