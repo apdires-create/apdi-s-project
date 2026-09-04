@@ -115,6 +115,7 @@
     --fs-xl:   calc(var(--font-fluid-step) * 1.728); /* ~27px | Profil ana ismi ("Reaper" / "Apdi") */
     --fs-2xl:  calc(var(--font-fluid-step) * 2.074); /* ~33px | Büyük sayaç rakamları (Monkeytype WPM) */
     --fs-3xl:  calc(var(--font-fluid-step) * 2.488); /* ~40px | Hero ve devasa vurgular */
+    --fs-card-title: calc(0.9cqw(nook-scene));
     }
     /* ============================================================
        3. RADIUS (Köşe Kıvrımları - Akıcı Responsive Sistem)
@@ -1157,7 +1158,7 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 }
 
 .profile-title {
-    font-size: var(--fs-sm);
+    font-size: var(--fs-md);
     line-height: 1.35;
     letter-spacing: 0.05em;
     color: rgba(var(--theme-secondary-rgb), 1);
@@ -2512,7 +2513,7 @@ body.is-owner .widget-slot.is-draggable:active {
 
 .card-label {
     margin-top: 6cqw;
-    font-size: var(--fs-sm);
+    font-size: var(--fs-card-title);
     line-height: 1.25;
     font-weight: var(--fw-medium);
     text-align: center;
