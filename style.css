@@ -2348,12 +2348,17 @@ body.is-owner .widget-slot.is-draggable:active {
     box-shadow: 0 0 15px color-mix(in srgb, var(--accent-500) 35%, transparent);
 }
 
-/* Kategori isminin altındaki çizgi (Başlangıçta sıfır genişlik) */
-.tab.has-link::after {
+.tab-text {
+    position: relative;
+    display: inline-block;
+}
+
+/* Kategori isminin altındaki çizgi (Doğrudan metne endeksli, başlangıçta sıfır genişlik) */
+.tab.has-link .tab-text::after {
     content: '';
     position: absolute;
-    bottom: -1px;
-    left: 20%;
+    top: calc(100%);
+    left: 0;
     width: 0;
     height: 2px;
     background: var(--accent-500);
@@ -2362,9 +2367,9 @@ body.is-owner .widget-slot.is-draggable:active {
     transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Aktif kategorinin çizgisi tam genişliğe açılır */
-.tab.active.has-link::after {
-    width: 60%;
+/* Aktif kategorinin çizgisi metin genişliğinde açılır */
+.tab.active.has-link .tab-text::after {
+    width: 100%;
 }
 
 .tab-link-icon {
