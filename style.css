@@ -187,8 +187,7 @@
     --z-modal: 500;
     --z-modal-top: 600;
 }
-
-/* #region 1.5: 16:9 SAHNE SİSTEMİ */
+/* #region 1.1: 16:9 SAHNE SİSTEMİ */
 .scene-viewport {
     flex: 1;
     min-height: 0;
@@ -251,15 +250,17 @@
         --btn-banner-size: clamp(68px, 7.5vh, 92px);
         --fs-banner-btn: clamp(1.25rem, 2.4vh, 1.65rem);
         --fs-banner-logo: clamp(1.85rem, 3.8vh, 2.6rem);
-        --radius-base: 0.35vw; /* geniş ekranda vw çok büyüdüğü için köşe "hap"a dönmesin diye oranı düşürür */
+        --radius-base: 0.35vw;
     }
 
     .scene-viewport .container {
         --font-fluid-base: 3.75cqw;
-        --radius-base: 0.5cqw; /* aynı sebep; container zaten 2200px'te tavana çarptığı için burada büyüme çifte kontrol altında */
+        --radius-base: 0.5cqw;
     }
 }
 /* #endregion */
+
+/* #region 1.2: rest */
 
 /* ---------- Starfield Arka Planı ---------- */
   #starfield{
@@ -376,6 +377,7 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(var(--theme-secondary-rgb), 0.6);
 }
+/* #endregion */
 
 /* #endregion */
 
