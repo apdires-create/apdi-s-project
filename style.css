@@ -2285,6 +2285,8 @@ body.is-owner .widget-slot.is-draggable:active {
     justify-content: center;
     gap: 2cqw;
     align-content: start;
+    padding-top: clamp(10px, 2cqh, 20px);
+    padding-inline: 4px;
 }
 /* #endregion */
 
@@ -3710,7 +3712,7 @@ body.is-owner .global-color-picker-wrapper {
         flex: none;
         height: auto;
         overflow: visible;
-        margin-top: 8px;
+        margin-top: 0px;
     }
 
     .content-grid {
@@ -3724,6 +3726,7 @@ body.is-owner .global-color-picker-wrapper {
         scroll-padding-left: 12px;
         justify-content: start;
         gap: 12px;
+        padding-top: 0px;
         padding-bottom: 8px;
         scrollbar-gutter: auto;
         -webkit-overflow-scrolling: touch;
