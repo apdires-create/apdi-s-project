@@ -2281,8 +2281,8 @@ body.is-owner .widget-slot.is-draggable:active {
     overflow-y: auto;
     scrollbar-gutter: stable;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(14cqw, 21cqw));
-    justify-content: center;
+    grid-template-columns: repeat(auto-fill, 16.5cqw);
+    justify-content: space-between;
     gap: 2cqw;
     align-content: start;
     padding-top: clamp(10px, 2cqh, 20px);
@@ -2496,7 +2496,7 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .card-label {
-    margin-top: 6cqw;
+    margin-top: 4cqw;
     font-size: var(--fs-3xl);
     line-height: 1.25;
     font-weight: var(--fw-medium);
