@@ -1755,9 +1755,9 @@ body.is-owner .ghost-text:hover {
 
 /* #region 5: Widget Alanı (Slotlar ve Katmanlar) */
 
-/* #region 1. GENEL WIDGET KASASI (Ortak Altyapı) */
+/* #region 5.1: GENEL WIDGET KASASI VE ALTYAPI */
 
-/* 1. GENEL KASA VE ALTYAPI */
+/* 1. Kapsayıcı ve Izgara */
 .widgets {
     grid-column: 2 / 3;
     grid-row: 1 / 2;
@@ -1783,11 +1783,17 @@ body.is-owner .ghost-text:hover {
     transition: opacity 0.3s ease;
 }
 
+body:not(.is-owner) .widgets {
+    justify-content: flex-start;
+    gap: 1.5cqh;
+}
+
 .widgets.is-ready {
     visibility: visible;
     opacity: 1;
 }
 
+/* 2. Sayfalama (Pagination) */
 .widget-pagination {
     display: flex;
     justify-content: center;
@@ -1819,12 +1825,13 @@ body.is-owner .ghost-text:hover {
     transform: scale(1.2);
 }
 
+/* 3. Slot ve 3D Dönen Mekanizma (Flip) */
 .widget-slot { 
     flex: 0 0 auto;
     width: 100%;
     aspect-ratio: 10 / 4.5;
     position: relative; 
-    perspective: 1000px; /* 3D DÜNYASI BURADA BAŞLAR */
+    perspective: 1000px;
     background-color: transparent;
     border: none;
     box-sizing: border-box;
@@ -1835,19 +1842,26 @@ body.is-owner .ghost-text:hover {
     z-index: var(--z-widget-pop);
 }
 
-/* --- 2. DÖNEN İÇ MEKANİZMA (FLIP INNER) --- */
 .widget-flip-inner {
-    position: relative; width: 100%; height: 100%;
+    position: relative; 
+    width: 100%; 
+    height: 100%;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
 }
-/* X ekseni hatası giderildi, Y eksenine alındı */
-.widget-flip-inner.is-flipped { transform: rotateY(180deg); }
 
-/* 3. ÖN VE ARKA YÜZLER */
+.widget-flip-inner.is-flipped { 
+    transform: rotateY(180deg); 
+}
+
+/* Ön ve Arka Yüzler */
 .widget-flip-front, .widget-flip-back {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    position: absolute; 
+    inset: 0; 
+    width: 100%; 
+    height: 100%;
+    backface-visibility: hidden; 
+    -webkit-backface-visibility: hidden;
     background-color: var(--theme-bg-panel); 
     border: 1px solid rgba(var(--white-rgb), 0.08); 
     border-radius: var(--radius-lg);
@@ -1859,7 +1873,7 @@ body.is-owner .ghost-text:hover {
     background-color: var(--theme-bg-panel); 
 }
 
-/* Ters Yüz ve Dönüş Güvenliği (Misclick Koruması) */
+/* Dönüş Güvenliği (Misclick Koruması) */
 .widget-flip-inner:not(.is-flipped) .widget-flip-back {
     pointer-events: none;
 }
@@ -1870,27 +1884,52 @@ body.is-owner .ghost-text:hover {
     pointer-events: none;
 }
 
-/* Sürükleme anında arka yüzün ön yüze taşmasını engelle */
 .widget-slot.is-dragging .widget-flip-back {
     display: none;
 }
 
-/* Hover olduğunda çerçevenin parlaması */
-.widget-slot:hover .widget-flip-front { border-color: rgba(var(--theme-secondary-rgb), 0.4); }
+.widget-slot:hover .widget-flip-front { 
+    border-color: rgba(var(--theme-secondary-rgb), 0.4); 
+}
 
-/* 4. İÇERİK KAPSAYICILARI */
-.widget-link { width: 100%; height: 100%; position: relative; border-radius: var(--radius-lg); cursor: pointer; }
-.widget-front-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: space-between; }
-.widget-back-content { width: 100%; height: 100%; padding: 1.5cqh 2cqw; display: flex; align-items: center; }
+/* 4. İçerik Kapsayıcıları */
+.widget-link { 
+    width: 100%; 
+    height: 100%; 
+    position: relative; 
+    border-radius: var(--radius-lg); 
+    cursor: pointer; 
+}
 
-/* --- 5. HAYALET YUVA (BOŞ SLOT) --- */
+.widget-front-content { 
+    width: 100%; 
+    height: 100%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+}
+
+.widget-back-content { 
+    width: 100%; 
+    height: 100%; 
+    padding: 1.5cqh 2cqw; 
+    display: flex; 
+    align-items: center; 
+}
+
+/* 5. Boş Slot (Hayalet Yuva) */
 .widget-ghost-slot {
-    width: 100%; height: 100%; 
-    /* Karmaşık renk mixleri yerine tertemiz, çok hafif beyaz-saydam bir kesik çizgi */
+    width: 100%; 
+    height: 100%; 
     border: 2px dashed rgba(var(--white-rgb), 0.08);
     border-radius: var(--radius-lg);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-    cursor: pointer; transition: all var(--transition-fast);
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 8px;
+    cursor: pointer; 
+    transition: all var(--transition-fast);
     background-color: transparent; 
 }
 
@@ -1901,15 +1940,19 @@ body.is-owner .ghost-text:hover {
 }
 
 .ghost-plus-icon { 
-    font-size: var(--fs-2xl); font-weight: var(--fw-regular); 
+    font-size: var(--fs-2xl); 
+    font-weight: var(--fw-regular); 
     color: rgba(var(--white-rgb), 0.3); 
-    transition: color var(--transition-fast); line-height: 1; 
+    transition: color var(--transition-fast); 
+    line-height: 1; 
 }
 
 .ghost-slot-text { 
-    font-size: var(--fs-xs); font-weight: var(--fw-medium); 
+    font-size: var(--fs-xs); 
+    font-weight: var(--fw-medium); 
     color: rgba(var(--white-rgb), 0.3); 
-    letter-spacing: 0.05em; transition: color var(--transition-fast); 
+    letter-spacing: 0.05em; 
+    transition: color var(--transition-fast); 
 }
 
 .widget-ghost-slot:hover .ghost-plus-icon, 
@@ -1917,49 +1960,57 @@ body.is-owner .ghost-text:hover {
     color: rgb(var(--white-rgb)); 
 }
 
-/* --- WIDGET ARKA YÜZ (FORM UI) --- */
-.widget-username-input {
-    width: 100%;
-    padding: 1cqh 2cqw;
-    background-color: rgba(var(--white-rgb), 0.04); 
-    border: 1px solid rgba(var(--white-rgb), 0.12);
-    border-radius: var(--radius-full); 
-    color: rgb(var(--white-rgb));
-    font-family: var(--font-primary);
-    font-size: var(--fs-sm);
-    font-weight: var(--fw-semibold);
-    outline: none;
-    transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.widget-username-input:focus {
-    border-color: var(--accent-500);
-    background-color: rgba(var(--white-rgb), 0.08);
-    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
-}
-
-/* --- 6. DÜZENLEME VE SİLME İKONLARI --- */
+/* 6. Düzenleme ve Silme Butonları */
 .widget-tool-btn {
-    position: absolute; top: 10px; right: 10px; 
-    width: 24px; height: 24px; /* Boyut küçültüldü */
-    border-radius: var(--radius-circle); display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
-    cursor: pointer; opacity: 0; transform: scale(0.9); transition: all var(--transition-fast); z-index: 10;
+    position: absolute; 
+    top: 10px; 
+    right: 10px; 
+    width: 24px; 
+    height: 24px; 
+    border-radius: var(--radius-circle); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: rgba(255,255,255,0.05); 
+    border: 1px solid rgba(255,255,255,0.1); 
+    color: rgba(255,255,255,0.6);
+    cursor: pointer; 
+    opacity: 0; 
+    transform: scale(0.9); 
+    transition: all var(--transition-fast); 
+    z-index: 10;
 }
-/* İkonu orantılı küçültmek için eklendi */
+
 .widget-tool-btn svg {
-    width: 12px; height: 12px;
+    width: 12px; 
+    height: 12px;
 }
-.widget-flip-front:hover .widget-tool-btn { opacity: 1; transform: scale(1); }
-.widget-tool-btn:hover { background: var(--theme-secondary); color: #111; border-color: transparent; }
 
-/* Arka Yüz Çöp Kutusu (Sayfa sahibi arkayı döndüğünde hep görünür) */
-.delete-trigger-btn { opacity: 1; transform: scale(1); background: rgba(var(--color-danger-rgb), 0.15); border-color: rgba(var(--color-danger-rgb), 0.3); color: var(--color-danger-light); }
-.delete-trigger-btn:hover { background: var(--color-danger-rgb); color: #fff; }
+.widget-flip-front:hover .widget-tool-btn { 
+    opacity: 1; 
+    transform: scale(1); 
+}
 
+.widget-tool-btn:hover { 
+    background: var(--theme-secondary); 
+    color: #111; 
+    border-color: transparent; 
+}
 
-/* --- 8. WIDGET İKONLARI VE HİZALAMA DÜZELTMELERİ --- */
-/* MT ikon */
+.delete-trigger-btn { 
+    opacity: 1; 
+    transform: scale(1); 
+    background: rgba(var(--color-danger-rgb), 0.15); 
+    border-color: rgba(var(--color-danger-rgb), 0.3); 
+    color: var(--color-danger-light); 
+}
+
+.delete-trigger-btn:hover { 
+    background: var(--color-danger-rgb); 
+    color: #fff; 
+}
+
+/* 7. Ortak Widget İkonları ve Arka Yüz Form Elemanları */
 .widget-type-icon { 
     width: 48px; 
     height: 48px; 
@@ -1970,17 +2021,7 @@ body.is-owner .ghost-text:hover {
     justify-content: center; 
     flex-shrink: 0; 
 }
-.widget-type-icon.mt-brand { background-color: var(--brand-monkeytype, #e2b714); }
-.widget-type-icon.mt-brand::after { 
-    content: 'mt'; 
-    font-family: var(--font-mono); 
-    color: var(--brand-monkeytype-dark, #111); 
-    font-size: var(--fs-md); 
-    font-weight: var(--fw-extrabold); 
-    margin-top: -2px; 
-}
 
-/* --- 9. WIDGET ARKA YÜZ (FORM UI) --- */
 .widget-edit-left {
     display: flex;
     flex-direction: column;
@@ -2006,164 +2047,50 @@ body.is-owner .ghost-text:hover {
     flex-shrink: 0;
 }
 
-body:not(.is-owner) .widgets {
-    justify-content: flex-start;
-    gap: 1.5cqh;
-}
-
-/* #endregion */
-
-/* #region 3. WIDGET MODÜLÜ: MONKEYTYPE */
-
-/* --- ÖN YÜZ (KAPAK) - 3 Parçalı Yapı --- */
-.mt-front-view { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    width: 100%; 
-    height: 100%; 
-    padding: 1.5cqh 2cqw; 
-    border-radius: var(--radius-lg); 
-}
-
-/* Sayfa sahibi modunda düzenleme butonu için sağ boşluk */
-body.is-owner .mt-front-view {
-    padding-right: 40px;
-}
-
-/* 1. Sol Kısım (İkon ve İsim) */
-.mt-front-left { 
-    flex: 1.2; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    gap: var(--space-sm); 
-    min-width: 0; 
-}
-
-/* Ayraç (Dik Çizgi) */
-.mt-front-divider { 
-    width: 2px; 
-    height: 50px; 
-    background-color: rgba(var(--white-rgb), 0.15); 
-    border-radius: var(--radius-xs); 
-    margin: 0 15px; 
-    flex-shrink: 0;
-}
-
-/* 2. Sağ Kısım (İstatistikler) */
-.mt-front-right { 
-    flex: 2; 
-    display: flex; 
-    justify-content: space-around; 
-    align-items: center; 
-    min-width: 0; 
-    gap: 10px; /* Sayıların birbirine girmesini kesin olarak engeller */
-}
-
-/* Kullanıcı İsmi (Link, 3 Nokta ve Alt Çizgi Yapısı) */
-.mt-front-username { 
-    font-family: var(--font-primary); 
-    font-size: var(--fs-sm); 
-    font-weight: var(--fw-bold); 
-    color: rgb(var(--white-rgb)); 
-    letter-spacing: 0.5px;
-    text-decoration: none;
+.widget-username-input {
     width: 100%;
-    max-width: 110px; 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis;
-    text-align: center;
-    transition: all var(--transition-base);
-    position: relative;
-    z-index: 10;
-    cursor: pointer;
+    padding: 1cqh 2cqw;
+    background-color: rgba(var(--white-rgb), 0.04); 
+    border: 1px solid rgba(var(--white-rgb), 0.12);
+    border-radius: var(--radius-full); 
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-primary);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    outline: none;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-/* Eksik olan hayati sınıf: Her iki tarafın kutuyu eşit bölmesini sağlar */
-.mt-expanded-half {
-    flex: 1;
-    display: flex;
-    justify-content: center;
+.widget-username-input:focus {
+    border-color: var(--accent-500);
+    background-color: rgba(var(--white-rgb), 0.08);
+    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
 }
 
-.mt-expanded-container .mt-front-divider { 
-    height: 110px; 
-    margin: 0;
+/* 8. Sürükle-Bırak Efektleri */
+.widget-slot.is-dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+    border: 2px dashed var(--accent-500);
+    border-radius: var(--radius-lg);
+    z-index: 100;
+    border-color: color-mix(in srgb, var(--accent-500) 30%, transparent);
 }
 
-.mt-grid-2x2 { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    grid-template-rows: 1fr 1fr; 
-    gap: 24px 15px; /* Satır ve sütunlar arası boşluk dengelendi */
-    width: 100%;
-    max-width: 200px; /* Çok fazla esneyip kenarlara yapışmasını kesin olarak engeller */
+.widget-slot.is-dragging * {
+    pointer-events: none;
 }
 
-.mt-expanded-footer { 
-    text-align: center; 
-    color: var(--mt-yellow, #e2b714); /* Renk sarı yapıldı */
-    opacity: 0.7; /* Göz yormaması ve arka plan gibi durması için saydamlık eklendi */
-    font-family: var(--font-primary); 
-    font-weight: var(--fw-medium); /* 800'den 500'e inceltildi */
-    font-size: var(--fs-lg); 
-    letter-spacing: 2px; 
-    margin-top: 30px; 
-    pointer-events: none; 
+body.is-owner .widget-slot.is-draggable {
+    cursor: grab;
 }
 
-/* --- İSTATİSTİK TİPOGRAFİSİ (ORTAK) --- */
-.mt-stat-item { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    gap: 2px; 
-    flex-shrink: 0; 
-}
-
-.mt-stat-label { 
-    font-family: var(--font-primary); 
-    font-size: var(--fs-xs); 
-    color: rgba(var(--white-rgb), 0.5); 
-    text-transform: uppercase; 
-    font-weight: var(--fw-medium); /* 600'den 500'e inceltildi */
-    margin-bottom: 2px; 
-    white-space: nowrap; 
-}
-
-.mt-stat-value { 
-    font-family: var(--font-mono); 
-    font-size: var(--fs-2xl); 
-    font-weight: var(--fw-medium); /* 700'den 500'e inceltildi */
-    color: rgb(var(--white-rgb)); 
-    line-height: 1; 
-}
-
-.mt-stat-percent { 
-    font-family: var(--font-primary); 
-    font-size: var(--fs-2xs); 
-    color: rgba(var(--white-rgb), 0.4); 
-    font-weight: var(--fw-regular); /* 600'den 400'e inceltildi */
-    margin-top: 2px; 
-}
-
-/* Mobilde Ön Yüzü Toparlama */
-@container widgetcard (max-width: 299px) {
-    .mt-front-view,
-    body.is-owner .mt-front-view { gap: 10px; padding: 10px; }
-    .mt-front-right { gap: 10px; flex: 1.5; }
-    .mt-stat-value { font-size: var(--fs-xl); }
-    .mt-stat-label { font-size: var(--fs-2xs); }
-    .mt-front-username { font-size: var(--fs-xs); }
-    .mt-front-divider { margin: 0 5px; }
+body.is-owner .widget-slot.is-draggable:active {
+    cursor: grabbing;
 }
 /* #endregion */
 
-/* #region 5. WIDGET SEÇİM MENÜSÜ */
-
+/* #region 5.2: WIDGET SEÇİM MENÜSÜ */
 .widget-selection-grid {
     display: flex;
     flex-direction: column;
@@ -2220,28 +2147,144 @@ body.is-owner .mt-front-view {
 }
 /* #endregion */
 
-/* #region 6. WIDGET SÜRÜKLE-BIRAK EFEKTLERİ */
-.widget-slot.is-dragging {
-    opacity: 0.4;
-    transform: scale(0.95);
-    border: 2px dashed var(--accent-500);
-    border-radius: var(--radius-lg);
-    z-index: 100;
-    border-color: color-mix(in srgb, var(--accent-500) 30%, transparent);
+/* #region 5.3: WIDGET TİPLERİ: MONKEYTYPE */
+
+/* MT İkon Markalaması */
+.widget-type-icon.mt-brand { 
+    background-color: var(--brand-monkeytype, #e2b714); 
 }
 
-/* Sürükleme esnasında iç elemanların fare olaylarını engelle (Pürüzsüz taşıma için) */
-.widget-slot.is-dragging * {
-    pointer-events: none;
+.widget-type-icon.mt-brand::after { 
+    content: 'mt'; 
+    font-family: var(--font-mono); 
+    color: var(--brand-monkeytype-dark, #111); 
+    font-size: var(--fs-md); 
+    font-weight: var(--fw-extrabold); 
+    margin-top: -2px; 
 }
 
-/* Düzenleme modunda dolu widget'ların üzerine gelince fare "tutma" ikonuna dönsün */
-body.is-owner .widget-slot.is-draggable {
-    cursor: grab;
+/* Ön Yüz: Kapsayıcı */
+.mt-front-view { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    width: 100%; 
+    height: 100%; 
+    padding: 1.5cqh 2cqw; 
+    border-radius: var(--radius-lg); 
 }
 
-body.is-owner .widget-slot.is-draggable:active {
-    cursor: grabbing;
+body.is-owner .mt-front-view {
+    padding-right: 40px;
+}
+
+/* Sol Taraf: İkon ve Kullanıcı Adı */
+.mt-front-left { 
+    flex: 1.2; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    gap: var(--space-sm); 
+    min-width: 0; 
+}
+
+.mt-front-username { 
+    font-family: var(--font-primary); 
+    font-size: var(--fs-sm); 
+    font-weight: var(--fw-bold); 
+    color: rgb(var(--white-rgb)); 
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    width: 100%;
+    max-width: 110px; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    text-align: center;
+    transition: all var(--transition-base);
+    position: relative;
+    z-index: 10;
+    cursor: pointer; 
+}
+
+/* Dikey Ayraç */
+.mt-front-divider { 
+    width: 2px; 
+    height: 50px; 
+    background-color: rgba(var(--white-rgb), 0.15); 
+    border-radius: var(--radius-xs); 
+    margin: 0 15px; 
+    flex-shrink: 0; 
+}
+
+/* Sağ Taraf: İstatistik Kutuları */
+.mt-front-right { 
+    flex: 2; 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    min-width: 0; 
+    gap: 10px; 
+}
+
+.mt-stat-item { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 2px; 
+    flex-shrink: 0; 
+}
+
+.mt-stat-label { 
+    font-family: var(--font-primary); 
+    font-size: var(--fs-xs); 
+    color: rgba(var(--white-rgb), 0.5); 
+    text-transform: uppercase; 
+    font-weight: var(--fw-medium); 
+    margin-bottom: 2px; 
+    white-space: nowrap; 
+}
+
+.mt-stat-value { 
+    font-family: var(--font-mono); 
+    font-size: var(--fs-2xl); 
+    font-weight: var(--fw-medium); 
+    color: rgb(var(--white-rgb)); 
+    line-height: 1; 
+}
+
+.mt-stat-percent { 
+    font-family: var(--font-primary); 
+    font-size: var(--fs-2xs); 
+    color: rgba(var(--white-rgb), 0.4); 
+    font-weight: var(--fw-regular); 
+    margin-top: 2px; 
+}
+
+/* Dar / Mobil Ekranlar İçin Container Query */
+@container widgetcard (max-width: 299px) {
+    .mt-front-view,
+    body.is-owner .mt-front-view { 
+        gap: 10px; 
+        padding: 10px; 
+    }
+    .mt-front-right { 
+        gap: 10px; 
+        flex: 1.5; 
+    }
+    .mt-stat-value { 
+        font-size: var(--fs-xl); 
+    }
+    .mt-stat-label { 
+        font-size: var(--fs-2xs); 
+    }
+    .mt-front-username { 
+        font-size: var(--fs-xs); 
+    }
+    .mt-front-divider { 
+        margin: 0 5px; 
+    }
 }
 /* #endregion */
 
