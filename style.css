@@ -2285,7 +2285,7 @@ body.is-owner .widget-slot.is-draggable:active {
     gap: 2cqw;
     align-content: start;
     padding-top: clamp(10px, 2cqh, 20px);
-    padding-inline: 4px;
+    padding-inline: 14px;
 }
 /* #endregion */
 
@@ -2311,9 +2311,10 @@ body.is-owner .widget-slot.is-draggable:active {
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE/Edge */
     padding-block: 16px; /* Gölgelerin (glow) kesilmeden yumuşakça sönümlenmesini sağlar */
-    padding-inline: 14px;
+    padding-inline: 8px;
     margin-block: -16px; /* Layout yüksekliğini sıfırlayarak düzeni bozmaz */
-    margin-inline: -14px;
+    padding-left: 2px;  /* Tableri sola yanaştırır */
+    padding-right: 8px;
 }
 
 .content-tabs::-webkit-scrollbar {
