@@ -1836,6 +1836,8 @@ body:not(.is-owner) .widgets {
     border: none;
     box-sizing: border-box;
     transition: z-index var(--transition-fast);
+    container-type: inline-size;
+    container-name: widgetslot;
 }
 
 .widget-slot:hover {
@@ -2012,8 +2014,8 @@ body:not(.is-owner) .widgets {
 
 /* 7. Ortak Widget İkonları ve Arka Yüz Form Elemanları */
 .widget-type-icon { 
-    width: clamp(42px, 7.5cqh, 60px);
-height: clamp(42px, 7.5cqh, 60px);
+    width: clamp(34px, 15cqi, 72px);
+    height: clamp(34px, 15cqi, 72px);
     aspect-ratio: 1 / 1;
     border-radius: var(--radius-icon); 
     background-color: var(--theme-primary); 
