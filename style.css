@@ -2455,7 +2455,6 @@ body.is-owner .widget-slot.is-draggable:active {
 
 /* #region 6.3: İçerik Kartları (Standard Content Cards) */
 .content-card {
-    container-type: inline-size;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -2496,8 +2495,8 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .card-label {
-    margin-top: 4cqw;
-    font-size: var(--fs-3xl);
+    margin-top: 6px;
+    font-size: var(--fs-2xs);
     line-height: 1.25;
     font-weight: var(--fw-medium);
     text-align: center;
