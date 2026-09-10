@@ -2272,7 +2272,6 @@ body.is-owner .widget-slot.is-draggable:active {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    margin-top: clamp(0.6vh, 1vh, 1.6vh);
 }
 
 .content-grid {
@@ -2305,7 +2304,7 @@ body.is-owner .widget-slot.is-draggable:active {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: clamp(0.4rem, 0.2rem + 0.8vw, 0.8rem);
+    gap: 0.6em;
     width: 100%;
     overflow-x: auto;
     overflow-y: visible;
@@ -2333,10 +2332,12 @@ body.is-owner .widget-slot.is-draggable:active {
     border: 1px solid color-mix(in srgb, var(--theme-secondary) 30%, transparent);
     color: var(--theme-secondary);
     border-radius: var(--radius-full);
-    height: 5.9vh;
-    padding: 0 2.4vh;
+    height: auto;
+    padding-block: 0.5em;
+    padding-inline: 1.15em;
     font-family: var(--font-primary);
-    font-size: calc(var(--fs-md) * 0.55);
+    font-size: var(--fs-2xs);
+    line-height: 1.2;
     font-weight: var(--fw-medium);
     cursor: pointer;
     transition: all var(--transition-base);
@@ -2394,20 +2395,20 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .tab.active.link-ready .tab-link-icon {
-    width: 3.3vh;
+    width: 1.15em;
     opacity: 1;
-    margin-right: 0.8vh;
+    margin-right: 0.45em;
 }
 
 .tab-link-icon svg {
-    width: 3.3vh;
-    height: 3.3vh;
+    width: 1.15em;
+    height: 1.15em;
     flex-shrink: 0;
 }
 
 .tab-link-icon img {
-    width: 3.3vh;
-    height: 3.3vh;
+    width: 1.15em;
+    height: 1.15em;
     flex-shrink: 0;
     border-radius: var(--radius-icon);
     object-fit: contain;
@@ -2419,8 +2420,9 @@ body.is-owner .widget-slot.is-draggable:active {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(30px, 2vw + 0.8rem, 36px);
-    height: clamp(30px, 2vw + 0.8rem, 36px);
+    font-size: var(--fs-2xs);
+    width: 2.2em;
+    height: 2.2em;
     background-color: transparent;
     border: 1px solid rgba(var(--theme-secondary-rgb), 0.3);
     border-radius: var(--radius-full);
@@ -2430,7 +2432,7 @@ body.is-owner .widget-slot.is-draggable:active {
 }
 
 .add-content-btn .plus-icon {
-    font-size: var(--fs-lg);
+    font-size: 1.15em;
     font-weight: var(--fw-regular);
     line-height: 1;
     color: inherit;
