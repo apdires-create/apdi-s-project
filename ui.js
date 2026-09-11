@@ -224,8 +224,8 @@ const WidgetEngine = {
 
                 if (isOwnerMode) {
                     ownerToolsFront = `
-                        <button class="widget-tool-btn delete-trigger-btn" title="Widget'ı Kaldır">
-                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        <button class="card-delete-btn widget-delete-btn" title="Widget'ı Kaldır">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </button>
                     `;
                 }
@@ -295,7 +295,7 @@ const WidgetEngine = {
             if (!slot) return;
 
             // Silme butonu veya kullanıcı adı düzenleme alanına tıklandıysa dış linke gitme
-            if (e.target.closest('.delete-trigger-btn') || e.target.closest('.widget-inline-input') || (isOwner && e.target.closest('.mt-front-username'))) {
+            if (e.target.closest('.card-delete-btn') || e.target.closest('.widget-inline-input') || (isOwner && e.target.closest('.mt-front-username'))) {
                 return;
             }
 

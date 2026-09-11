@@ -974,7 +974,7 @@ const EditManager = {
                 }
 
                 // B. Sil (Çöp Kutusu) Butonuna Tıklandıysa
-                if (e.target.closest('.delete-trigger-btn')) {
+                if (e.target.closest('.card-delete-btn')) {
                     e.stopPropagation();
                     siteVerisi.widgetlar.splice(index, 1);
                     siteVerisi.monkeytype_skorlari = null; 
