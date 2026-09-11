@@ -118,8 +118,6 @@ const EditManager = {
             // YENİ: Sıfırlama anında geçici link dizisini de orijinaline döndür
             const metinler = siteVerisi.profil_metinleri_ve_linkler || {};
             EditManager.state.tempProfileLinks = [...(metinler.linkler || [])];
-            
-            if (EditManager.Widget) EditManager.Widget.aktifDüzenlenenSlot = null;
 
             try { ekraniCiz(); } catch(error) { console.error("Çizim hatası:", error); }
         },
@@ -233,11 +231,6 @@ const EditManager = {
                 EditManager.state.hasUnsavedChanges = false;
                 document.body.classList.remove('has-unsaved-changes');
                 
-                // Açık olan tüm widget kartlarını ön yüze çevir
-                document.querySelectorAll('.widget-flip-inner.is-flipped').forEach(inner => {
-                    inner.classList.remove('is-flipped');
-                });
-                if (EditManager.Widget) EditManager.Widget.aktifDüzenlenenSlot = null;
                 WidgetEngine.ciz();
 
                 saveBtn.textContent = "Onayla";
@@ -899,13 +892,13 @@ const EditManager = {
                     EditManager.Global.degisiklikYapildi();
                     modaliKapat();
                     
-                    // Yeni eklenen widget'ın ismini girmesi için kartı otomatik ters çeviriyoruz!
+                    // Yeni eklenen widget'ın kullanıcı adını doğrudan ön yüzde düzenlemeye aç
                     setTimeout(() => {
                         const container = document.getElementById('widgets-container');
                         const newSlot = container.querySelector(`.widget-slot[data-index="${siteVerisi.widgetlar.length - 1}"]`);
                         if (newSlot) {
-                            const editBtn = newSlot.querySelector('.edit-trigger-btn');
-                            if (editBtn) editBtn.click();
+                            const usernameEl = newSlot.querySelector('.mt-front-username');
+                            if (usernameEl) usernameEl.click();
                         }
                     }, 50);
                 });
@@ -961,48 +954,6 @@ const EditManager = {
             });
         },
 
-        // İlgili slotta kaydedilmemiş bir değişiklik olup olmadığını denetler
-        slottaDegisiklikVarMi(slot) {
-            if (!slot) return false;
-            const index = parseInt(slot.dataset.index);
-            const input = slot.querySelector('.widget-username-input');
-            if (!input) return false;
-            
-            const guncelDeger = input.value.trim();
-            const orijinalWidget = EditManager.state.orijinalVeri?.widgetlar?.[index];
-            
-            // Eğer widget orijinal veride yoksa (yeni eklenmişse), kaydedilene kadar değişiklik sayılır
-            if (!orijinalWidget) return true;
-            
-            const orijinalDeger = (orijinalWidget.ayarlar?.kullanici || '').trim();
-            return guncelDeger !== orijinalDeger;
-        },
-
-        // Kartı kapatan fonksiyon (Ön yüze geri döndürür ve ön yüz linkini günceller)
-        kartiKapat(slot) {
-            if (!slot) return;
-            const inner = slot.querySelector('.widget-flip-inner');
-            if (inner) {
-                if (inner.classList.contains('is-flipping')) return;
-                inner.classList.add('is-flipping');
-                inner.classList.remove('is-flipped');
-                setTimeout(() => inner.classList.remove('is-flipping'), 500);
-            }
-
-            const input = slot.querySelector('.widget-username-input');
-            const frontUserLink = slot.querySelector('.mt-front-username');
-            if (frontUserLink && input) {
-                const val = input.value.trim();
-                frontUserLink.textContent = val || 'Bilinmiyor';
-                frontUserLink.title = val;
-                frontUserLink.href = val ? `https://monkeytype.com/profile/${val}` : '#';
-            }
-
-            if (this.aktifDüzenlenenSlot === slot) {
-                this.aktifDüzenlenenSlot = null;
-            }
-        },
-
         baslat() {
             this.modalBaslat();
             this.surukleBirakSisteminiKur();
@@ -1010,102 +961,74 @@ const EditManager = {
             const container = document.getElementById('widgets-container');
             if (!container) return;
 
-            // Tıklama Olayları Yönetimi
+            // 1. Tıklama Olayları Yönetimi (Hayalet Yuva, Silme, Inline İsim Düzenleme)
             container.addEventListener('click', (e) => {
                 const slot = e.target.closest('.widget-slot');
                 if (!slot) return;
                 const index = parseInt(slot.dataset.index);
 
-                // 1. Yeni Ekle (+)'ya Tıklandıysa (Hayalet Yuva)
+                // A. Yeni Ekle (+)'ya Tıklandıysa (Hayalet Yuva)
                 if (e.target.closest('.widget-ghost-slot')) {
                     this.modaliGuncelleVeAc();
                     return;
                 }
 
-                const inner = slot.querySelector('.widget-flip-inner');
-                const input = slot.querySelector('.widget-username-input');
-
-                // 2. Kalem (Düzenle) Butonuna Tıklandıysa -> Kartı Döndür
-                if (e.target.closest('.edit-trigger-btn')) {
-                    if (inner && inner.classList.contains('is-flipping')) return;
-
-                    // Eğer açık başka bir kart varsa ve onda değişiklik yoksa kapat
-                    if (this.aktifDüzenlenenSlot && this.aktifDüzenlenenSlot !== slot) {
-                        if (!this.slottaDegisiklikVarMi(this.aktifDüzenlenenSlot)) {
-                            this.kartiKapat(this.aktifDüzenlenenSlot);
-                        }
-                    }
-
-                    if (inner) {
-                        inner.classList.add('is-flipping');
-                        inner.classList.add('is-flipped');
-                        setTimeout(() => inner.classList.remove('is-flipping'), 500);
-                    }
-                    this.aktifDüzenlenenSlot = slot;
-                    
-                    // Inputa odaklan ve metnin sonuna git
-                    if (input) {
-                        setTimeout(() => {
-                            input.focus();
-                            input.selectionStart = input.selectionEnd = input.value.length;
-                        }, 300); // 3D dönüş süresini bekliyor
-                    }
-                    return;
-                }
-
-                // 3. Sil (Çöp Kutusu) Butonuna Tıklandıysa -> Direkt Sil & Global Bara Bildir
+                // B. Sil (Çöp Kutusu) Butonuna Tıklandıysa
                 if (e.target.closest('.delete-trigger-btn')) {
+                    e.stopPropagation();
                     siteVerisi.widgetlar.splice(index, 1);
                     siteVerisi.monkeytype_skorlari = null; 
                     WidgetEngine.ciz(); 
                     EditManager.Global.degisiklikYapildi();
-                    this.aktifDüzenlenenSlot = null;
                     return;
                 }
-            });
 
-            // Girdi Dinleyicisi: Kullanıcı yazdığı anda veriyi canlı günceller ve Global Bar'ı tetikler
-            container.addEventListener('input', (e) => {
-                const input = e.target.closest('.widget-username-input');
-                if (input) {
-                    const slot = input.closest('.widget-slot');
-                    if (!slot) return;
-                    const index = parseInt(slot.dataset.index);
+                // C. Ön Yüz Kullanıcı Adına Tıklandıysa -> Inline Düzenleme Aç
+                const usernameEl = e.target.closest('.mt-front-username');
+                if (usernameEl && !usernameEl.querySelector('input')) {
+                    e.stopPropagation();
+                    e.preventDefault();
 
-                    if (siteVerisi.widgetlar && siteVerisi.widgetlar[index]) {
-                        const yeniDeger = input.value.trim();
-                        siteVerisi.widgetlar[index].ayarlar.kullanici = yeniDeger;
-                        if (siteVerisi.widgetlar[index].tur === 'monkeytype') {
-                            siteVerisi.monkeytype_skorlari = null;
+                    const currentVal = (siteVerisi.widgetlar[index]?.ayarlar?.kullanici || '').trim();
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'widget-inline-input';
+                    input.value = currentVal;
+                    input.placeholder = 'Kullanıcı Adı';
+                    input.maxLength = 24;
+                    input.autocomplete = 'off';
+                    input.spellcheck = false;
+
+                    usernameEl.textContent = '';
+                    usernameEl.appendChild(input);
+                    input.focus();
+                    input.select();
+
+                    const kaydetVeKapat = () => {
+                        const newVal = input.value.trim();
+                        if (siteVerisi.widgetlar && siteVerisi.widgetlar[index]) {
+                            const eskiVal = (siteVerisi.widgetlar[index].ayarlar?.kullanici || '').trim();
+                            if (newVal !== eskiVal) {
+                                siteVerisi.widgetlar[index].ayarlar.kullanici = newVal;
+                                if (siteVerisi.widgetlar[index].tur === 'monkeytype') {
+                                    siteVerisi.monkeytype_skorlari = null;
+                                }
+                                EditManager.Global.degisiklikYapildi();
+                            }
                         }
-                        EditManager.Global.degisiklikYapildi();
-                    }
-                }
-            });
+                        WidgetEngine.ciz();
+                    };
 
-            // Ekranda boşluğa tıklama sensörü (Click Outside) -> Sadece değişiklik YOKSA kartı kapat
-            document.addEventListener('click', (e) => {
-                if (!this.aktifDüzenlenenSlot) return;
-
-                // Tıklanan yer aktif widget değilse ve yeni widget ekleme ekranında değilsek
-                if (!this.aktifDüzenlenenSlot.contains(e.target) && !e.target.closest('.widget-selection-grid')) {
-                    if (!this.slottaDegisiklikVarMi(this.aktifDüzenlenenSlot)) {
-                        this.kartiKapat(this.aktifDüzenlenenSlot);
-                    }
-                }
-            });
-            
-            // Enter tuşu ile ön yüze dön (Sadece değişiklik YOKSA)
-            container.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const input = e.target.closest('.widget-username-input');
-                    if (input) {
-                        e.preventDefault();
-                        const slot = input.closest('.widget-slot');
-                        if (!this.slottaDegisiklikVarMi(slot)) {
-                            this.kartiKapat(slot);
+                    input.addEventListener('blur', kaydetVeKapat);
+                    input.addEventListener('keydown', (ke) => {
+                        if (ke.key === 'Enter') {
+                            ke.preventDefault();
+                            input.blur();
+                        } else if (ke.key === 'Escape') {
+                            ke.preventDefault();
+                            WidgetEngine.ciz();
                         }
-                    }
+                    });
                 }
             });
         }

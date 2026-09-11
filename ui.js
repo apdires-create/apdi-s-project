@@ -74,14 +74,13 @@ const WidgetEngine = {
     types: {
         monkeytype: {
             id: 'monkeytype',
-            // Ön Yüz: Sadece İzleme Görünümü
             renderFront: (ayarlar) => {
                 const username = escapeHtml(ayarlar.kullanici || '');
                 return `
                     <div class="mt-front-view">
                         <div class="mt-front-left">
                             <div class="widget-type-icon mt-brand"></div>
-                            <a href="https://monkeytype.com/profile/${username}" target="_blank" onclick="event.stopPropagation()" class="mt-front-username" title="${username}">${username || 'Bilinmiyor'}</a>
+                            <span class="mt-front-username ${!username ? 'is-placeholder' : ''}" title="${username || 'Kullanıcı adı girin'}" data-raw-username="${username}">${username || 'Kullanıcı Adı'}</span>
                         </div>
                         <div class="mt-front-divider"></div>
                         <div class="mt-front-right">
@@ -92,19 +91,6 @@ const WidgetEngine = {
                                 <span class="mt-stat-label">15 SECONDS</span><span class="mt-stat-value">-</span><span class="mt-stat-percent">-%</span>
                             </div>
                         </div>
-                    </div>
-                `;
-            },
-            // Arka Yüz: Sadece Input Alanı
-            renderBack: (ayarlar) => {
-                return `
-                    <div class="widget-edit-left">
-                        <div class="widget-type-icon mt-brand"></div>
-                        <span class="widget-edit-brand-text">monkeytype</span>
-                    </div>
-                    <div class="widget-edit-divider"></div>
-                    <div class="widget-edit-right" style="flex: 1;">
-                        <input type="text" class="widget-username-input" placeholder="Kullanıcı Adı" value="${escapeHtml(ayarlar.kullanici || '')}" autocomplete="off" spellcheck="false">
                     </div>
                 `;
             },
@@ -235,37 +221,23 @@ const WidgetEngine = {
                 const typeId = wType ? wType.id : 'unknown';
 
                 let ownerToolsFront = '';
-                let ownerToolsBack = '';
 
                 if (isOwnerMode) {
                     ownerToolsFront = `
-                        <button class="widget-tool-btn edit-trigger-btn" title="Düzenle">
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                        </button>
-                    `;
-                    ownerToolsBack = `
-                        <button class="widget-tool-btn delete-trigger-btn" title="Kaldır">
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        <button class="widget-tool-btn delete-trigger-btn" title="Widget'ı Kaldır">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </button>
                     `;
                 }
 
                 slot.innerHTML = `
-                    <div class="widget-flip-inner">
-                        <div class="widget-flip-front">
-                            <div class="widget-link" data-type="${typeId}" data-username="${widgetData.ayarlar.kullanici || ''}">
-                                <div class="widget-front-content">
-                                    ${wType ? wType.renderFront(widgetData.ayarlar) : 'Geçersiz Widget'}
-                                </div>
+                    <div class="widget-card">
+                        <div class="widget-link" data-type="${typeId}" data-username="${escapeHtml(widgetData.ayarlar.kullanici || '')}">
+                            <div class="widget-front-content">
+                                ${wType ? wType.renderFront(widgetData.ayarlar) : 'Geçersiz Widget'}
                             </div>
-                            ${ownerToolsFront}
                         </div>
-                        <div class="widget-flip-back">
-                            <div class="widget-back-content">
-                                ${wType ? wType.renderBack(widgetData.ayarlar) : ''}
-                            </div>
-                            ${ownerToolsBack}
-                        </div>
+                        ${ownerToolsFront}
                     </div>
                 `;
 
@@ -321,19 +293,14 @@ const WidgetEngine = {
         container.addEventListener('click', (e) => {
             const slot = e.target.closest('.widget-slot');
             if (!slot) return;
-            
-            // Eğer kart arkasını dönmüşse dış linke gitmesini engelle
-            const inner = slot.querySelector('.widget-flip-inner');
-            if (inner && inner.classList.contains('is-flipped')) return;
+
+            // Silme butonu veya kullanıcı adı düzenleme alanına tıklandıysa dış linke gitme
+            if (e.target.closest('.delete-trigger-btn') || e.target.closest('.widget-inline-input') || (isOwner && e.target.closest('.mt-front-username'))) {
+                return;
+            }
 
             const widgetLink = slot.querySelector('.widget-link');
             if (!widgetLink) return;
-
-            // Düzenleme ikonuna basıldıysa linke gitmesini engelle (JS devralacak)
-            if (e.target.closest('.edit-trigger-btn')) {
-                e.preventDefault();
-                return; 
-            }
 
             const widgetType = widgetLink.dataset.type;
             if (widgetType && this.types[widgetType] && this.types[widgetType].onClick) {
