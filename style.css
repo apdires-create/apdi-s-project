@@ -249,7 +249,7 @@ a, a:visited, a:hover, a:active {
     inset: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #000000; /* İstendiği gibi: simsiyah bomboş sayfa */
+    background-color: #000000; /* İstendiği gibi: simsiyah bomboş sayfa temeli */
     z-index: 99999;
     display: flex;
     align-items: center;
@@ -273,6 +273,97 @@ html.is-profile-loading #app-loading-screen {
 
 html.is-profile-loading #landing-screen {
     display: none !important;
+}
+
+/* Yükleme Ekranı İçerik Mimarisi */
+.app-loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    user-select: none;
+}
+
+.app-loading-brand {
+    width: clamp(46px, 6vh, 58px);
+    height: clamp(46px, 6vh, 58px);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-primary);
+    font-size: clamp(1.3rem, 2.8vh, 1.7rem);
+    font-weight: var(--fw-bold);
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px color-mix(in srgb, var(--accent-500) 20%, transparent);
+    animation: appLoadingBrandPulse 2s ease-in-out infinite;
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+@keyframes appLoadingBrandPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px color-mix(in srgb, var(--accent-500) 15%, transparent);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 28px color-mix(in srgb, var(--accent-500) 38%, transparent);
+    }
+}
+
+.app-loading-user-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+}
+
+.app-loading-user {
+    font-family: var(--font-primary);
+    font-size: clamp(0.9rem, 2vh, 1.15rem);
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.65);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Kullanıcı rengi ve verisi geldiğinde devreye giren hafif gradient */
+.app-loading-user.is-loaded {
+    background: linear-gradient(135deg, #ffffff 20%, var(--accent-300) 60%, var(--accent-500) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.06em;
+    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent-500) 35%, transparent));
+}
+
+.app-loading-bar {
+    width: 60px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+    margin-top: 2px;
+}
+
+.app-loading-bar-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 45%;
+    background: linear-gradient(90deg, transparent, var(--accent-500), transparent);
+    border-radius: var(--radius-full);
+    animation: appLoadingBarSweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes appLoadingBarSweep {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
 }
 /* #endregion */
 

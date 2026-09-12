@@ -32,6 +32,10 @@ async function tumVerileriCek() {
             if (appLoadingEl) {
                 appLoadingEl.style.display = 'none';
             }
+            const loadingUserEl = document.getElementById('app-loading-user');
+            if (loadingUserEl) {
+                loadingUserEl.classList.remove('is-loaded');
+            }
             document.documentElement.classList.remove('is-profile-loading');
             document.getElementById('not-found-screen').style.display = 'flex';
             return; 
@@ -69,6 +73,16 @@ async function tumVerileriCek() {
         siteVerisi.monkeytype_skorlari = data.canli_widget_verileri?.monkeytype || null;
 
         ekraniCiz();
+
+        // YENİ: Profil ve kullanıcı rengi yüklendiğinde, yükleme ekranındaki isme kullanıcının temasıyla gradient uygula
+        const loadingUserEl = document.getElementById('app-loading-user');
+        if (loadingUserEl) {
+            const gorunenIsim = profil.profil_metinleri_ve_linkler?.gorunen_isim;
+            if (gorunenIsim) {
+                loadingUserEl.textContent = gorunenIsim;
+            }
+            loadingUserEl.classList.add('is-loaded');
+        }
     } catch (err) {
     console.error("Veriler çekilirken hata oluştu:", err.message);
     toastGoster("Veriler yüklenirken bir sorun oluştu. Lütfen sayfayı yenileyin.");

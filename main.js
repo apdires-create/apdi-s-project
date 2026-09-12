@@ -131,6 +131,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setTimeout(() => {
                     appLoadingEl.style.display = 'none';
                     document.documentElement.classList.remove('is-profile-loading');
+                    const loadingUserEl = document.getElementById('app-loading-user');
+                    if (loadingUserEl) loadingUserEl.classList.remove('is-loaded');
                 }, 350);
             }
         }
