@@ -543,9 +543,22 @@ const EditManager = {
 
                         const thumbDiv = document.createElement('div');
                         thumbDiv.className = 'search-result-thumb';
-                        const imgEl = document.createElement('img');
-                        imgEl.src = sonuc.gorsel_url || 'Images/placeholder.jpg';
-                        thumbDiv.appendChild(imgEl);
+
+                        const gorselVarMi = sonuc.gorsel_url && sonuc.gorsel_url.trim() !== '' && sonuc.gorsel_url !== 'Images/placeholder.jpg';
+                        if (gorselVarMi) {
+                            const imgEl = document.createElement('img');
+                            imgEl.src = sonuc.gorsel_url;
+                            imgEl.alt = sonuc.baslik || 'Sonuç';
+                            imgEl.onerror = () => {
+                                imgEl.remove();
+                                if (!thumbDiv.querySelector('.card-placeholder')) {
+                                    thumbDiv.appendChild(kartPlaceholderOlustur(sonuc.baslik, aktifKategoriId));
+                                }
+                            };
+                            thumbDiv.appendChild(imgEl);
+                        } else {
+                            thumbDiv.appendChild(kartPlaceholderOlustur(sonuc.baslik, aktifKategoriId));
+                        }
 
                         const labelEl = document.createElement('p');
                         labelEl.className = 'search-result-label';
@@ -560,7 +573,7 @@ const EditManager = {
                             const kaydedilenKart = {
                                 kimlik: 'local_' + Date.now(), 
                                 baslik: sonuc.baslik,
-                                gorsel_url: sonuc.gorsel_url || 'Images/placeholder.jpg'
+                                gorsel_url: gorselVarMi ? sonuc.gorsel_url : null
                             };
 
                             if (!siteVerisi.icerik[aktifKategoriId]) siteVerisi.icerik[aktifKategoriId] = [];

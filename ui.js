@@ -719,11 +719,23 @@ function kartlariGriddeListele(kartlar) {
         const thumbEl = document.createElement('div');
         thumbEl.className = 'card-thumb';
 
-        const imgEl = document.createElement('img');
-        imgEl.src = kart.gorsel_url || 'Images/placeholder.jpg'; 
-        imgEl.alt = kart.baslik;
-        imgEl.draggable = false;
-        thumbEl.appendChild(imgEl);
+        const gorselVarMi = kart.gorsel_url && kart.gorsel_url.trim() !== '' && kart.gorsel_url !== 'Images/placeholder.jpg';
+
+        if (gorselVarMi) {
+            const imgEl = document.createElement('img');
+            imgEl.src = kart.gorsel_url; 
+            imgEl.alt = kart.baslik || 'İçerik';
+            imgEl.draggable = false;
+            imgEl.onerror = () => {
+                imgEl.remove();
+                if (!thumbEl.querySelector('.card-placeholder')) {
+                    thumbEl.prepend(kartPlaceholderOlustur(kart.baslik, aktifKategoriId));
+                }
+            };
+            thumbEl.appendChild(imgEl);
+        } else {
+            thumbEl.appendChild(kartPlaceholderOlustur(kart.baslik, aktifKategoriId));
+        }
 
         if (isOwner) {
             const silBtnEl = document.createElement('button');

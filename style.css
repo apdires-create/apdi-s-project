@@ -2658,6 +2658,72 @@ body.is-owner .mt-front-username:hover {
     transform: scale(1.06);
 }
 
+/* ============================================================
+   KART GÖRSEL YER TUTUCUSU (CARD PLACEHOLDER & FALLBACK)
+   ============================================================ */
+.card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.06), transparent 70%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0.42) 100%),
+                #0d0f14;
+    position: relative;
+    user-select: none;
+    overflow: hidden;
+}
+
+.card-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.card-placeholder-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(24px, 3.8cqh, 34px);
+    height: clamp(24px, 3.8cqh, 34px);
+    color: rgba(255, 255, 255, 0.32);
+    transition: transform var(--transition-base), color var(--transition-base), filter var(--transition-base);
+}
+
+.card-placeholder-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.card-placeholder-badge {
+    font-family: var(--font-mono);
+    font-size: clamp(0.55rem, 1cqh, 0.65rem);
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    transition: color var(--transition-base);
+}
+
+/* Hover Etkileşimleri */
+.content-card:hover .card-placeholder-icon,
+.search-result-card:hover .card-placeholder-icon {
+    transform: scale(1.12);
+    color: rgba(255, 255, 255, 0.75);
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent-500) 45%, transparent));
+}
+
+.content-card:hover .card-placeholder-badge,
+.search-result-card:hover .card-placeholder-badge {
+    color: rgba(255, 255, 255, 0.45);
+}
+
 .card-label {
     margin-top: 6px;
     font-size: var(--fs-2xs);

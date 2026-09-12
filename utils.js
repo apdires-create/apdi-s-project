@@ -73,3 +73,33 @@ function temaRenkleriniGuncelle(secilenRenk) {
     root.style.setProperty('--theme-secondary-rgb', `${secRgb.r}, ${secRgb.g}, ${secRgb.b}`);
 }
 // #endregion
+
+// #region KART YER TUTUCU (CARD PLACEHOLDER GENERATOR)
+function kartPlaceholderOlustur(baslik = '', kategoriId = null) {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'card-placeholder';
+
+    const katBilgisi = kategoriId && typeof SABIT_KATEGORILER !== 'undefined' && SABIT_KATEGORILER[kategoriId] ? SABIT_KATEGORILER[kategoriId] : null;
+    const ikonSvg = katBilgisi ? katBilgisi.ikon : `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+    `;
+
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'card-placeholder-icon';
+    iconWrap.innerHTML = ikonSvg;
+
+    const badge = document.createElement('span');
+    badge.className = 'card-placeholder-badge';
+    badge.textContent = 'NOOK';
+
+    placeholder.appendChild(iconWrap);
+    placeholder.appendChild(badge);
+
+    return placeholder;
+}
+// #endregion
+
