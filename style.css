@@ -3522,37 +3522,49 @@ body.is-owner .global-color-picker-wrapper {
 /* 7. Ara Ekranlar & Kompakt Masaüstü (1024px altı ara ölçeklendirme) */
 @media (max-width: 1024px) {
     .nook-picker-popup {
-        --font-fluid-base: clamp(2.2cqh, 2.6cqh, 2.8cqh);
-        width: clamp(235px, 29cqh, 300px);
-        padding: clamp(1.4cqh, 1.8cqh, 2cqh);
-        top: calc(100% + 1.5cqh);
+        --font-fluid-base: clamp(1.4cqh, 1.8cqh, 2.1cqh);
+        width: clamp(185px, 22cqh, 240px);
+        padding: clamp(10px, 1.3cqh, 14px);
+        top: calc(100% + 1cqh);
     }
 
     .nook-picker-popup .edit-section-title {
-        margin-bottom: clamp(1cqh, 1.3cqh, 1.5cqh);
+        margin-bottom: clamp(0.7cqh, 0.9cqh, 1.1cqh);
     }
 
     .nook-sv-square {
-        height: clamp(140px, 17cqh, 185px);
-        margin-bottom: clamp(1.4cqh, 1.8cqh, 2cqh);
+        height: clamp(95px, 12.5cqh, 135px);
+        margin-bottom: clamp(0.9cqh, 1.2cqh, 1.4cqh);
     }
 
     .nook-sv-cursor {
-        width: 1.8cqh;
-        height: 1.8cqh;
+        width: 1.4cqh;
+        height: 1.4cqh;
     }
 
     .nook-hue-slider {
-        height: 1.8cqh;
+        height: 1.3cqh;
     }
 
     .nook-hue-cursor {
-        width: 2.2cqh;
-        height: 2.2cqh;
+        width: 1.6cqh;
+        height: 1.6cqh;
     }
 
     .nook-picker-bottom-row {
-        margin-top: clamp(1.4cqh, 1.8cqh, 2cqh);
+        margin-top: clamp(0.9cqh, 1.2cqh, 1.4cqh);
+        gap: 0.6em;
+    }
+
+    .nook-eyedropper-btn {
+        width: 2.4em;
+        height: 2.4em;
+    }
+
+    .nook-hex-input {
+        height: 2.4em;
+        line-height: 2.4em;
+        padding: 0 0.6em;
     }
 }
 /* #endregion */
