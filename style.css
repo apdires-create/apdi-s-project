@@ -3361,6 +3361,7 @@ body.is-owner .mt-front-username:hover {
     transition: bottom var(--transition-smooth), background-color var(--transition-fast), border-color var(--transition-fast);
     width: max-content;
     max-width: 90%;
+    box-sizing: border-box;
 }
 
 body.has-unsaved-changes .edit-action-bar {
@@ -3396,6 +3397,7 @@ body.has-unsaved-changes .edit-action-bar {
 .edit-action-buttons {
     display: flex;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 .edit-bar-btn {
@@ -3425,6 +3427,14 @@ body.has-unsaved-changes .edit-action-bar {
 .save-btn:hover {
     background-color: var(--color-success, #2ea043);
     box-shadow: 0 0 10px rgba(46, 160, 67, 0.4);
+}
+
+/* Modallardaki çift buton yan yana düzeni */
+#confirm-modal .auth-submit-btn,
+#cropper-modal .auth-submit-btn {
+    flex: 1;
+    min-width: 0;
+    width: auto;
 }
 /* #endregion */
 
@@ -4174,6 +4184,51 @@ body.is-owner .global-color-picker-wrapper {
     .prompt-btn {
         font-size: var(--fs-sm);
         padding: 10px 20px;
+    }
+
+    /* 8. DÜZENLEME İŞLEM ÇUBUĞU (ACTION BAR - MOBİL) */
+    .edit-action-bar {
+        width: calc(100% - 24px);
+        max-width: 420px;
+        padding: 8px 12px;
+        border-radius: var(--radius-full);
+        box-sizing: border-box;
+    }
+
+    body.has-unsaved-changes .edit-action-bar {
+        bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    }
+
+    .edit-bar-content {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-xs);
+    }
+
+    .edit-status-text {
+        font-size: var(--fs-xs);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+        min-width: 0;
+        padding-left: 4px;
+    }
+
+    .edit-action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .edit-bar-btn {
+        padding: 6px 12px;
+        font-size: var(--fs-xs);
+        white-space: nowrap;
+        border-radius: var(--radius-full);
     }
 }
 /* #endregion */
