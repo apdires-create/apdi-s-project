@@ -1545,7 +1545,10 @@ const EditManager = {
                 commitColorFromHsv();
             });
 
-            const closePicker = () => pickerPopup.hidden = true;
+            const closePicker = () => {
+                pickerPopup.hidden = true;
+                document.removeEventListener('click', outsideClickCloser);
+            };
             const outsideClickCloser = (e) => {
                 if (!pickerPopup.contains(e.target) && e.target !== colorTrigger) closePicker();
             };

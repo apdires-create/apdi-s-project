@@ -2797,6 +2797,19 @@ body.is-owner .mt-front-username:hover {
 /* #region 7: Modallar ve Ekran Katmanları (Arama & Giriş & Ayarlar) */
 
 /* #region 7.1: ORTAK MODAL KURALLARI VE ARKA PLAN */
+.search-modal,
+.auth-modal,
+.nook-picker-popup {
+    /* Scoped Typography (Modallar DOM kökünde yaşadığı için sahne dışı bağımsız fluid ölçek) */
+    --fs-2xs: clamp(0.68rem, 0.75vw, 0.75rem);
+    --fs-xs:  clamp(0.75rem, 0.85vw, 0.82rem);
+    --fs-sm:  clamp(0.85rem, 0.95vw, 0.92rem);
+    --fs-base: clamp(0.95rem, 1.05vw, 1.02rem);
+    --fs-md:   clamp(1.1rem, 1.25vw, 1.22rem);
+    --fs-lg:   clamp(1.25rem, 1.45vw, 1.4rem);
+    --fs-xl:   clamp(1.45rem, 1.75vw, 1.65rem);
+}
+
 .search-modal-backdrop {
     position: absolute;
     inset: 0;
@@ -2814,6 +2827,8 @@ body.is-owner .mt-front-username:hover {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
+    padding: 16px;
+    box-sizing: border-box;
 }
 
 .search-modal { z-index: var(--z-modal); }
@@ -2823,6 +2838,45 @@ body.is-owner .mt-front-username:hover {
 .auth-modal.is-open {
     opacity: 1;
     pointer-events: auto;
+}
+
+/* Ortak Modal Kasa Altyapısı */
+.search-modal-box,
+.auth-modal-box,
+.modal-box {
+    position: relative;
+    max-width: 100%;
+    max-height: min(85vh, 720px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background-color: var(--theme-bg-panel);
+    border: 1px solid rgba(var(--theme-secondary-rgb), 0.3);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.25s ease;
+    box-sizing: border-box;
+}
+
+.search-modal.is-open .search-modal-box,
+.auth-modal.is-open .auth-modal-box,
+.auth-modal.is-open .modal-box {
+    transform: translateY(0) scale(1);
+}
+
+.search-modal-box::-webkit-scrollbar,
+.auth-modal-box::-webkit-scrollbar,
+.modal-box::-webkit-scrollbar {
+    width: 5px;
+}
+
+.search-modal-box::-webkit-scrollbar-thumb,
+.auth-modal-box::-webkit-scrollbar-thumb,
+.modal-box::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-secondary-rgb), 0.3);
+    border-radius: var(--radius-full);
 }
 /* #endregion */
 
@@ -2874,22 +2928,10 @@ body.is-owner .mt-front-username:hover {
 
 /* #region 7.3: ARAMA MODALI (Search) */
 .search-modal-box {
-    position: relative;
     width: min(480px, 90vw);
-    max-height: 70vh;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--theme-bg-panel);
-    border: 1px solid rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
     padding: var(--space-xl);
     gap: 14px;
-    transform: translateY(10px) scale(0.98);
-    transition: transform 0.25s ease;
 }
-
-.search-modal.is-open .search-modal-box { transform: translateY(0) scale(1); }
 
 .search-modal-header {
     display: flex;
@@ -2963,21 +3005,10 @@ body.is-owner .mt-front-username:hover {
 
 /* #region 7.4: KİMLİK DOĞRULAMA VE AYARLAR MODALI (Auth) */
 .auth-modal-box {
-    position: relative;
     width: min(380px, 90vw);
-    background-color: var(--theme-bg-panel);
-    border: 1px solid rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
     padding: var(--space-2xl);
-    display: flex;
-    flex-direction: column;
     gap: var(--space-xl);
-    transform: translateY(10px) scale(0.98);
-    transition: transform 0.25s ease;
 }
-
-.auth-modal.is-open .auth-modal-box { transform: translateY(0) scale(1); }
 
 .auth-modal-title {
     font-size: var(--fs-md);
@@ -3352,6 +3383,8 @@ body.is-owner .global-color-picker-wrapper {
     top: calc(100% + 15px); 
     right: 0; /* Sağ kenara hizalar, ekrandan taşmasını önler */
     width: 240px;
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
     background: var(--theme-bg-panel);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-lg);
@@ -3556,6 +3589,50 @@ body.is-owner .global-color-picker-wrapper {
     .nook-color-trigger {
         width: 34px;
         height: 34px;
+    }
+
+    /* 2b. NOOK COLOR PICKER POPUP (Küçük Ekran Ortalanmış Modal Kasa) */
+    .nook-picker-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        bottom: auto;
+        transform: translate(-50%, -50%);
+        width: min(300px, calc(100vw - 32px));
+        padding: 18px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 100vmax rgba(0, 0, 0, 0.6);
+        border-radius: var(--radius-xl);
+        z-index: var(--z-modal-top);
+    }
+
+    .nook-sv-square {
+        height: 170px;
+        margin-bottom: 16px;
+    }
+
+    .nook-hue-slider {
+        height: 18px;
+    }
+
+    .nook-hue-cursor {
+        width: 20px;
+        height: 20px;
+    }
+
+    .nook-picker-bottom-row {
+        margin-top: 16px;
+        gap: 12px;
+    }
+
+    .nook-eyedropper-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .nook-hex-input {
+        height: 40px;
+        font-size: var(--fs-base);
     }
 
     /* 3. ANA GRID -> DİKEY AKIŞ */
