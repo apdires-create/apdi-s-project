@@ -593,18 +593,39 @@ function sekmeleriVeIcerikleriHazirla() {
             btn.appendChild(editBtn);
         }
         
+        if (kat.url) {
+            btn.title = `${kat.ad} (Bağlantıyı açmak için tıklayın)`;
+        }
+
         if (kat.id === aktifKategoriId && kat.url) {
             btn.classList.add('link-ready');
         }
         
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            // Sürükle-bırak yeni bittiyse kazara link açılmasını engelle
+            if (window._sekmeSuruklemeBitti && (Date.now() - window._sekmeSuruklemeBitti < 250)) {
+                return;
+            }
+
+            // Kategori düzenleme butonuna tıklandıysa sekme tetiklenmesin
+            if (e.target.closest('.tab-edit-badge')) return;
+
+            // Doğrudan bağlantı ikonuna tıklandıysa anında aç
+            if (e.target.closest('.tab-link-icon') && kat.url) {
+                e.stopPropagation();
+                window.open(kat.url, '_blank', 'noopener,noreferrer');
+                return;
+            }
+
+            // Aktif sekmedeyken tıklandığında harici link varsa aç
             if (kat.id === aktifKategoriId) {
                 if (kat.url && btn.classList.contains('link-ready')) {
-                    if (!isOwner) { window.open(kat.url, '_blank'); }
+                    window.open(kat.url, '_blank', 'noopener,noreferrer');
                 }
                 return; 
             }
             
+            // Başka sekmeye tıklandıysa aktif yap ve içerikleri listele
             document.querySelectorAll('.tab').forEach(t => {
                 t.classList.remove('active', 'link-ready'); 
             });
@@ -613,7 +634,7 @@ function sekmeleriVeIcerikleriHazirla() {
             aktifKategoriId = kat.id;
             kartlariGriddeListele(siteVerisi.icerik[kat.id] || []);
             
-            if (aktifKategoriId === kat.id) { 
+            if (kat.url) { 
                 btn.classList.add('link-ready');
             }
         });

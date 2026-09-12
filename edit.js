@@ -453,10 +453,13 @@ const EditManager = {
             const tabsContainer = document.getElementById('content-tabs');
             if (!tabsContainer) return;
 
+            let sekmeHareketEtti = false;
+
             tabsContainer.addEventListener('dragstart', (e) => {
                 const tab = e.target.closest('.tab');
                 if(!tab) return;
                 
+                sekmeHareketEtti = false;
                 tab.classList.add('is-dragging');
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', tab.dataset.id); 
@@ -471,6 +474,7 @@ const EditManager = {
                 const targetTab = e.target.closest('.tab:not(.is-dragging)');
 
                 if (targetTab) {
+                    sekmeHareketEtti = true;
                     const box = targetTab.getBoundingClientRect();
                     const offset = e.clientX - box.left;
                     
@@ -486,6 +490,10 @@ const EditManager = {
                 const draggingTab = e.target.closest('.tab');
                 if (draggingTab) {
                     draggingTab.classList.remove('is-dragging');
+                }
+
+                if (sekmeHareketEtti) {
+                    window._sekmeSuruklemeBitti = Date.now();
                 }
 
                 const guncelSekmeElementleri = [...tabsContainer.querySelectorAll('.tab')];
