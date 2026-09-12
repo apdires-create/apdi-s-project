@@ -2798,8 +2798,7 @@ body.is-owner .mt-front-username:hover {
 
 /* #region 7.1: ORTAK MODAL KURALLARI VE ARKA PLAN */
 .search-modal,
-.auth-modal,
-.nook-picker-popup {
+.auth-modal {
     /* Scoped Typography (Modallar DOM kökünde yaşadığı için sahne dışı bağımsız fluid ölçek) */
     --fs-2xs: clamp(0.68rem, 0.75vw, 0.75rem);
     --fs-xs:  clamp(0.75rem, 0.85vw, 0.82rem);
@@ -3379,42 +3378,57 @@ body.is-owner .global-color-picker-wrapper {
 
 /* 3. Açılır Seçici (Popup) Kasa */
 .nook-picker-popup {
+    /* Sahne Tipografi Motoru Formülü (cqh tabanlı eşleşme) */
+    --font-fluid-base: 2.4cqh;
+    --font-fluid-step: calc(var(--font-fluid-base) * 1.5);
+
+    --fs-2xs:  calc(var(--font-fluid-step) * 0.578); /* İçerik / Renk Kodu Boyutu */
+    --fs-xs:   calc(var(--font-fluid-step) * 0.694); /* Başlık Boyutu */
+    --fs-sm:   calc(var(--font-fluid-step) * 0.833);
+    --fs-base: var(--font-fluid-step);
+
     position: absolute;
-    top: calc(100% + 15px); 
+    top: calc(100% + 1.8cqh); 
     right: 0; /* Sağ kenara hizalar, ekrandan taşmasını önler */
-    width: 240px;
+    width: 34cqh;
     max-width: calc(100vw - 32px);
     box-sizing: border-box;
     background: var(--theme-bg-panel);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-lg);
-    padding: 15px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6); 
+    padding: 2cqh;
+    box-shadow: 0 1.2cqh 5cqh rgba(0, 0, 0, 0.65); 
     z-index: var(--z-modal-top);
 }
 
 .nook-picker-popup[hidden] { display: none; }
 
+.nook-picker-popup .edit-section-title {
+    margin-top: 0;
+    margin-bottom: 1.5cqh;
+    font-size: var(--fs-xs); /* Başlık boyutu */
+}
+
 /* 4. Doygunluk ve Parlaklık Karesi (SV Square) */
 .nook-sv-square {
     position: relative;
     width: 100%;
-    height: 150px;
+    height: 20cqh;
     border-radius: var(--radius-xs);
     background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
     cursor: crosshair;
     touch-action: none;
-    margin-bottom: 15px;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+    margin-bottom: 2cqh;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .nook-sv-cursor {
     position: absolute;
-    width: 14px;
-    height: 14px;
+    width: 2.2cqh;
+    height: 2.2cqh;
     border-radius: var(--radius-circle);
     border: 2px solid #fff;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
     transform: translate(-50%, -50%);
     pointer-events: none;
 }
@@ -3423,7 +3437,7 @@ body.is-owner .global-color-picker-wrapper {
 .nook-hue-slider {
     position: relative;
     width: 100%;
-    height: 14px;
+    height: 2.2cqh;
     border-radius: var(--radius-full);
     background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
     cursor: pointer;
@@ -3433,11 +3447,11 @@ body.is-owner .global-color-picker-wrapper {
 .nook-hue-cursor {
     position: absolute;
     top: 50%;
-    width: 16px;
-    height: 16px;
+    width: 2.6cqh;
+    height: 2.6cqh;
     border-radius: var(--radius-circle);
     border: 2px solid #fff;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.4);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
     transform: translate(-50%, -50%);
     pointer-events: none;
 }
@@ -3445,18 +3459,20 @@ body.is-owner .global-color-picker-wrapper {
 /* 6. Alt Satır Düzeni (Hex ve Damlalık) */
 .nook-picker-bottom-row {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
     align-items: center;
+    font-size: var(--fs-2xs); /* İçerik boyutu: Satırın boyutunu yazı belirler */
+    gap: 0.8em;
+    margin-top: 2cqh;
 }
 
-/* Damlalık (Color Picker) Butonu */
+/* Damlalık (Color Picker) Butonu - Boyutunu yanındaki yazıdan alır */
 .nook-eyedropper-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 2.6em;
+    height: 2.6em;
+    font-size: inherit;
     flex-shrink: 0;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3467,25 +3483,31 @@ body.is-owner .global-color-picker-wrapper {
     padding: 0; 
 }
 
+.nook-eyedropper-btn svg {
+    width: 1.3em;
+    height: 1.3em;
+}
+
 .nook-eyedropper-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
     border-color: var(--accent-500);
 }
 
-/* Hex Input Düzeni */
+/* Hex Input Düzeni - Yüksekliğini ve paddingini yazı boyutu belirler */
 .nook-hex-input {
     flex: 1;
     min-width: 0;
-    height: 36px;
-    padding: 0 10px;
+    height: 2.6em;
+    line-height: 2.6em;
+    padding: 0 0.8em;
     margin: 0;
     background-color: var(--theme-bg-input, rgba(255, 255, 255, 0.04));
     border: 1px solid var(--theme-border-input, rgba(var(--theme-secondary-rgb), 0.25));
     border-radius: var(--radius-xs);
     color: rgb(var(--white-rgb));
     font-family: var(--font-mono);
-    font-size: var(--fs-sm);
+    font-size: inherit; /* var(--fs-2xs) ile tam eşit içerik boyutu */
     text-transform: uppercase;
     text-align: center;
     outline: none;
@@ -3495,6 +3517,43 @@ body.is-owner .global-color-picker-wrapper {
 .nook-hex-input:focus {
     border-color: rgba(var(--theme-secondary-rgb), 0.8);
     box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
+}
+
+/* 7. Ara Ekranlar & Kompakt Masaüstü (1024px altı ara ölçeklendirme) */
+@media (max-width: 1024px) {
+    .nook-picker-popup {
+        --font-fluid-base: clamp(2.2cqh, 2.6cqh, 2.8cqh);
+        width: clamp(235px, 29cqh, 300px);
+        padding: clamp(1.4cqh, 1.8cqh, 2cqh);
+        top: calc(100% + 1.5cqh);
+    }
+
+    .nook-picker-popup .edit-section-title {
+        margin-bottom: clamp(1cqh, 1.3cqh, 1.5cqh);
+    }
+
+    .nook-sv-square {
+        height: clamp(140px, 17cqh, 185px);
+        margin-bottom: clamp(1.4cqh, 1.8cqh, 2cqh);
+    }
+
+    .nook-sv-cursor {
+        width: 1.8cqh;
+        height: 1.8cqh;
+    }
+
+    .nook-hue-slider {
+        height: 1.8cqh;
+    }
+
+    .nook-hue-cursor {
+        width: 2.2cqh;
+        height: 2.2cqh;
+    }
+
+    .nook-picker-bottom-row {
+        margin-top: clamp(1.4cqh, 1.8cqh, 2cqh);
+    }
 }
 /* #endregion */
 
@@ -3593,46 +3652,45 @@ body.is-owner .global-color-picker-wrapper {
 
     /* 2b. NOOK COLOR PICKER POPUP (Küçük Ekran Ortalanmış Modal Kasa) */
     .nook-picker-popup {
+        --fs-2xs: 0.82rem;
+        --fs-xs: 0.92rem;
+
         position: fixed;
         top: 50%;
         left: 50%;
         right: auto;
         bottom: auto;
         transform: translate(-50%, -50%);
-        width: min(300px, calc(100vw - 32px));
-        padding: 18px;
+        width: min(clamp(250px, 86vw, 320px), calc(100vw - 32px));
+        max-height: min(88vh, 520px);
+        overflow-y: auto;
+        padding: clamp(14px, 4vw, 20px);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 100vmax rgba(0, 0, 0, 0.6);
         border-radius: var(--radius-xl);
         z-index: var(--z-modal-top);
     }
 
+    .nook-picker-popup .edit-section-title {
+        margin-bottom: clamp(10px, 2.5vw, 14px);
+    }
+
     .nook-sv-square {
-        height: 170px;
-        margin-bottom: 16px;
+        height: clamp(140px, 40vw, 180px);
+        margin-bottom: clamp(12px, 3vw, 16px);
     }
 
     .nook-hue-slider {
-        height: 18px;
+        height: clamp(16px, 4vw, 20px);
     }
 
     .nook-hue-cursor {
-        width: 20px;
-        height: 20px;
+        width: clamp(18px, 4.5vw, 22px);
+        height: clamp(18px, 4.5vw, 22px);
     }
 
     .nook-picker-bottom-row {
-        margin-top: 16px;
-        gap: 12px;
-    }
-
-    .nook-eyedropper-btn {
-        width: 40px;
-        height: 40px;
-    }
-
-    .nook-hex-input {
-        height: 40px;
-        font-size: var(--fs-base);
+        margin-top: clamp(12px, 3vw, 18px);
+        gap: 0.8em;
     }
 
     /* 3. ANA GRID -> DİKEY AKIŞ */
