@@ -12,23 +12,24 @@
     <link rel="stylesheet" href="style.css">
     <script>
         // Profil açılıyorsa ilk frame'den itibaren siyah yükleme ekranını hazırla
-        const initialUserParam = new URLSearchParams(window.location.search).get('user');
+        const initialUserParam = new URLSearchParams(window.location.search).get('user')?.trim();
         if (initialUserParam) {
             document.documentElement.classList.add('is-profile-loading');
         }
     </script>
 </head>
 <body>
-    <!-- 1. PROFİL YÜKLEME EKRANI (Başlangıç: Marka + Kullanıcı Adı) -->
+    <!-- 1. PROFİL YÜKLEME EKRANI (Başlangıç: Marka + Kullanıcı Adı / Hata Durumu) -->
     <div id="app-loading-screen" class="app-loading-screen" style="display: none;">
         <div class="app-loading-content">
-            <div class="app-loading-brand">N</div>
+            <div class="app-loading-brand" id="app-loading-brand">N</div>
             <div class="app-loading-user-wrap">
                 <span id="app-loading-user" class="app-loading-user"></span>
             </div>
-            <div class="app-loading-bar">
+            <div class="app-loading-bar" id="app-loading-bar">
                 <div class="app-loading-bar-inner"></div>
             </div>
+            <div class="app-loading-error-hint" id="app-loading-error-hint"></div>
         </div>
     </div>
     <script>

@@ -27,17 +27,7 @@ async function tumVerileriCek() {
         }
         
         if (!profil || Object.keys(profil).length === 0) {
-            document.getElementById('app-wrapper').style.display = 'none';
-            const appLoadingEl = document.getElementById('app-loading-screen');
-            if (appLoadingEl) {
-                appLoadingEl.style.display = 'none';
-            }
-            const loadingUserEl = document.getElementById('app-loading-user');
-            if (loadingUserEl) {
-                loadingUserEl.classList.remove('is-loaded');
-            }
-            document.documentElement.classList.remove('is-profile-loading');
-            document.getElementById('not-found-screen').style.display = 'flex';
+            yuklemeHataDurumunuGoster("Aradığınız kullanıcı bulunamadı veya profilde bir sorun meydana geldi.");
             return; 
         }
 
@@ -84,9 +74,43 @@ async function tumVerileriCek() {
             loadingUserEl.classList.add('is-loaded');
         }
     } catch (err) {
-    console.error("Veriler çekilirken hata oluştu:", err.message);
-    toastGoster("Veriler yüklenirken bir sorun oluştu. Lütfen sayfayı yenileyin.");
+        console.error("Veriler çekilirken hata oluştu:", err.message);
+        yuklemeHataDurumunuGoster("Profil yüklenirken bir sorun meydana geldi.");
+    }
 }
+
+// YENİ: Yükleme ekranını hata/bulunamadı durumuna dönüştürür ve Nook logosunu Landing'e yönlendirici yapar
+function yuklemeHataDurumunuGoster(mesaj) {
+    const appLoadingEl = document.getElementById('app-loading-screen');
+    const loadingBrandEl = document.getElementById('app-loading-brand');
+    const loadingUserEl = document.getElementById('app-loading-user');
+    const errorHintEl = document.getElementById('app-loading-error-hint');
+    const appWrapper = document.getElementById('app-wrapper');
+
+    if (appWrapper) appWrapper.style.display = 'none';
+    if (!appLoadingEl) return;
+
+    appLoadingEl.classList.add('is-error');
+    appLoadingEl.style.display = 'flex';
+    appLoadingEl.classList.remove('is-hidden');
+
+    if (loadingUserEl) {
+        loadingUserEl.textContent = mesaj || "Aradığınız kullanıcı bulunamadı veya profilde bir sorun meydana geldi.";
+        loadingUserEl.classList.remove('is-loaded');
+    }
+
+    if (errorHintEl) {
+        errorHintEl.textContent = "Ana sayfaya dönmek için Nook'a tıklayın";
+    }
+
+    // Butonun bu durum ortaya çıkana kadar asla işlevi olmasın kuralı:
+    // Tıklama dinleyicisi SADECE ve İLK KEZ burada bağlanır.
+    if (loadingBrandEl) {
+        loadingBrandEl.title = "Ana Sayfaya Dön";
+        loadingBrandEl.onclick = () => {
+            window.location.href = window.location.pathname;
+        };
+    }
 }
 
 const WidgetEngine = {
