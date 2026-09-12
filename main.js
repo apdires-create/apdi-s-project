@@ -88,9 +88,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         landingEkraniniBaslat();
     } else {
-        // Kullanıcı adı varsa Ana Uygulamayı başlat
+        // Kullanıcı adı varsa: Profil yükleme akışını başlat
+        const appLoadingEl = document.getElementById('app-loading-screen');
+        if (appLoadingEl) {
+            appLoadingEl.style.display = 'flex';
+            appLoadingEl.classList.remove('is-hidden');
+        }
+
         document.getElementById('landing-screen').style.display = 'none';
-        document.getElementById('app-wrapper').style.display = 'flex';
+        document.getElementById('app-wrapper').style.display = 'none'; // Veriler ve bekleme süresi bitene kadar sahneyi gizli tut
         
         // YENİ: Profil sayfasında o sarı ışık huzmesi gitsin, temamız düzgün çalışsın
         const starfield = document.getElementById('starfield');
@@ -99,19 +105,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         WidgetEngine.etkilesimBaslat(); // Herkese açık etkileşim (Hover vb.)
         authModaliniBaslat();    // Oturum açma modalı
         
-        // NOT: tumVerileriCek() içeride isOwner'ı belirledikten SONRA ekraniCiz()'i
-        // zaten çağırıyor (bkz. ui.js). Bu ilk çizim edit.js yokken de güvenli,
-        // çünkü ui.js artık EditManager.state'e değil, config.js'deki her zaman
-        // var olan `durum` objesine bakıyor (isGlobalEditActive başlangıçta false).
+        // Minimum yükleme bekleme süresi mimarisi (hızlı internette de kullanıcının ekranı görmesini sağlar)
+        const MIN_BEKLEME_SURESI_MS = 1000;
+        const baslangicZamani = Date.now();
+
         await tumVerileriCek();
 
-        // isOwner=false ise edit.js'e hiç dokunmuyoruz -> ziyaretçi düzenleme
-        // motorunu asla indirmez. isOwner=true ise, kullanıcı "Ayarlar" butonuna
-        // basıp gerçekten düzenlemeye başlamadan önce edit.js'in yüklenip
-        // EditManager.init()'in çalışmasını garanti ediyoruz.
         if (isOwner) {
             await editJsYukle();
             EditManager.init();  // Tüm düzenleme araçlarını aktif eder!
+        }
+
+        // Profil başarıyla çekildiyse minimum sürenin kalanını bekle ve sahneyi aç
+        if (siteVerisi && siteVerisi.profil_sahibi_id) {
+            const gecenSure = Date.now() - baslangicZamani;
+            const kalanSure = Math.max(0, MIN_BEKLEME_SURESI_MS - gecenSure);
+            if (kalanSure > 0) {
+                await new Promise(r => setTimeout(r, kalanSure));
+            }
+
+            document.getElementById('app-wrapper').style.display = 'flex';
+
+            if (appLoadingEl) {
+                appLoadingEl.classList.add('is-hidden');
+                setTimeout(() => {
+                    appLoadingEl.style.display = 'none';
+                    document.documentElement.classList.remove('is-profile-loading');
+                }, 350);
+            }
         }
     }
 });

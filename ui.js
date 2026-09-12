@@ -28,6 +28,11 @@ async function tumVerileriCek() {
         
         if (!profil || Object.keys(profil).length === 0) {
             document.getElementById('app-wrapper').style.display = 'none';
+            const appLoadingEl = document.getElementById('app-loading-screen');
+            if (appLoadingEl) {
+                appLoadingEl.style.display = 'none';
+            }
+            document.documentElement.classList.remove('is-profile-loading');
             document.getElementById('not-found-screen').style.display = 'flex';
             return; 
         }

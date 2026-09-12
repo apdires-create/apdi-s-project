@@ -10,8 +10,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nook</title>
     <link rel="stylesheet" href="style.css">
+    <script>
+        // Profil açılıyorsa ilk frame'den itibaren siyah yükleme ekranını hazırla
+        if (new URLSearchParams(window.location.search).get('user')) {
+            document.documentElement.classList.add('is-profile-loading');
+        }
+    </script>
 </head>
 <body>
+    <!-- 1. PROFİL YÜKLEME EKRANI (Başlangıç: Boş Siyah Perde) -->
+    <div id="app-loading-screen" class="app-loading-screen" style="display: none;"></div>
+
+    <!-- 2. LANDING SAYFASI YÜKLEME EKRANI -->
+    <div id="landing-loading-screen" class="landing-loading-screen" style="display: none;"></div>
+
     <div id="starfield"></div>
     <div id="landing-screen" class="landing-screen">
         
