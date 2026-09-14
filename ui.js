@@ -919,5 +919,20 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
     // ... senin mevcut DOMContentLoaded kodların ...
     starfieldOlustur(); 
+
+    // Yatay kart şeridinde fare tekerleğiyle akıcı yana kaydırma
+    const contentGrid = document.getElementById('content-grid');
+    if (contentGrid) {
+        contentGrid.addEventListener('wheel', (e) => {
+            // Eğer içerik yatayda scroll edilebilir durumdaysa tekerlek hareketini yatay scrolla çevir
+            if (contentGrid.scrollWidth > contentGrid.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                e.preventDefault();
+                contentGrid.scrollBy({
+                    left: e.deltaY > 0 ? 160 : -160,
+                    behavior: 'smooth'
+                });
+            }
+        }, { passive: false });
+    }
 });
 // #endregion
