@@ -25,9 +25,7 @@
     --color-success-light: var(--green-400);
     --color-link: var(--blue-500);
 
-    /* ============================================================
-       1c. THEME LAYER
-       ============================================================ */
+    /* --- 1c. THEME LAYER --- */
     --accent-50: #fdf4e3;
     --accent-100: #fbe8c2;
     --accent-300: #f3c15a;
@@ -53,9 +51,7 @@
     
     --theme-border-soft: color-mix(in srgb, var(--accent-500) 15%, transparent);
 
-    /* ============================================================
-       1d. LANDING PAGE (Temadan Bağımsız Sabit Alan)
-       ============================================================ */
+    /* --- 1d. LANDING PAGE (Temadan Bağımsız Sabit Alan) --- */
     --landing-bg-void: #030409;      
     --landing-bg-space: #070914;     
     --landing-bg-panel: #0f1225;     
@@ -76,16 +72,11 @@
     --landing-amber-deep: var(--amber-600);
     --landing-green: var(--green-400);
 
-    /* ============================================================
-       1e. MARKA VE DIŞ ENTEGRASYONLAR
-       ============================================================ */
+    /* --- 1e. MARKA VE DIŞ ENTEGRASYONLAR --- */
     --brand-monkeytype: #e2b714;
     --brand-monkeytype-dark: #111;
     
-    
-    /* ============================================================
-       2. TYPOGRAPHY (Yazı Tipleri, Kalınlıklar ve Tipografi Ölçeği)
-       ============================================================ */
+    /* --- 2. TYPOGRAPHY (Yazı Tipleri, Kalınlıklar ve Tipografi Ölçeği) --- */
        
     --font-primary: 'Montserrat', sans-serif;
     --font-mono: 'Roboto Mono', monospace;
@@ -111,9 +102,7 @@
     --fs-banner-btn: clamp(0.88rem, 2.2vh, 1.05rem);
     --btn-banner-size: clamp(44px, 7vh, 60px);
 
-    /* ============================================================
-       3. RADIUS (Köşe Kıvrımları - Akıcı Responsive Sistem)
-       ============================================================ */
+    /* --- 3. RADIUS (Köşe Kıvrımları - Akıcı Responsive Sistem) --- */
     --radius-base: 0.55vw;
 
     --radius-xs:  calc(var(--radius-base) * 0.5);
@@ -127,9 +116,7 @@
     --radius-circle: 50%;
     --radius-icon: 22%;
 
-    /* ============================================================
-       4. SHADOWS & BLUR (Gölgeler ve Cam Efektleri)
-       ============================================================ */
+    /* --- 4. SHADOWS & BLUR (Gölgeler ve Cam Efektleri) --- */
     /* Standart Dış Gölgeler */
     --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
     --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.3);
@@ -151,17 +138,13 @@
     --text-stroke-dark: 0 1px 4px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9);
     --icon-stroke-dark: drop-shadow(0px 1px 2px rgba(0,0,0,0.8)) drop-shadow(0px 0px 2px rgba(0,0,0,0.9));
 
-    /* ============================================================
-       5. MOTION (Animasyon ve Geçiş Süreleri)
-       ============================================================ */
+    /* --- 5. MOTION (Animasyon ve Geçiş Süreleri) --- */
     --transition-fast: 0.2s ease;
     --transition-base: 0.3s ease;
     --transition-smooth: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     --transition-flip: 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
 
-    /* ============================================================
-       6. SPACING (Boşluklar, Padding, Margin ve Gap)
-       ============================================================ */
+    /* --- 6. SPACING (Boşluklar, Padding, Margin ve Gap) --- */
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 12px;
@@ -171,9 +154,7 @@
     --space-3xl: 32px;
     --space-4xl: 40px;
 
-    /* ============================================================
-       7. FLUID CONTAINER PROPORTIONS (Akıcı Oranlar & Grid)
-       ============================================================ */
+    /* --- 7. FLUID CONTAINER PROPORTIONS (Akıcı Oranlar & Grid) --- */
     --gap-x: 1.8vw;
     --gap-y: 2vh;
     --content-pad-x: 1.8vw;
@@ -182,9 +163,7 @@
     --radius-box: var(--radius-lg);
     --radius-card: var(--radius-sm);
 
-    /* ============================================================
-       8. LAYERS (z-index)
-       ============================================================ */
+    /* --- 8. LAYERS (z-index) --- */
 
     --z-base: 1;
     --z-inner-overlay: 10; 
@@ -566,6 +545,8 @@ html.is-profile-loading #landing-screen {
 /* #endregion */
 
 /* #region 2: Banner Alanı */
+
+/* #region 2.1: Banner Sahnesi ve Katmanları (Layout & Overlays) */
 .banner {
     flex: 0 0 var(--banner-h);
     position: relative;
@@ -671,10 +652,9 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     pointer-events: none;
     z-index: 0;
 }
+/* #endregion */
 
-/* ============================================================
-   Banner Kontrolleri ve Butonlar
-   ============================================================ */
+/* #region 2.2: Banner Kontrolleri ve Butonlar (Controls & Actions) */
 .banner-controls {
     position: absolute;
     top: clamp(16px, 3vh, 32px);
@@ -777,6 +757,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(var(--theme-secondary-rgb), 0.1);
 }
+/* #endregion */
 /* #endregion */
 
 /* #region 3: Yeni Landing Page (Ana Vitrin) */
@@ -2703,9 +2684,7 @@ body.is-owner .tab .tab-link-icon {
     transform: scale(1.06);
 }
 
-/* ============================================================
-   KART GÖRSEL YER TUTUCUSU (CARD PLACEHOLDER & FALLBACK)
-   ============================================================ */
+/* --- Kart Görsel Yer Tutucusu (Placeholder & Fallback) --- */
 .card-placeholder {
     width: 100%;
     height: 100%;
@@ -3097,7 +3076,7 @@ body.is-owner .tab .tab-link-icon {
 
 /* #region 7: Modallar ve Ekran Katmanları (Arama & Giriş & Ayarlar) */
 
-/* #region 7.1: ORTAK MODAL KURALLARI VE ARKA PLAN */
+/* #region 7.1: ORTAK MODAL KURALLARI VE BOYUTLANDIRMA */
 .search-modal,
 .auth-modal {
     /* Scoped Typography (>1024px Masaüstü için ferah ve okunaklı ölçek) */
@@ -3178,7 +3157,6 @@ body.is-owner .tab .tab-link-icon {
     background: rgba(var(--theme-secondary-rgb), 0.3);
     border-radius: var(--radius-full);
 }
-/* #endregion */
 
 /* Modalların Özel Boyutlandırma Sınıfları (> 1024px Desktop) */
 .modal-box--category {
@@ -3211,6 +3189,7 @@ body.is-owner .tab .tab-link-icon {
     padding: clamp(24px, 3.6vh, 34px);
     gap: clamp(16px, 2.5vh, 22px);
 }
+/* #endregion */
 
 /* #region 7.2: ORTAK INPUT VE KAPATMA YAPILARI */
 .search-input {
@@ -3369,6 +3348,14 @@ body.is-owner .tab .tab-link-icon {
     font-size: var(--fs-base);
 }
 
+/* Modallardaki çift buton yan yana düzeni */
+#confirm-modal .auth-submit-btn,
+#cropper-modal .auth-submit-btn {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+}
+
 /* Modallar ve Pop-Uplar (<= 1024px Kompakt Masaüstü / Tablet) */
 @media (max-width: 1024px) {
     .modal-box--category {
@@ -3431,7 +3418,7 @@ body.is-owner .tab .tab-link-icon {
 }
 /* #endregion */
 
-/* #region 7.6: İŞLEM ÇUBUĞU (ACTION BAR) */
+/* #region 7.5: İŞLEM ÇUBUĞU (ACTION BAR) */
 .edit-action-bar {
     position: fixed;
     bottom: -100px;
@@ -3514,17 +3501,9 @@ body.has-unsaved-changes .edit-action-bar {
     background-color: var(--color-success, #2ea043);
     box-shadow: 0 0 10px rgba(46, 160, 67, 0.4);
 }
-
-/* Modallardaki çift buton yan yana düzeni */
-#confirm-modal .auth-submit-btn,
-#cropper-modal .auth-submit-btn {
-    flex: 1;
-    min-width: 0;
-    width: auto;
-}
 /* #endregion */
 
-/* #region 7.7: ZİYARETÇİ KORUMASI VE SATIRIÇİ GÖRÜNÜRLÜK */
+/* #region 7.6: ZİYARETÇİ KORUMASI VE SATIRIÇİ GÖRÜNÜRLÜK */
 body:not(.is-owner) .banner-edit-overlay,
 body:not(.is-owner) .pfp-edit-overlay,
 body:not(.is-owner) #inline-add-link-btn,
@@ -3544,10 +3523,7 @@ body.is-owner #inline-add-link-btn {
 }
 /* #endregion */
 
-/* #region 7.8: HAYALET YUVA (YENİ İÇERİK EKLEME POSTERİ) */
-/* ==========================================================================
-   HAYALET YUVA (YENİ İÇERİK EKLEME POSTERİ)
-   ========================================================================== */
+/* #region 7.7: HAYALET YUVA (YENİ İÇERİK EKLEME POSTERİ) */
 .ghost-add-slot {
     container-type: inline-size;
     aspect-ratio: 2 / 3;
@@ -3587,7 +3563,7 @@ body.is-owner .ghost-add-slot {
 }
 /* #endregion */
 
-/* #region 7.9: DİNAMİK KATEGORİ (SEKME) YÖNETİMİ */
+/* #region 7.8: DİNAMİK KATEGORİ (SEKME) YÖNETİMİ */
 body.is-owner #add-content-btn {
     display: flex; 
 }
@@ -3672,10 +3648,7 @@ body.is-owner .tab:hover .tab-edit-badge {
 }
 /* #endregion */
 
-/* #region 7.10: TOAST BİLDİRİMİ (BAŞARILI KAYIT MESAJI) */
-/* ==========================================================================
-   TOAST BİLDİRİMİ (BAŞARILI KAYIT MESAJI)
-   ========================================================================== */
+/* #region 7.9: TOAST BİLDİRİMİ (BAŞARILI KAYIT MESAJI) */
 .toast-notification {
     position: fixed;
     bottom: -100px; /* Başlangıçta ekran dışında saklı */
@@ -3699,7 +3672,7 @@ body.is-owner .tab:hover .tab-edit-badge {
 }
 /* #endregion */
 
-/* #region 7.11: NOOK COLOR PICKER (TEMA SEÇİCİ) */
+/* #region 7.10: NOOK COLOR PICKER (TEMA SEÇİCİ) */
 
 /* 1. Global Wrapper ve Açılma Animasyonu */
 .global-color-picker-wrapper {
