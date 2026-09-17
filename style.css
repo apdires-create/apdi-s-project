@@ -83,7 +83,7 @@
     
     
     /* ============================================================
-       2. TYPOGRAPHY (Yazı Tipleri, Kalınlıklar ve Fluid Scale Engine)
+       2. TYPOGRAPHY (Yazı Tipleri, Kalınlıklar ve Tipografi Ölçeği)
        ============================================================ */
        
     --font-primary: 'Montserrat', sans-serif;
@@ -94,6 +94,17 @@
     --fw-semibold: 600;
     --fw-bold: 700;
     --fw-extrabold: 800;
+
+    /* Temel Tipografi Skalası */
+    --fs-2xs:  0.70rem;
+    --fs-xs:   0.78rem;
+    --fs-sm:   0.86rem;
+    --fs-base: 1.00rem;
+    --fs-md:   1.15rem;
+    --fs-lg:   1.35rem;
+    --fs-xl:   1.65rem;
+    --fs-2xl:  2.00rem;
+    --fs-3xl:  2.50rem;
 
     /* Dış Arayüz / Banner Buton Ölçekleri (Sahne Konteynerı Dışında Kalanlar) */
     --fs-banner-btn: clamp(0.88rem, 2.2vh, 1.05rem);
@@ -494,20 +505,6 @@ html.is-profile-loading #landing-screen {
     --content-pad-y: 2.2cqh;
     --radius-base: 0.8cqw;
 
-    /* TAŞINDI (eski :root .scene-viewport .container nesting bug'ı çözüldü) */
-    --font-fluid-base: 3cqw;
-    --font-fluid-step: calc(var(--font-fluid-base) * 1.5);
-
-    --fs-2xs:  calc(var(--font-fluid-step) * 0.578);
-    --fs-xs:   calc(var(--font-fluid-step) * 0.694);
-    --fs-sm:   calc(var(--font-fluid-step) * 0.833);
-    --fs-base: var(--font-fluid-step);
-    --fs-md:   calc(var(--font-fluid-step) * 1.200);
-    --fs-lg:   calc(var(--font-fluid-step) * 1.440);
-    --fs-xl:   calc(var(--font-fluid-step) * 1.728);
-    --fs-2xl:  calc(var(--font-fluid-step) * 2.074);
-    --fs-3xl:  calc(var(--font-fluid-step) * 2.488);
-
     margin: 0 auto;
 }
 
@@ -547,7 +544,6 @@ html.is-profile-loading #landing-screen {
     }
 
     .scene-viewport .container {
-        --font-fluid-base: 2.76cqw;
         --radius-base: 1cqw; /* aynı sebep, sahne kutuları için */
     }
 }
@@ -562,7 +558,6 @@ html.is-profile-loading #landing-screen {
     }
 
     .scene-viewport .container {
-        --font-fluid-base: 3.75cqw;
         --radius-base: 0.5cqw;
     }
 }
