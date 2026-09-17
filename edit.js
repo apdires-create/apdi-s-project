@@ -1183,7 +1183,7 @@ const EditManager = {
 
                     // 1. HATA KONTROLÜ
                     if (val && !urlGecerliMi(val)) {
-                        urlInput.style.borderColor = "var(--color-danger-rgb)";
+                        urlInput.style.borderColor = "var(--color-danger)";
                         errorEl.style.display = "block";
                         if (saveBtn) saveBtn.classList.add('is-locked'); // Onay Butonunu Kilitle
                         return; // Sistemi Güncelleme

@@ -37,7 +37,7 @@
 
     function render(container, profile) {
     // Profilin kendi accent rengi yoksa Nook'un orijinal kehribar rengini kullanır
-    const liveAccent = profile.accent || "var(--amber-2)";
+    const liveAccent = profile.accent || "var(--landing-amber)";
     container.style.setProperty('--nook-accent-live', liveAccent);
 
     container.innerHTML = `

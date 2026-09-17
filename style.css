@@ -18,6 +18,7 @@
     --blue-500: #5ca8ff;
 
     /* 1b. SEMANTIC / SİSTEM RENKLERİ */
+    --color-danger: rgb(var(--color-danger-rgb));
     --color-danger-rgb: var(--red-500-rgb);
     --color-danger-light: var(--red-200);
     --color-success: var(--green-500);
@@ -802,7 +803,6 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 .nook-profile-card {
     --nook-bg-2: var(--landing-bg-panel-2);
     --nook-bg-1: var(--landing-bg-panel);
-    --nook-border: var(--border-soft-2);
     --nook-text: rgb(var(--white-rgb));
     --nook-text-muted: var(--landing-text-muted);
 
@@ -834,7 +834,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     content: '';
     position: absolute;
     inset: -30px; /* Işığın kartın dışına taşması için */
-    background: radial-gradient(circle at center, var(--nook-accent-live) 0%, transparent 65%);
+    background: radial-gradient(circle at center, var(--nook-accent-live, var(--landing-amber)) 0%, transparent 65%);
     filter: blur(40px);
     opacity: 0.18; /* Rengi "hissetmeni" sağlayacak tatlı bir parlaklık */
     z-index: -1;
@@ -868,7 +868,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2), 0 8px 16px rgba(0,0,0,0.4); 
 }
 .nook-card__name { font-family: var(--font-primary); font-weight: var(--fw-bold); font-size: var(--fs-xl); line-height: 1.2; letter-spacing: -0.02em; }
-.nook-card__role { color: var(--nook-accent-live); font-size: var(--fs-sm); font-weight: var(--fw-semibold); margin-top: 0.15em; }
+.nook-card__role { color: var(--nook-accent-live, var(--landing-amber)); font-size: var(--fs-sm); font-weight: var(--fw-semibold); margin-top: 0.15em; }
 .nook-card__bio { color: #a4a9c3; font-size: var(--fs-base); line-height: 1.55; margin-top: 0.9em; }
 
 /* Çipler ve Çizgiler */
@@ -1621,7 +1621,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .save-btn.is-locked {
     opacity: 0.5;
     pointer-events: none;
-    background-color: var(--color-danger-rgb) !important;
+    background-color: var(--color-danger) !important;
     box-shadow: none !important;
 }
 
@@ -1658,7 +1658,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 }
 
 .nook-link-row.is-expanded .nook-link-toggle:hover {
-    background: var(--color-danger-rgb); 
+    background: var(--color-danger); 
     color: #fff; 
 }
 
