@@ -109,7 +109,6 @@
 
     /* Dış Arayüz / Banner Buton Ölçekleri (Sahne Konteynerı Dışında Kalanlar) */
     --fs-banner-btn: clamp(0.88rem, 2.2vh, 1.05rem);
-    --fs-banner-logo: clamp(1.25rem, 3.2vh, 1.85rem);
     --btn-banner-size: clamp(44px, 7vh, 60px);
 
     /* ============================================================
@@ -171,7 +170,6 @@
     --space-2xl: 24px;
     --space-3xl: 32px;
     --space-4xl: 40px;
-    --space-5xl: 150px;
 
     /* ============================================================
        7. FLUID CONTAINER PROPORTIONS (Akıcı Oranlar & Grid)
@@ -195,9 +193,12 @@
     --z-banner: 99;
     --z-mobile-nav: 100;   
     --z-mobile-btn: 101;   
+    --z-drag: 120;
     --z-dropdown: 200;
     --z-modal: 500;
     --z-modal-top: 600;
+    --z-toast: 9999;
+    --z-loading: 99999;
 }
 /* #endregion */
 
@@ -215,7 +216,7 @@ html {
 
 body {
     background-color: var(--theme-bg-base);
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     overflow: hidden;
     font-family: var(--font-primary);
@@ -262,7 +263,7 @@ a, a:visited, a:hover, a:active {
     width: 100vw;
     height: 100vh;
     background-color: #000000; /* İstendiği gibi: simsiyah bomboş sayfa temeli */
-    z-index: 99999;
+    z-index: var(--z-loading);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -540,7 +541,6 @@ html.is-profile-loading #landing-screen {
     :root {
         --btn-banner-size: clamp(38px, 6.5vh, 48px);
         --fs-banner-btn: clamp(0.78rem, 2vh, 0.92rem);
-        --fs-banner-logo: clamp(1.1rem, 2.8vh, 1.45rem);
         --radius-base: 0.75vw; /* dar ekranda vw değeri küçüldüğü için köşe kaybolmasın diye oranı artırır */
     }
 
@@ -554,7 +554,6 @@ html.is-profile-loading #landing-screen {
     :root {
         --btn-banner-size: clamp(68px, 7.5vh, 92px);
         --fs-banner-btn: clamp(1.25rem, 2.4vh, 1.65rem);
-        --fs-banner-logo: clamp(1.85rem, 3.8vh, 2.6rem);
         --radius-base: 0.35vw;
     }
 
@@ -1601,7 +1600,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     border-color: var(--accent-500);
     transform: scale(0.98);
     transition: none !important; /* DOM yer değişimlerinde layout'un çökmesini engeller */
-    z-index: 100;
+    z-index: var(--z-drag);
 }
 
 /* 2. Sürükleme işlemi devam ederken tüm listedeki animasyonları dondur (Yeni butonunun titremesini önler) */
@@ -2192,7 +2191,7 @@ body:not(.is-owner) .widgets {
     transform: scale(0.95);
     border: 2px dashed var(--accent-500);
     border-radius: var(--radius-lg);
-    z-index: 100;
+    z-index: var(--z-drag);
     border-color: color-mix(in srgb, var(--accent-500) 30%, transparent);
 }
 
@@ -2878,7 +2877,7 @@ body.is-owner .tab .tab-link-icon {
     transform: scale(0.95);
     border: 2px dashed rgba(var(--theme-secondary-rgb), 0.8);
     border-radius: var(--radius-md);
-    z-index: 100;
+    z-index: var(--z-drag);
 }
 
 /* Sürükleme esnasında iç elemanların fare olaylarını engelle */
@@ -3114,7 +3113,7 @@ body.is-owner .tab .tab-link-icon {
 .search-modal-backdrop {
     position: absolute;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.55);
+    background-color: var(--overlay-dim);
     backdrop-filter: var(--blur-sm);
 }
 
@@ -3690,7 +3689,7 @@ body.is-owner .tab:hover .tab-edit-badge {
     font-size: var(--fs-sm);
     font-weight: var(--fw-semibold);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    z-index: 9999;
+    z-index: var(--z-toast);
     transition: bottom var(--transition-smooth);
     pointer-events: none;
 }
@@ -4000,11 +3999,6 @@ body.is-owner .global-color-picker-wrapper {
         order: unset;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-    }
-
-    /* Tek widget varken ortalı ve derli toplu duruş */
-    .container > .widgets:has(.widget-slot:only-of-type) {
         justify-content: center;
     }
 
