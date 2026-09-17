@@ -1,0 +1,209 @@
+/**
+ * Nook CSS - 1. Tokens (Tasarım Değişkenleri)
+ * :root değişkenleri, primitives, tema katmanı, landing token'ları,
+ * tipografi, radius, shadows, spacing, layers (z-index) ve 1080px/2000px ölçeklemeleri.
+ */
+
+:root {
+    /* 1a. PRIMITIVES (Boya Tüpleri - Sadece Varsayılan Tema İçin) */
+    --white-rgb: 255, 255, 255;
+    --taupe-500-rgb: 182, 168, 159; /* Eski temanın ana karakteri */
+    --orange-500-rgb: 255, 136, 0;
+    --orange-600-rgb: 187, 128, 51;
+    --red-500-rgb: 220, 60, 60;
+    --red-200: #ffb8b8;
+    --green-500: #2ea043;
+    --green-400: #7fdc6d;
+    --amber-400: #f2a93b;
+    --amber-300: #ffcd7a;
+    --amber-600: #c97e1f;
+    --purple-glow: 120, 140, 255; 
+    --blue-500: #5ca8ff;
+
+    /* 1b. SEMANTIC / SİSTEM RENKLERİ */
+    --color-danger: rgb(var(--color-danger-rgb));
+    --color-danger-rgb: var(--red-500-rgb);
+    --color-danger-light: var(--red-200);
+    --color-success: var(--green-500);
+    --color-success-light: var(--green-400);
+    --color-link: var(--blue-500);
+
+    /* --- 1c. THEME LAYER --- */
+    --accent-50: #fdf4e3;
+    --accent-100: #fbe8c2;
+    --accent-300: #f3c15a;
+    --accent-500: #ff8800;
+    --accent-700: #a87d1f;
+    --accent-text: #0b0d10;
+
+    --theme-primary: var(--accent-500); 
+    --theme-primary-hover: var(--accent-700); 
+    --theme-secondary-rgb: var(--taupe-500-rgb);
+    
+    --theme-bg-base: color-mix(in srgb, var(--accent-500) 3%, #060709);       
+    --theme-bg-panel: color-mix(in srgb, var(--accent-500) 8%, #0d0f14);
+
+    /* YENİ: Global Input (Metin Kutusu) Arka Plan ve Çerçeveleri */
+    --theme-bg-input: rgba(255, 255, 255, 0.04);
+    --theme-border-input: rgba(var(--theme-secondary-rgb), 0.25);
+    
+    /* Not: --primary-h değişkeni varsayılan olarak turuncu tonunu (32) temsil eder;
+       kullanıcı tema rengini değiştirdiğinde utils.js -> temaRenkleriniGuncelle() tarafından dinamik olarak güncellenir. */
+    --primary-h: 32;
+    --theme-secondary: hsl(var(--primary-h, 32), 25%, 65%);
+    
+    --theme-border-soft: color-mix(in srgb, var(--accent-500) 15%, transparent);
+
+    /* --- 1d. LANDING PAGE (Temadan Bağımsız Sabit Alan) --- */
+    --landing-bg-void: #030409;      
+    --landing-bg-space: #070914;     
+    --landing-bg-panel: #0f1225;     
+    --landing-bg-panel-2: #161a33;
+    
+    --landing-glow-primary: rgba(var(--orange-500-rgb), 0.10); 
+    --landing-glow-secondary: rgba(var(--purple-glow), 0.06);
+
+    --landing-border-soft: rgba(255,255,255,0.09);
+    --landing-border-soft-2: rgba(255,255,255,0.14);
+    
+    --landing-text-primary: #f2f3f8;
+    --landing-text-muted: #8d92ab;
+    --landing-text-faint: #5b5f78;
+    
+    --landing-amber: var(--amber-400);
+    --landing-amber-hover: var(--amber-300);
+    --landing-amber-deep: var(--amber-600);
+    --landing-green: var(--green-400);
+
+    /* --- 1e. MARKA VE DIŞ ENTEGRASYONLAR --- */
+    --brand-monkeytype: #e2b714;
+    --brand-monkeytype-dark: #111;
+    
+    /* --- 2. TYPOGRAPHY (Yazı Tipleri, Kalınlıklar ve Tipografi Ölçeği) --- */
+       
+    --font-primary: 'Montserrat', sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+
+    --fw-regular: 400;
+    --fw-medium: 500;
+    --fw-semibold: 600;
+    --fw-bold: 700;
+    --fw-extrabold: 800;
+
+    /* Temel Tipografi Skalası */
+    --fs-2xs:  0.70rem;
+    --fs-xs:   0.78rem;
+    --fs-sm:   0.86rem;
+    --fs-base: 1.00rem;
+    --fs-md:   1.15rem;
+    --fs-lg:   1.35rem;
+    --fs-xl:   1.65rem;
+    --fs-2xl:  2.00rem;
+    --fs-3xl:  2.50rem;
+
+    /* Dış Arayüz / Banner Buton Ölçekleri (Sahne Konteynerı Dışında Kalanlar) */
+    --fs-banner-btn: clamp(0.88rem, 2.2vh, 1.05rem);
+    --btn-banner-size: clamp(44px, 7vh, 60px);
+
+    /* --- 3. RADIUS (Köşe Kıvrımları - Akıcı Responsive Sistem) --- */
+    --radius-base: 0.55vw;
+
+    --radius-xs:  calc(var(--radius-base) * 0.5);
+    --radius-sm:  var(--radius-base);
+    --radius-md:  calc(var(--radius-base) * 1.5);
+    --radius-lg:  calc(var(--radius-base) * 2);
+    --radius-xl:  calc(var(--radius-base) * 3);
+    --radius-2xl: calc(var(--radius-base) * 4);
+    --radius-full: 9999px;
+    --radius-pill: var(--radius-full);
+    --radius-circle: 50%;
+    --radius-icon: 22%;
+
+    /* --- 4. SHADOWS & BLUR (Gölgeler ve Cam Efektleri) --- */
+    /* Standart Dış Gölgeler */
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 40px 80px -20px rgba(0, 0, 0, 0.9);
+    
+    /* Cam Efekti İç Işımaları (Rim Light) */
+    --shadow-glass-inner: inset 1px 1px 2px rgba(255, 255, 255, 0.25), inset -1px -1px 3px rgba(0, 0, 0, 0.6);
+    
+    /* Bulanıklık Değerleri */
+    --blur-sm: blur(4px);
+    --blur-md: blur(8px);
+    --blur-lg: blur(20px);
+
+    --overlay-dim: rgba(0, 0, 0, 0.55);
+    --overlay-blur: blur(8px);
+
+    /* Okunabilirlik Konturları (Siyah - Beyaz Dengesi) (YENİ) */
+    --text-stroke-dark: 0 1px 4px rgba(0,0,0,0.8), 0 0 2px rgba(0,0,0,0.9);
+    --icon-stroke-dark: drop-shadow(0px 1px 2px rgba(0,0,0,0.8)) drop-shadow(0px 0px 2px rgba(0,0,0,0.9));
+
+    /* --- 5. MOTION (Animasyon ve Geçiş Süreleri) --- */
+    --transition-fast: 0.2s ease;
+    --transition-base: 0.3s ease;
+    --transition-smooth: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-flip: 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    /* --- 6. SPACING (Boşluklar, Padding, Margin ve Gap) --- */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+    --space-4xl: 40px;
+
+    /* --- 7. FLUID CONTAINER PROPORTIONS (Akıcı Oranlar & Grid) --- */
+    --gap-x: 1.8vw;
+    --gap-y: 2vh;
+    --content-pad-x: 1.8vw;
+    --content-pad-y: 2.2vh;
+    --banner-h: 20vh;
+    --radius-box: var(--radius-lg);
+    --radius-card: var(--radius-sm);
+
+    /* --- 8. LAYERS (z-index) --- */
+    --z-base: 1;
+    --z-inner-overlay: 10; 
+    --z-widget-pop: 20;    
+    --z-warning: 50;       
+    --z-banner: 99;
+    --z-mobile-nav: 100;   
+    --z-mobile-btn: 101;   
+    --z-drag: 120;
+    --z-dropdown: 200;
+    --z-modal: 500;
+    --z-modal-top: 600;
+    --z-toast: 9999;
+    --z-loading: 99999;
+}
+
+/* Kompakt Masaüstü & Dar Pencereler (~1080px altı) */
+@media (max-width: 1080px) {
+    :root {
+        --btn-banner-size: clamp(38px, 6.5vh, 48px);
+        --fs-banner-btn: clamp(0.78rem, 2vh, 0.92rem);
+        --radius-base: 0.75vw; /* dar ekranda vw değeri küçüldüğü için köşe kaybolmasın diye oranı artırır */
+    }
+
+    .scene-viewport .container {
+        --radius-base: 1cqw; /* aynı sebep, sahne kutuları için */
+    }
+}
+
+/* 2K / 4K / Geniş Monitörler (~2000px üstü) */
+@media (min-width: 2000px) {
+    :root {
+        --btn-banner-size: clamp(68px, 7.5vh, 92px);
+        --fs-banner-btn: clamp(1.25rem, 2.4vh, 1.65rem);
+        --radius-base: 0.35vw;
+    }
+
+    .scene-viewport .container {
+        --radius-base: 0.5cqw;
+    }
+}
