@@ -4,3 +4,728 @@
  * yükleme ekranları, starfield canvas, 16:9 sahne sistemi, banner alanı
  * ve ortak modal iskeleti / form yapıları.
  */
+
+/* #region 1: Temel Yapı ve Sahne Mimarisi */
+
+/* #region 1.1: SIFIRLAMA, TEMEL ELEMANLAR VE SCROLLBAR */
+/* Sıfırlama */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--theme-bg-base);
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    font-family: var(--font-primary);
+    color: rgb(var(--white-rgb));
+}
+
+a, a:visited, a:hover, a:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+::selection {
+    background: var(--landing-amber);
+    color: #20140a;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent-500);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* Global Scrollbar Tasarımı */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-secondary-rgb), 0.3);
+    border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--theme-secondary-rgb), 0.6);
+}
+/* #endregion */
+
+/* #region 1.2: YÜKLEME EKRANLARI (LOADING SCREENS) */
+.app-loading-screen,
+.landing-loading-screen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000000; /* İstendiği gibi: simsiyah bomboş sayfa temeli */
+    z-index: var(--z-loading);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.app-loading-screen.is-hidden,
+.landing-loading-screen.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Profil açılışında ilk andan itibaren siyah perdeyi aktif et */
+html.is-profile-loading #app-loading-screen {
+    display: flex !important;
+}
+
+html.is-profile-loading #landing-screen {
+    display: none !important;
+}
+
+/* Yükleme Ekranı İçerik Mimarisi */
+.app-loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    user-select: none;
+}
+
+.app-loading-brand {
+    width: clamp(46px, 6vh, 58px);
+    height: clamp(46px, 6vh, 58px);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-primary);
+    font-size: clamp(1.3rem, 2.8vh, 1.7rem);
+    font-weight: var(--fw-bold);
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px color-mix(in srgb, var(--accent-500) 20%, transparent);
+    animation: appLoadingBrandPulse 2s ease-in-out infinite;
+    transition: transform var(--transition-fast), box-shadow 0.4s ease, border-color 0.4s ease;
+    pointer-events: none; /* Hata durumu oluşana kadar asla tıklanamaz */
+    cursor: default;
+}
+
+@keyframes appLoadingBrandPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px color-mix(in srgb, var(--accent-500) 15%, transparent);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 28px color-mix(in srgb, var(--accent-500) 38%, transparent);
+    }
+}
+
+.app-loading-user-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+}
+
+.app-loading-user {
+    font-family: var(--font-primary);
+    font-size: clamp(0.9rem, 2vh, 1.15rem);
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.65);
+    transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+/* Kullanıcı rengi ve verisi geldiğinde devreye giren hafif gradient */
+.app-loading-user.is-loaded {
+    background: linear-gradient(135deg, #ffffff 20%, var(--accent-300) 60%, var(--accent-500) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.06em;
+    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent-500) 35%, transparent));
+}
+
+.app-loading-bar {
+    width: 60px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+    margin-top: 2px;
+}
+
+.app-loading-bar-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 45%;
+    background: linear-gradient(90deg, transparent, var(--accent-500), transparent);
+    border-radius: var(--radius-full);
+    animation: appLoadingBarSweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes appLoadingBarSweep {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+}
+
+.app-loading-error-hint {
+    display: none;
+    font-family: var(--font-primary);
+    font-size: var(--fs-xs);
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.04em;
+    margin-top: calc(var(--space-xs) * -0.5);
+    transition: opacity var(--transition-fast);
+}
+
+/* Hata Durumu (Kullanıcı bulunamadı veya bright-task çöktü) */
+.app-loading-screen.is-error .app-loading-bar {
+    display: none !important;
+}
+
+.app-loading-screen.is-error .app-loading-brand {
+    pointer-events: auto; /* Sadece hata durumunda tıklanabilir olur */
+    cursor: pointer;
+    border-color: rgba(var(--orange-500-rgb), 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(var(--orange-500-rgb), 0.35);
+    animation: appLoadingErrorPulse 2.4s ease-in-out infinite;
+}
+
+.app-loading-screen.is-error .app-loading-brand:hover {
+    transform: scale(1.08);
+    border-color: rgba(var(--orange-500-rgb), 0.9);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.8), 0 0 35px rgba(var(--orange-500-rgb), 0.6);
+}
+
+.app-loading-screen.is-error .app-loading-brand:active {
+    transform: scale(0.96);
+}
+
+@keyframes appLoadingErrorPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(var(--orange-500-rgb), 0.25);
+    }
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 30px rgba(var(--orange-500-rgb), 0.55);
+    }
+}
+
+.app-loading-screen.is-error .app-loading-user {
+    font-size: clamp(0.95rem, 2vh, 1.15rem);
+    font-weight: var(--fw-medium);
+    color: var(--amber-300);
+    background: none !important;
+    -webkit-text-fill-color: initial !important;
+    filter: none !important;
+    text-align: center;
+    max-width: min(440px, 86vw);
+    line-height: 1.45;
+}
+
+.app-loading-screen.is-error .app-loading-error-hint {
+    display: block;
+}
+/* #endregion */
+
+/* #region 1.3: KOZMİK ARKA PLAN (STARFIELD) */
+#starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, var(--landing-glow-primary), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 15%, var(--landing-glow-secondary), transparent 60%),
+      var(--landing-bg-void);
+}
+
+.star {
+    position: absolute;
+    border-radius: var(--radius-circle);
+    background: #fff;
+    opacity: 0.6;
+    animation: twinkle var(--dur, 4s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.4); }
+}
+/* #endregion */
+
+/* #region 1.4: 16:9 SAHNE SİSTEMİ VE IZGARA (STAGE & VIEWPORT) */
+/* Gövde ve Sahne (Stage) */
+#app-wrapper,
+.stage {
+    position: relative;
+    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.scene-viewport {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    container-type: size;
+    container-name: nook-scene;
+    overflow: hidden;
+    background-color: var(--theme-bg-base); /* letterbox rengi, ileride bg görseli buraya eklenecek */
+}
+
+.scene-viewport .container {
+    aspect-ratio: 16 / 9;
+    width: min(100cqw, 100cqh * 16 / 9);
+    height: min(100cqh, 100cqw * 9 / 16);
+    max-width: 2200px;
+
+    --gap-x: 1.8cqw;
+    --gap-y: 2cqh;
+    --content-pad-x: 1.8cqw;
+    --content-pad-y: 2.2cqh;
+    --radius-base: 0.8cqw;
+
+    margin: 0 auto;
+}
+
+/* Ana Izgara (Row) */
+.container {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    /* profil : widget : içerik = 1 : 1 : 2 */
+    grid-template-columns: 1fr 1fr 2fr;
+    column-gap: var(--gap-x);
+    row-gap: var(--gap-y);
+    padding-inline: var(--gap-x);
+    padding-block: var(--gap-y);
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Temel Kutu */
+.box {
+    background-color: var(--theme-bg-panel);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    border-radius: var(--radius-box);
+    min-width: 0;
+    min-height: 0;
+    box-sizing: border-box;
+}
+/* #endregion */
+
+/* #endregion */
+
+/* #region 2: Banner Alanı */
+
+/* #region 2.1: Banner Sahnesi ve Katmanları (Layout & Overlays) */
+.banner {
+    flex: 0 0 var(--banner-h);
+    position: relative;
+    width: 100%;
+    background-color: var(--theme-bg-panel);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.banner-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 1. ETKİLEŞİM KATMANI (Sadece Ortadaki Güvenli Tıklama Alanı) */
+.banner-edit-overlay {
+    position: absolute;
+    top: 0; 
+    bottom: 0;
+    left: 35%; 
+    right: 35%; /* Sadece ortadaki %30'luk alan tıklanabilir */
+    z-index: 10;
+    cursor: pointer;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    
+    color: #ffffff; 
+    font-size: var(--fs-md);
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.02em;
+    
+    pointer-events: none; /* Sadece sayfa sahibi için açılacak */
+}
+
+/* Başlangıçta İkon ve Yazı Görünmez */
+.banner-edit-overlay svg,
+.banner-edit-overlay span {
+    filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));
+    opacity: 0; 
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Yükselme efekti ortak yapıldı */
+}
+
+/* 2. GÖRSEL KATMAN (Tüm Banner'ı Kaplayan Blur ve Karartma) */
+.banner-visual-bg {
+    position: absolute;
+    inset: 0; /* Sınır tanımadan tüm banner'ı kaplar */
+    background-color: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    
+    opacity: 0; /* BÜTÜN SIR BURADA: Blur değil, görünürlük canlandırılıyor! */
+    pointer-events: none; /* Fareyi asla tutmaz, tıklamalar içinden geçer */
+    transition: opacity 0.4s ease; 
+    z-index: 1; /* Tıklama alanının (10) altında kalır */
+}
+
+
+/* --- SADECE SAYFA SAHİBİ İÇİN ETKİLEŞİMLER --- */
+
+/* Sahip için tıklamayı aktif et */
+body.is-owner .banner-edit-overlay {
+    pointer-events: auto;
+}
+
+/* SADECE ORTADAKİ ALANA Hover Olunca (Yazı ve İkon belirip havaya kalksın) */
+body.is-owner .banner-edit-overlay:hover svg,
+body.is-owner .banner-edit-overlay:hover span {
+    opacity: 1;
+    transform: translateY(-4px); /* Hem ikon hem yazı yükselir */
+}
+
+/* SADECE ORTADAKİ ALANA Hover Olunca (Arkadaki Görsel Katman Yavaşça Belirsin) */
+body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
+    opacity: 1;
+}
+
+/* --- Placeholder Banner Ayarları --- */
+.banner.no-banner {
+    background-color: var(--theme-bg-base);
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        radial-gradient(circle at center, color-mix(in srgb, var(--accent-500) 15%, transparent) 0%, transparent 70%);
+    background-size: 30px 30px, 30px 30px, 100% 100%;
+    background-position: center center;
+}
+
+.banner.no-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+}
+/* #endregion */
+
+/* #region 2.2: Banner Kontrolleri ve Butonlar (Controls & Actions) */
+.banner-controls {
+    position: absolute;
+    top: clamp(16px, 3vh, 32px);
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 clamp(20px, 2.5vw, 48px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: var(--z-banner);
+}
+
+.banner-controls > * {
+    pointer-events: auto;
+}
+
+.app-home-btn,
+.home-trigger-btn {
+    position: relative;
+    width: var(--btn-banner-size);
+    height: var(--btn-banner-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(22, 27, 34, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: var(--blur-md);
+    -webkit-backdrop-filter: var(--blur-md);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-decoration: none;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.app-home-btn:hover,
+.home-trigger-btn:hover {
+    border-color: var(--theme-primary);
+    background-color: color-mix(in srgb, var(--accent-500) 15%, transparent); 
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-500) 15%, transparent);
+}
+
+.app-home-logo,
+.home-logo-n {
+    background: linear-gradient(135deg, var(--accent-300), var(--accent-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: var(--font-primary);
+    font-size: calc(var(--btn-banner-size) * 0.62);
+    font-weight: var(--fw-extrabold);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.header-actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 1.2vw, 18px);
+    flex-shrink: 0;
+}
+
+.auth-trigger-btn {
+    position: relative;
+    width: auto; 
+    height: var(--btn-banner-size);
+    padding: 0 2.2vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(22, 27, 34, 0.4);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    backdrop-filter: var(--blur-md);
+    -webkit-backdrop-filter: var(--blur-md);
+    border-radius: var(--radius-full);
+    color: rgba(var(--white-rgb), 0.6);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-trigger-btn .login-text {
+    font-family: var(--font-primary);
+    font-size: var(--fs-banner-btn);
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.02em;
+}
+
+.auth-trigger-btn:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-secondary-rgb), 0.5);
+    background-color: rgba(var(--theme-secondary-rgb), 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--theme-secondary-rgb), 0.1);
+}
+/* #endregion */
+/* #endregion */
+
+/* #region Ortak Modal İskeleti */
+
+/* #region 7.1: ORTAK MODAL KURALLARI VE BOYUTLANDIRMA */
+.search-modal,
+.auth-modal {
+    /* Scoped Typography (>1024px Masaüstü için ferah ve okunaklı ölçek) */
+    --fs-2xs: clamp(0.75rem, 0.75vw, 0.82rem);
+    --fs-xs:  clamp(0.85rem, 0.85vw, 0.92rem);
+    --fs-sm:  clamp(0.95rem, 0.95vw, 1.02rem);
+    --fs-base: clamp(1.05rem, 1.08vw, 1.15rem);
+    --fs-md:   clamp(1.2rem, 1.25vw, 1.35rem);
+    --fs-lg:   clamp(1.38rem, 1.5vw, 1.55rem);
+    --fs-xl:   clamp(1.65rem, 1.8vw, 1.95rem);
+}
+
+.search-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: var(--overlay-dim);
+    backdrop-filter: var(--blur-sm);
+}
+
+.search-modal,
+.auth-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.search-modal { z-index: var(--z-modal); }
+.auth-modal { z-index: var(--z-modal-top); }
+
+.search-modal.is-open,
+.auth-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Ortak Modal Kasa Altyapısı */
+.search-modal-box,
+.auth-modal-box,
+.modal-box {
+    position: relative;
+    max-width: 100%;
+    max-height: min(88vh, 800px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background-color: var(--theme-bg-panel);
+    border: 1px solid rgba(var(--theme-secondary-rgb), 0.3);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(10px) scale(0.98);
+    transition: transform 0.25s ease;
+    box-sizing: border-box;
+}
+
+.search-modal.is-open .search-modal-box,
+.auth-modal.is-open .auth-modal-box,
+.auth-modal.is-open .modal-box {
+    transform: translateY(0) scale(1);
+}
+
+.search-modal-box::-webkit-scrollbar,
+.auth-modal-box::-webkit-scrollbar,
+.modal-box::-webkit-scrollbar {
+    width: 5px;
+}
+
+.search-modal-box::-webkit-scrollbar-thumb,
+.auth-modal-box::-webkit-scrollbar-thumb,
+.modal-box::-webkit-scrollbar-thumb {
+    background: rgba(var(--theme-secondary-rgb), 0.3);
+    border-radius: var(--radius-full);
+}
+
+/* Modalların Özel Boyutlandırma Sınıfları (> 1024px Desktop) */
+.modal-box--category {
+    width: min(580px, 90vw);
+    padding: clamp(24px, 3.6vh, 34px);
+    gap: clamp(16px, 2.5vh, 22px);
+}
+
+.modal-box--category-edit {
+    width: min(480px, 90vw);
+    padding: clamp(24px, 3.6vh, 32px);
+    gap: clamp(16px, 2.5vh, 22px);
+}
+
+.modal-box--widget {
+    width: min(560px, 90vw);
+    padding: clamp(24px, 3.6vh, 34px);
+    gap: clamp(16px, 2.5vh, 22px);
+}
+
+.modal-box--confirm {
+    width: min(440px, 90vw);
+    padding: clamp(24px, 3.6vh, 32px);
+    text-align: center;
+    gap: clamp(16px, 2.5vh, 22px);
+}
+
+.modal-box--cropper {
+    width: min(720px, 92vw);
+    padding: clamp(24px, 3.6vh, 34px);
+    gap: clamp(16px, 2.5vh, 22px);
+}
+/* #endregion */
+
+/* #region 7.2: ORTAK INPUT VE KAPATMA YAPILARI */
+.search-input {
+    width: 100%;
+    flex: 1;
+    height: clamp(44px, 6vh, 52px);
+    padding: 0 20px;
+    box-sizing: border-box;
+    background-color: rgba(var(--white-rgb), 0.04);
+    border: 1px solid rgba(var(--theme-secondary-rgb), 0.25);
+    border-radius: var(--radius-full);
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-primary);
+    font-size: var(--fs-base);
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-input::placeholder { color: rgba(var(--white-rgb), 0.35); }
+.search-input:focus {
+    border-color: rgba(var(--theme-secondary-rgb), 0.8);
+    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
+}
+
+.search-modal-close {
+    flex-shrink: 0;
+    width: clamp(34px, 4.5vh, 42px);
+    height: clamp(34px, 4.5vh, 42px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: rgba(var(--white-rgb), 0.5);
+    font-size: var(--fs-xl);
+    line-height: 1;
+    cursor: pointer;
+    border-radius: var(--radius-circle);
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.search-modal-close:hover {
+    color: rgb(var(--white-rgb));
+    background-color: rgba(var(--white-rgb), 0.08);
+}
+/* #endregion */
+
+/* #endregion */
