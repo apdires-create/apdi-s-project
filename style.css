@@ -672,6 +672,112 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     pointer-events: none;
     z-index: 0;
 }
+
+/* ============================================================
+   Banner Kontrolleri ve Butonlar
+   ============================================================ */
+.banner-controls {
+    position: absolute;
+    top: clamp(16px, 3vh, 32px);
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 clamp(20px, 2.5vw, 48px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: var(--z-banner);
+}
+
+.banner-controls > * {
+    pointer-events: auto;
+}
+
+.app-home-btn,
+.home-trigger-btn {
+    position: relative;
+    width: var(--btn-banner-size);
+    height: var(--btn-banner-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(22, 27, 34, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: var(--blur-md);
+    -webkit-backdrop-filter: var(--blur-md);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-decoration: none;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.app-home-btn:hover,
+.home-trigger-btn:hover {
+    border-color: var(--theme-primary);
+    background-color: color-mix(in srgb, var(--accent-500) 15%, transparent); 
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-500) 15%, transparent);
+}
+
+.app-home-logo,
+.home-logo-n {
+    background: linear-gradient(135deg, var(--accent-300), var(--accent-500));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: var(--font-primary);
+    font-size: calc(var(--btn-banner-size) * 0.62);
+    font-weight: var(--fw-extrabold);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.header-actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 1.2vw, 18px);
+    flex-shrink: 0;
+}
+
+.auth-trigger-btn {
+    position: relative;
+    width: auto; 
+    height: var(--btn-banner-size);
+    padding: 0 2.2vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(22, 27, 34, 0.4);
+    border: 1px solid rgba(var(--white-rgb), 0.08);
+    backdrop-filter: var(--blur-md);
+    -webkit-backdrop-filter: var(--blur-md);
+    border-radius: var(--radius-full);
+    color: rgba(var(--white-rgb), 0.6);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-trigger-btn .login-text {
+    font-family: var(--font-primary);
+    font-size: var(--fs-banner-btn);
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.02em;
+}
+
+.auth-trigger-btn:hover {
+    color: rgb(var(--white-rgb));
+    border-color: rgba(var(--theme-secondary-rgb), 0.5);
+    background-color: rgba(var(--theme-secondary-rgb), 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--theme-secondary-rgb), 0.1);
+}
 /* #endregion */
 
 /* #region 3: Yeni Landing Page (Ana Vitrin) */
@@ -1124,53 +1230,6 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 .nav-dropdown-item.text-danger:hover {
     background: rgba(var(--color-danger-rgb), 0.15);
     color: var(--color-danger-light);
-}
-
-/* ============================================================
-   Profil Sayfası Ana Sayfa (N) Butonu
-   ============================================================ */
-.app-home-btn,
-.home-trigger-btn {
-    position: relative;
-    width: var(--btn-banner-size);
-    height: var(--btn-banner-size);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(22, 27, 34, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: var(--blur-md);
-    -webkit-backdrop-filter: var(--blur-md);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: var(--transition-fast);
-    text-decoration: none;
-    box-sizing: border-box;
-    flex-shrink: 0;
-}
-
-.app-home-btn:hover,
-.home-trigger-btn:hover {
-    border-color: var(--theme-primary);
-    background-color: color-mix(in srgb, var(--accent-500) 15%, transparent); 
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-500) 15%, transparent);
-}
-
-.app-home-logo,
-.home-logo-n {
-    background: linear-gradient(135deg, var(--accent-300), var(--accent-500));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    font-family: var(--font-primary);
-    font-size: calc(var(--btn-banner-size) * 0.62);
-    font-weight: var(--fw-extrabold);
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
 }
 /* #endregion */
 
@@ -3310,66 +3369,66 @@ body.is-owner .tab .tab-link-icon {
     height: clamp(42px, 5.5vh, 48px);
     font-size: var(--fs-base);
 }
-/* #endregion */
 
-/* #region 7.5: DIŞ ARAYÜZ (HEADER & BANNER) KONTROLLERİ */
-.banner-controls {
-    position: absolute;
-    top: clamp(16px, 3vh, 32px);
-    left: 0;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0 clamp(20px, 2.5vw, 48px);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    pointer-events: none;
-    z-index: var(--z-banner);
-}
+/* Modallar ve Pop-Uplar (<= 1024px Kompakt Masaüstü / Tablet) */
+@media (max-width: 1024px) {
+    .modal-box--category {
+        width: min(380px, 88vw);
+    }
 
-.banner-controls > * {
-    pointer-events: auto;
-}
+    .modal-box--category-edit {
+        width: min(340px, 88vw);
+    }
 
-.header-actions {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: clamp(10px, 1.2vw, 18px);
-    flex-shrink: 0;
-}
+    .modal-box--widget {
+        width: min(390px, 88vw);
+    }
 
-.auth-trigger-btn {
-    position: relative;
-    width: auto; 
-    height: var(--btn-banner-size);
-    padding: 0 2.2vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(22, 27, 34, 0.4);
-    border: 1px solid rgba(var(--white-rgb), 0.08);
-    backdrop-filter: var(--blur-md);
-    -webkit-backdrop-filter: var(--blur-md);
-    border-radius: var(--radius-full);
-    color: rgba(var(--white-rgb), 0.6);
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
+    .modal-box--confirm {
+        width: min(340px, 88vw);
+        gap: clamp(10px, 1.8vh, 14px);
+    }
 
-.auth-trigger-btn .login-text {
-    font-family: var(--font-primary);
-    font-size: var(--fs-banner-btn);
-    font-weight: var(--fw-semibold);
-    letter-spacing: 0.02em;
-}
+    .modal-box--cropper {
+        width: min(480px, 88vw);
+    }
 
-.auth-trigger-btn:hover {
-    color: rgb(var(--white-rgb));
-    border-color: rgba(var(--theme-secondary-rgb), 0.5);
-    background-color: rgba(var(--theme-secondary-rgb), 0.15);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(var(--theme-secondary-rgb), 0.1);
+    .search-modal-box {
+        width: min(460px, 88vw);
+        height: min(78vh, 520px);
+        padding: clamp(14px, 2.2vh, 20px);
+        gap: clamp(10px, 1.8vh, 14px);
+    }
+
+    .search-results {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: clamp(8px, 1.5vh, 12px);
+    }
+
+    .auth-modal-box {
+        width: min(370px, 88vw);
+        padding: clamp(16px, 2.5vh, 22px);
+        gap: clamp(10px, 1.8vh, 16px);
+    }
+
+    .category-selection-grid {
+        gap: clamp(8px, 1.4vh, 12px);
+        margin-bottom: clamp(8px, 1.2vh, 12px);
+    }
+
+    .category-option-btn {
+        padding: clamp(10px, 1.8vh, 16px) clamp(8px, 1.2vw, 12px);
+        font-size: var(--fs-xs);
+    }
+
+    .widget-selection-grid {
+        gap: clamp(8px, 1.4vh, 12px);
+    }
+
+    .widget-select-btn {
+        padding: clamp(10px, 1.6vh, 14px) clamp(10px, 1.4vw, 16px);
+        gap: clamp(8px, 1.2vw, 14px);
+    }
 }
 /* #endregion */
 
@@ -3864,65 +3923,6 @@ body.is-owner .global-color-picker-wrapper {
         height: 2.4em;
         line-height: 2.4em;
         padding: 0 0.6em;
-    }
-
-    /* 8. Modallar ve Pop-Uplar (<= 1024px Kompakt Masaüstü / Tablet) */
-    .modal-box--category {
-        width: min(380px, 88vw);
-    }
-
-    .modal-box--category-edit {
-        width: min(340px, 88vw);
-    }
-
-    .modal-box--widget {
-        width: min(390px, 88vw);
-    }
-
-    .modal-box--confirm {
-        width: min(340px, 88vw);
-        gap: clamp(10px, 1.8vh, 14px);
-    }
-
-    .modal-box--cropper {
-        width: min(480px, 88vw);
-    }
-
-    .search-modal-box {
-        width: min(460px, 88vw);
-        height: min(78vh, 520px);
-        padding: clamp(14px, 2.2vh, 20px);
-        gap: clamp(10px, 1.8vh, 14px);
-    }
-
-    .search-results {
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: clamp(8px, 1.5vh, 12px);
-    }
-
-    .auth-modal-box {
-        width: min(370px, 88vw);
-        padding: clamp(16px, 2.5vh, 22px);
-        gap: clamp(10px, 1.8vh, 16px);
-    }
-
-    .category-selection-grid {
-        gap: clamp(8px, 1.4vh, 12px);
-        margin-bottom: clamp(8px, 1.2vh, 12px);
-    }
-
-    .category-option-btn {
-        padding: clamp(10px, 1.8vh, 16px) clamp(8px, 1.2vw, 12px);
-        font-size: var(--fs-xs);
-    }
-
-    .widget-selection-grid {
-        gap: clamp(8px, 1.4vh, 12px);
-    }
-
-    .widget-select-btn {
-        padding: clamp(10px, 1.6vh, 14px) clamp(10px, 1.4vw, 16px);
-        gap: clamp(8px, 1.2vw, 14px);
     }
 }
 /* #endregion */
