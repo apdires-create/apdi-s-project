@@ -591,8 +591,8 @@ html.is-profile-loading #landing-screen {
     position: absolute;
     top: 0; 
     bottom: 0;
-    left: 35vw; 
-    right: 35vw; /* Sadece ortadaki %30'luk alan tıklanabilir */
+    left: 35%; 
+    right: 35%; /* Sadece ortadaki %30'luk alan tıklanabilir */
     z-index: 10;
     cursor: pointer;
     
@@ -1444,10 +1444,6 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     transition: border-color 150ms ease;
 }
 
-.nook-link-row.is-open {
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
 .nook-link-main {
     display: flex;
     align-items: center;
@@ -1522,11 +1518,6 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-toggle svg {
     width: 55%;
     height: 55%;
-}
-.nook-link-row:not(.is-open) .nook-link-toggle:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
-.nook-link-row.is-open .nook-link-toggle { 
-    background: color-mix(in srgb, var(--accent-500) 15%, transparent); 
-    color: var(--accent-500); 
 }
 
 /* Kutu Daraldığında (max-width: 230px) Arka Yüz Davranışı */
@@ -1628,22 +1619,6 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 /* Açık Akordeon Çerçeve Parlaması */
 .nook-link-row.is-expanded {
     border-color: rgba(255, 255, 255, 0.15);
-}
-
-/* Düzenleme Kalem/Sil İkonu Geçişleri */
-.nook-link-toggle {
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-xs);
-    border: 1px solid transparent;
-    background: transparent;
-    color: rgba(255, 255, 255, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 120ms ease;
-    flex-shrink: 0;
 }
 
 .nook-link-row:not(.is-expanded) .nook-link-toggle:hover { 
