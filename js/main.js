@@ -10,7 +10,7 @@ function editJsYukle() {
     return new Promise((resolve, reject) => {
         if (typeof EditManager !== 'undefined') { resolve(); return; } // zaten yüklüyse tekrar yükleme
         const script = document.createElement('script');
-        script.src = 'edit.js';
+        script.src = 'js/edit.js';
         script.onload = () => resolve();
         script.onerror = () => reject(new Error('edit.js yüklenemedi.'));
         document.head.appendChild(script);
