@@ -164,13 +164,13 @@ body.is-owner .ghost-text:hover {
 
 .profile-links-back .dashed-add-btn {
     width: 100%;
-    padding: clamp(7px, 2.2cqw, 12px) clamp(9px, 2.8cqw, 14px);
+    padding: 8px 12px;
     border-radius: var(--radius-btn);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: var(--fs-base);
-    min-height: calc(clamp(28px, 8.5cqw, 38px) + 2 * clamp(7px, 2.2cqw, 12px));
+    min-height: 48px;
     border: 1px dashed rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.02);
 }
@@ -377,7 +377,6 @@ body.is-owner .ghost-text:hover {
 
 /* Hayalet Yuva (Kocaman Artı Posteri) */
 .ghost-add-slot {
-    container-type: inline-size;
     aspect-ratio: 2 / 3;
     width: 100%;
     min-width: 0;
@@ -403,8 +402,8 @@ body.is-owner .ghost-add-slot {
 }
 
 .ghost-add-slot svg {
-    width: 32cqw;
-    height: 32cqw;
+    width: 36px;
+    height: 36px;
     color: rgba(var(--theme-secondary-rgb), 0.5);
     transition: color var(--transition-fast);
 }
@@ -845,25 +844,17 @@ body.has-unsaved-changes .edit-action-bar {
 
 /* Renk Seçici Popup Kasası */
 .nook-picker-popup {
-    --font-fluid-base: 2.4cqh;
-    --font-fluid-step: calc(var(--font-fluid-base) * 1.5);
-
-    --fs-2xs:  calc(var(--font-fluid-step) * 0.578);
-    --fs-xs:   calc(var(--font-fluid-step) * 0.694);
-    --fs-sm:   calc(var(--font-fluid-step) * 0.833);
-    --fs-base: var(--font-fluid-step);
-
     position: absolute;
-    top: calc(100% + 1.8cqh); 
+    top: calc(100% + 10px); 
     right: 0;
-    width: 34cqh;
+    width: 250px;
     max-width: calc(100vw - 32px);
     box-sizing: border-box;
     background: var(--theme-bg-panel);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-card);
-    padding: 2cqh;
-    box-shadow: 0 1.2cqh 5cqh rgba(0, 0, 0, 0.65); 
+    padding: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65); 
     z-index: var(--z-modal-top);
 }
 
@@ -871,7 +862,7 @@ body.has-unsaved-changes .edit-action-bar {
 
 .nook-picker-popup .edit-section-title {
     margin-top: 0;
-    margin-bottom: 1.5cqh;
+    margin-bottom: 10px;
     font-size: var(--fs-xs);
 }
 
@@ -879,19 +870,19 @@ body.has-unsaved-changes .edit-action-bar {
 .nook-sv-square {
     position: relative;
     width: 100%;
-    height: 20cqh;
+    height: 140px;
     border-radius: var(--radius-xs);
     background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
     cursor: crosshair;
     touch-action: none;
-    margin-bottom: 2cqh;
+    margin-bottom: 12px;
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .nook-sv-cursor {
     position: absolute;
-    width: 2.2cqh;
-    height: 2.2cqh;
+    width: 14px;
+    height: 14px;
     border-radius: var(--radius-circle);
     border: 2px solid #ffffff;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -903,7 +894,7 @@ body.has-unsaved-changes .edit-action-bar {
 .nook-hue-slider {
     position: relative;
     width: 100%;
-    height: 2.2cqh;
+    height: 14px;
     border-radius: var(--radius-pill);
     background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
     cursor: pointer;
@@ -913,8 +904,8 @@ body.has-unsaved-changes .edit-action-bar {
 .nook-hue-cursor {
     position: absolute;
     top: 50%;
-    width: 2.6cqh;
-    height: 2.6cqh;
+    width: 18px;
+    height: 18px;
     border-radius: var(--radius-circle);
     border: 2px solid #ffffff;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -926,9 +917,9 @@ body.has-unsaved-changes .edit-action-bar {
 .nook-picker-bottom-row {
     display: flex;
     align-items: center;
-    font-size: var(--fs-2xs);
-    gap: 0.8em;
-    margin-top: 2cqh;
+    font-size: var(--fs-xs);
+    gap: 8px;
+    margin-top: 12px;
 }
 
 .nook-eyedropper-btn {
@@ -985,52 +976,6 @@ body.has-unsaved-changes .edit-action-bar {
 
 /* Kompakt Ekran Uyarlamaları (<= 1024px) */
 @media (max-width: 1024px) {
-    .nook-picker-popup {
-        --font-fluid-base: clamp(1.4cqh, 1.8cqh, 2.1cqh);
-        width: clamp(185px, 22cqh, 240px);
-        padding: clamp(10px, 1.3cqh, 14px);
-        top: calc(100% + 1cqh);
-    }
-
-    .nook-picker-popup .edit-section-title {
-        margin-bottom: clamp(0.7cqh, 0.9cqh, 1.1cqh);
-    }
-
-    .nook-sv-square {
-        height: clamp(95px, 12.5cqh, 135px);
-        margin-bottom: clamp(0.9cqh, 1.2cqh, 1.4cqh);
-    }
-
-    .nook-sv-cursor {
-        width: 1.4cqh;
-        height: 1.4cqh;
-    }
-
-    .nook-hue-slider {
-        height: 1.3cqh;
-    }
-
-    .nook-hue-cursor {
-        width: 1.6cqh;
-        height: 1.6cqh;
-    }
-
-    .nook-picker-bottom-row {
-        margin-top: clamp(0.9cqh, 1.2cqh, 1.4cqh);
-        gap: 0.6em;
-    }
-
-    .nook-eyedropper-btn {
-        width: 2.4em;
-        height: 2.4em;
-    }
-
-    .nook-hex-input {
-        height: 2.4em;
-        line-height: 2.4em;
-        padding: 0 0.6em;
-    }
-
     .modal-box--category {
         width: min(380px, 88vw);
     }

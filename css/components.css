@@ -51,7 +51,7 @@
     background-color: var(--theme-bg-panel);
     border: 1px solid rgba(var(--white-rgb), 0.08);
     border-radius: var(--radius-panel);
-    padding: 6cqw 6cqw;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -80,15 +80,15 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 5cqw;
+    gap: 14px;
     width: 100%;
     flex-shrink: 0;
 }
 
 /* 1.2: Profil Görseli ve Düzenleme Katmanı (Avatar & Overlay) */
 .profile-image {
-    width: 22cqw;
-    height: 22cqw;
+    width: 64px;
+    height: 64px;
     aspect-ratio: 1 / 1;
     border-radius: var(--radius-circle);
     overflow: hidden;
@@ -132,7 +132,7 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 3cqw;
+    gap: 10px;
     flex: 1;
     min-width: 0;
 }
@@ -140,7 +140,7 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 .profile-name {
     flex: 1;
     min-width: 0;
-    font-size: var(--fs-xl);
+    font-size: var(--fs-lg);
     font-weight: var(--fw-bold);
     letter-spacing: -0.01em;
     line-height: 1.15;
@@ -155,11 +155,11 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 }
 
 .profile-title {
-    font-size: var(--fs-md);
+    font-size: var(--fs-sm);
     line-height: 1.35;
     letter-spacing: 0.05em;
     color: rgba(var(--theme-secondary-rgb), 1);
-    margin-top: 3cqw;
+    margin-top: 6px;
     font-weight: var(--fw-medium);
     white-space: nowrap;
     overflow: hidden;
@@ -167,13 +167,13 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 }
 
 .profile-bio {
-    font-size: var(--fs-base);
-    line-height: 1.4;
+    font-size: var(--fs-sm);
+    line-height: 1.45;
     letter-spacing: 0.02em;
     color: rgba(var(--white-rgb), 0.75);
-    margin-top: 2cqw;
+    margin-top: 8px;
     font-weight: var(--fw-regular);
-    margin-bottom: 2cqw;
+    margin-bottom: 8px;
     flex: 1;
     min-height: 0;
     overflow-y: auto;
@@ -214,8 +214,8 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     border: 1px solid color-mix(in srgb, var(--accent-500) 25%, transparent);
     border-radius: var(--radius-pill);
     aspect-ratio: 1 / 1;
-    width: clamp(28px, 11cqw, 40px);
-    height: auto;
+    width: 34px;
+    height: 34px;
     padding: 0;
     background: transparent;
     display: inline-flex;
@@ -250,8 +250,8 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
         gap: 6px;
     }
     .profile-image {
-        width: 38cqw;
-        height: 38cqw;
+        width: 52px;
+        height: 52px;
     }
     .profile-name-wrapper {
         flex-direction: column;
@@ -276,16 +276,16 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 3cqw;
+    gap: 10px;
     width: 100%;
-    min-height: 18cqw;
+    min-height: 38px;
     flex-shrink: 0;
-    margin-bottom: 2cqw;
+    margin-bottom: 8px;
 }
 
 .profile-back-header h3,
 .profile-back-title {
-    font-size: var(--fs-lg);
+    font-size: var(--fs-md);
     font-weight: var(--fw-bold);
     letter-spacing: -0.01em;
     color: rgba(var(--white-rgb), 0.9);
@@ -296,7 +296,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .profile-links-back {
     display: flex;
     flex-direction: column;
-    gap: clamp(6px, 2.5cqw, 12px);
+    gap: 8px;
     overflow-y: auto;
     flex: 1;
     padding-right: 5px;
@@ -321,15 +321,15 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 .nook-link-main {
     display: flex;
     align-items: center;
-    gap: clamp(8px, 2.8cqw, 14px);
-    padding: clamp(7px, 2.2cqw, 12px) clamp(9px, 2.8cqw, 14px);
+    gap: 10px;
+    padding: 8px 12px;
     min-width: 0;
 }
 
 /* İkon Alanı */
 .nook-link-icon {
-    width: clamp(28px, 8.5cqw, 38px);
-    height: clamp(28px, 8.5cqw, 38px);
+    width: 32px;
+    height: 32px;
     border-radius: var(--radius-xs);
     background: rgba(255, 255, 255, 0.05);
     display: flex;
@@ -376,8 +376,8 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 
 /* Düzenleme Kalem İkonu */
 .nook-link-toggle {
-    width: clamp(24px, 7.5cqw, 32px);
-    height: clamp(24px, 7.5cqw, 32px);
+    width: 28px;
+    height: 28px;
     border-radius: var(--radius-xs);
     border: 1px solid transparent;
     background: transparent;
@@ -485,7 +485,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     border-radius: var(--radius-btn);
     background: transparent;
     color: rgba(255, 255, 255, 0.5);
-    padding: clamp(8px, 2.5cqw, 12px) 0;
+    padding: 10px 0;
     width: 100%;
     display: flex;
     align-items: center;
@@ -497,8 +497,8 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     font-family: var(--font-primary);
 }
 .nook-add-btn svg {
-    width: clamp(14px, 4.2cqw, 18px);
-    height: clamp(14px, 4.2cqw, 18px);
+    width: 16px;
+    height: 16px;
 }
 .nook-add-btn:hover { border-color: var(--accent-500); color: var(--accent-500); }
 
@@ -524,18 +524,15 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     background-color: transparent;
     border: none;
     border-radius: 0;
-    padding-block: 3%;
-    padding-inline: 0.6vw;
+    padding: 0;
     overflow: hidden;
     min-width: 0;
     min-height: 0;
-    container-type: inline-size;
-    container-name: widgetcard;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 1.5cqh;
+    justify-content: flex-start;
+    gap: 14px;
     position: relative;
     box-sizing: border-box;
     visibility: hidden;
@@ -545,7 +542,7 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 
 body:not(.is-owner) .widgets {
     justify-content: flex-start;
-    gap: 1.5cqh;
+    gap: 14px;
 }
 
 .widgets.is-ready {
@@ -558,15 +555,15 @@ body:not(.is-owner) .widgets {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5vw;
-    height: 1.5cqh;
+    gap: 8px;
+    height: 18px;
     margin-top: auto;
     flex-shrink: 0;
 }
 
 .widget-dot {
-    width: 0.7cqh;
-    height: 0.7cqh;
+    width: 7px;
+    height: 7px;
     border-radius: var(--radius-circle);
     background-color: rgba(var(--white-rgb), 0.2);
     border: none;
@@ -589,14 +586,13 @@ body:not(.is-owner) .widgets {
 .widget-slot { 
     flex: 0 0 auto;
     width: 100%;
-    aspect-ratio: 10 / 4.5;
+    aspect-ratio: 10 / 5.2;
+    max-height: 145px;
     position: relative; 
     background-color: transparent;
     border: none;
     box-sizing: border-box;
     transition: z-index var(--transition-fast);
-    container-type: inline-size;
-    container-name: widgetslot;
 }
 
 .widget-slot:hover {
@@ -604,6 +600,8 @@ body:not(.is-owner) .widgets {
 }
 
 .widget-card {
+    container-type: inline-size;
+    container-name: widgetcard;
     position: relative; 
     width: 100%; 
     height: 100%; 
@@ -690,8 +688,8 @@ body:not(.is-owner) .widgets {
 }
 
 .widget-type-icon { 
-    width: clamp(34px, 15cqi, 72px);
-    height: clamp(34px, 15cqi, 72px);
+    width: 44px;
+    height: 44px;
     aspect-ratio: 1 / 1;
     border-radius: var(--radius-icon); 
     background-color: var(--theme-primary); 
@@ -741,15 +739,13 @@ body.is-owner .widget-slot.is-draggable:active {
 /* 2.3: Widget Tipleri: Monkeytype (WPM & Accuracy Gösterimi) */
 .widget-type-icon.mt-brand { 
     background-color: var(--brand-monkeytype, #e2b714); 
-    container-type: inline-size;
-    container-name: mticon;
 }
 
 .widget-type-icon.mt-brand::after { 
     content: 'mt'; 
     font-family: var(--font-mono); 
     color: var(--brand-monkeytype-dark, #111111); 
-    font-size: 42cqi; 
+    font-size: 18px; 
     font-weight: var(--fw-extrabold); 
     line-height: 1; 
     display: flex; 
@@ -763,13 +759,13 @@ body.is-owner .widget-slot.is-draggable:active {
     justify-content: space-between; 
     width: 100%; 
     height: 100%; 
-    padding: 1.2cqh 1.8cqw; 
+    padding: 10px 14px; 
     border-radius: var(--radius-card); 
     box-sizing: border-box; 
 }
 
 body.is-owner .mt-front-view {
-    padding-right: clamp(24px, 3.2cqw, 36px);
+    padding-right: 32px;
 }
 
 .mt-front-left { 
@@ -778,13 +774,13 @@ body.is-owner .mt-front-view {
     flex-direction: column; 
     align-items: center; 
     justify-content: center; 
-    gap: 0.6cqh; 
+    gap: 4px; 
     min-width: 0; 
 }
 
 .mt-front-username { 
     font-family: var(--font-primary); 
-    font-size: var(--fs-sm); 
+    font-size: var(--fs-xs); 
     font-weight: var(--fw-bold); 
     color: rgb(var(--white-rgb)); 
     letter-spacing: 0.5px;
@@ -825,7 +821,7 @@ body.is-owner .mt-front-username:hover {
     max-height: 48px;
     background-color: rgba(var(--white-rgb), 0.15); 
     border-radius: var(--radius-xs); 
-    margin-inline: clamp(6px, 1cqw, 14px); 
+    margin-inline: 10px; 
     flex-shrink: 0; 
 }
 
@@ -835,14 +831,14 @@ body.is-owner .mt-front-username:hover {
     justify-content: space-around; 
     align-items: center; 
     min-width: 0; 
-    gap: clamp(4px, 0.8cqw, 12px); 
+    gap: 8px; 
 }
 
 .mt-stat-item { 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    gap: 0.2cqh; 
+    gap: 2px; 
     flex-shrink: 0; 
     min-width: 0; 
 }
@@ -859,7 +855,7 @@ body.is-owner .mt-front-username:hover {
 
 .mt-stat-value { 
     font-family: var(--font-mono); 
-    font-size: clamp(1.45rem, 3.2cqh, var(--fs-3xl)); 
+    font-size: var(--fs-xl); 
     font-weight: var(--fw-bold); 
     color: rgb(var(--white-rgb)); 
     line-height: 1.05; 
@@ -879,7 +875,7 @@ body.is-owner .mt-front-username:hover {
     body.is-owner .mt-front-view { 
         gap: 6px; 
         padding: 8px 10px; 
-        padding-right: clamp(20px, 6cqw, 28px); 
+        padding-right: 28px; 
     }
     .mt-front-right { 
         gap: 6px; 
@@ -905,11 +901,10 @@ body.is-owner .mt-front-username:hover {
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    padding-inline: var(--content-pad-x);
-    padding-block: var(--content-pad-y);
+    padding: 16px 20px;
     overflow: hidden;
     min-height: 0;
-    container-type: inline-size;
+    box-sizing: border-box;
 }
 
 .content-body {
@@ -926,12 +921,14 @@ body.is-owner .mt-front-username:hover {
     overflow-y: auto;
     scrollbar-gutter: stable;
     display: grid;
-    grid-template-columns: repeat(auto-fill, 16.5cqw);
-    justify-content: space-between;
-    gap: 2cqw;
+    grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+    grid-template-rows: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 14px;
     align-content: start;
-    padding-top: clamp(10px, 2cqh, 20px);
-    padding-inline: 14px;
+    padding-top: 6px;
+    padding-inline: 4px;
+    padding-bottom: 6px;
 }
 
 /* 3.2: Kategori Sekmeleri (Tabs Row, Hover Glow & Çizgi Animasyonu) */
@@ -1183,8 +1180,8 @@ body.is-owner .tab .tab-link-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(24px, 3.8cqh, 34px);
-    height: clamp(24px, 3.8cqh, 34px);
+    width: 28px;
+    height: 28px;
     color: rgba(255, 255, 255, 0.32);
     transition: transform var(--transition-base), color var(--transition-base), filter var(--transition-base);
 }
@@ -1196,7 +1193,7 @@ body.is-owner .tab .tab-link-icon {
 
 .card-placeholder-badge {
     font-family: var(--font-mono);
-    font-size: clamp(0.55rem, 1cqh, 0.65rem);
+    font-size: var(--fs-2xs);
     font-weight: var(--fw-semibold);
     letter-spacing: 0.12em;
     color: rgba(255, 255, 255, 0.2);
@@ -1280,14 +1277,12 @@ body.is-owner .tab .tab-link-icon {
 
 /* Sayfa Sahibi Boş Durumu (Harekete Geçirici Prompt Kutusu) */
 .prompt-block {
-    container-type: inline-size;
-    container-name: promptblock;
     width: min(84%, 420px);
-    padding: clamp(4px, 2cqi, 12px) 0;
+    padding: 8px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(10px, 3cqi, 16px);
+    gap: 14px;
     animation: promptBlockFadeIn var(--transition-base) forwards;
 }
 
@@ -1301,7 +1296,7 @@ body.is-owner .tab .tab-link-icon {
     border: 1px dashed color-mix(in srgb, var(--accent-500) 28%, transparent);
     border-radius: var(--radius-card);
     background: linear-gradient(180deg, color-mix(in srgb, var(--accent-500) 4.5%, transparent), color-mix(in srgb, var(--accent-500) 1.5%, transparent));
-    padding: clamp(12px, 4.4cqi, 20px) clamp(14px, 4.6cqi, 20px);
+    padding: 14px 18px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1333,8 +1328,8 @@ body.is-owner .tab .tab-link-icon {
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: clamp(6px, 1.8cqi, 9px);
-    padding: clamp(8px, 2.6cqi, 11px) clamp(16px, 5.2cqi, 24px);
+    gap: 8px;
+    padding: 10px 20px;
     border-radius: var(--radius-pill);
     font-size: var(--fs-sm);
     font-family: var(--font-primary);
@@ -1357,8 +1352,8 @@ body.is-owner .tab .tab-link-icon {
 }
 
 .prompt-btn svg {
-    width: clamp(11px, 2.8cqi, 13px);
-    height: clamp(11px, 2.8cqi, 13px);
+    width: 12px;
+    height: 12px;
     flex-shrink: 0;
 }
 /* #endregion */

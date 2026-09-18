@@ -320,7 +320,8 @@ html.is-profile-loading #landing-screen {
 }
 
 /* Sahne Taşıyıcı Alanı (.scene-viewport)
-   Masaüstünde içeriği ekranın tam ortasında zarifçe tutan taşıyıcıdır. */
+   Masaüstünde konsolu ekranın tam ortasında zarifçe tutan taşıyıcıdır.
+   Starfield arka planı ile arayüze ferah negatif alan (breathing room) kazandırır. */
 .scene-viewport {
     flex: 1;
     min-height: 0;
@@ -329,22 +330,27 @@ html.is-profile-loading #landing-screen {
     justify-content: center;
     overflow: hidden;
     background-color: var(--theme-bg-base);
+    padding: 24px;
+    box-sizing: border-box;
 }
 
 /* Ana Konsol Taşıyıcısı (.container)
-   3 ana sütunu (Profil, Widget alanı, İçerik) yan yana barındırır. */
+   3 ana sütunu (Profil, Widget alanı, İçerik) yan yana barındırır.
+   Katı 16:9 yerine içerik odaklı (inside-out) boyutlanır:
+   2 satır kart ve 3 widget'ın doğal tavan yüksekliğine (~540px) kilitlenir. */
 .container {
-    flex: 1;
-    min-height: 0;
+    width: min(1320px, calc(100vw - 48px));
+    height: min(540px, calc(100vh - var(--banner-h) - 48px));
+    max-width: 1320px;
+    max-height: 560px;
     display: grid;
-    /* profil : widget : içerik = 1 : 1 : 2 */
-    grid-template-columns: 1fr 1fr 2fr;
+    /* profil (320px) : widget (270px) : içerik (1fr) */
+    grid-template-columns: 320px 270px 1fr;
+    grid-template-rows: 1fr;
     column-gap: var(--gap-x);
     row-gap: var(--gap-y);
-    padding-inline: var(--gap-x);
-    padding-block: var(--gap-y);
-    width: 100%;
-    height: 100%;
+    padding: 0;
+    margin: 0 auto;
     box-sizing: border-box;
 }
 
