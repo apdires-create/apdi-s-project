@@ -320,15 +320,17 @@ html.is-profile-loading #landing-screen {
 }
 
 /* Sahne Taşıyıcı Alanı (.scene-viewport)
-   Masaüstünde konsolu ekranın tam ortasında zarifçe tutan taşıyıcıdır.
-   Starfield arka planı ile arayüze ferah negatif alan (breathing room) kazandırır. */
+   Masaüstünde konsolu ekranın ortasında zarifçe tutan taşıyıcıdır.
+   Dikey alan yetersiz kaldığında align-items: center nedeniyle banner arkasına
+   taşmayı önlemek için flex-direction: column ve margin-block: auto mimarisi kullanılır. */
 .scene-viewport {
     flex: 1;
     min-height: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     background-color: var(--theme-bg-base);
     padding: 24px;
     box-sizing: border-box;
@@ -336,11 +338,12 @@ html.is-profile-loading #landing-screen {
 
 /* Ana Konsol Taşıyıcısı (.container)
    3 ana sütunu (Profil, Widget alanı, İçerik) yan yana barındırır.
-   Katı 16:9 yerine içerik odaklı (inside-out) boyutlanır:
-   2 satır kart ve 3 widget'ın doğal tavan yüksekliğine (~540px) kilitlenir. */
+   margin-block: auto sayesinde alan genişken dikeyde ortalanır;
+   alan daraldığında ise banner arkasına kaçmadan güvenle dikey scroll'a izin verir. */
 .container {
     width: min(1320px, calc(100vw - 48px));
     height: min(540px, calc(100vh - var(--banner-h) - 48px));
+    min-height: 460px;
     max-width: 1320px;
     max-height: 560px;
     display: grid;
@@ -350,7 +353,8 @@ html.is-profile-loading #landing-screen {
     column-gap: var(--gap-x);
     row-gap: var(--gap-y);
     padding: 0;
-    margin: 0 auto;
+    margin-block: auto;
+    margin-inline: auto;
     box-sizing: border-box;
 }
 
