@@ -1,11 +1,27 @@
 /**
  * Nook CSS - 6. Mobile (Mobil ve Dikey Ekran Akışı)
- * 16:9 sahne sisteminden dikey flex akışına (display: contents) geçiş kuralları:
- * Kademe 1 (dikey uzayan ekranlar) ve Kademe 2 (mobil ve çok dikey ekranlar).
+ * 
+ * Bu dosya, masaüstü 3 sütunlu konsol modelinden daha dar veya dikey ekranlara
+ * geçiş sağlayan iki temel responsive kademeyi yönetir:
+ * 
+ * Kademe 1 (Tablet & Orta Boyutlar / 2+1 Düzen):
+ * - Profil ve Widget alanı üst satırda yan yana (%50 / %50) oturur.
+ * - İçerik alanı alt satırda tam genişlik (100%) açılır.
+ * 
+ * Kademe 2 (Mobil & Akıllı Telefonlar / < 640px Dikey Akış):
+ * - .scene-viewport 'display: contents' yapılarak sahne hapsinden çıkarılır.
+ * - Tüm kutular (Profil -> İçerik -> Widgetlar) doğal dikey sayfa akışında sıralanır.
+ * - İçerik alanı 2 satırlı yatay kaydırmalı şık bir şerit haline gelir.
  */
 
+/* ==========================================================================
+   #region 1: Kademe 1 - Tablet & Orta Boyutlar (2+1 Düzen)
+   ========================================================================== */
 
-/* #region Responsive Tasarım: Kademe 1 (Dikey Uzayan Ekranlar / Profil & Widget Yan Yana, İçerik Altta) */
+/* Neden 2+1 Düzeni?
+   Ekran yanlardan daraldığında Profile ve Widget blokları toplamda ancak
+   bir içerik paneli kadar genişlik tutar. Bu nedenle ikisi üste yan yana geçer,
+   içerik alanı ise altta tüm genişliği kaplayarak poster zenginliğini korur. */
 @media (max-aspect-ratio: 1.35) and (min-aspect-ratio: 0.781) and (min-width: 641px) {
     .scene-viewport {
         overflow-y: auto;
@@ -32,7 +48,7 @@
         --font-fluid-base: clamp(18px, 2.2cqw, 28px);
     }
 
-    /* 1. ÜST SOL: PROFİL ALANI */
+    /* 1.1: Üst Sol: Profil Kartı */
     .container > .profile {
         grid-column: 1 / 2;
         grid-row: 1 / 2;
@@ -64,7 +80,7 @@
         margin-bottom: 0;
     }
 
-    /* 2. ÜST SAĞ: WİDGET ALANI (2 Slot Destekli Ferah Düzen) */
+    /* 1.2: Üst Sağ: Widget Alanı */
     .container > .widgets {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
@@ -84,7 +100,7 @@
         height: auto;
     }
 
-    /* 3. ALT: İÇERİK ALANI (Tek Satır Yatay Kaydırmalı Strip) */
+    /* 1.3: Alt Satır: İçerik Alanı (Tam Genişlik) */
     .container > .content {
         grid-column: 1 / -1;
         grid-row: 2 / 3;
@@ -142,10 +158,18 @@
 }
 /* #endregion */
 
-/* #region Responsive Tasarım: Kademe 2 (Mobil ve Çok Dikey Ekranlar - max-width: 640px veya max-aspect-ratio: 0.78) */
+
+/* ==========================================================================
+   #region 2: Kademe 2 - Mobil & Dikey Akış (max-width: 640px veya Dikey Oran)
+   ========================================================================== */
+
+/* Neden 'display: contents'?
+   Masaüstünde tek ekranda fixed kalan .scene-viewport, mobil cihazlarda 
+   display: contents yapılarak DOM ağacında görünmez bir taşıyıcıya dönüşür.
+   Böylece sayfa boydan boya doğal bir dikey akışla ve pürüzsüz kaydırma ile akar. */
 @media (max-width: 640px), (max-aspect-ratio: 0.78) {
 
-    /* 1. SAHNE VE SAYFA AKIŞI */
+    /* 2.1: Sahne ve Genel Sayfa Kaydırması */
     body {
         height: auto;
         min-height: 100vh;
@@ -163,11 +187,10 @@
         max-width: 760px;
         margin: 0 auto;
         height: auto;
-        --gap-x: 1.8vw;      /* mobilde eski vw tabanına geri dön */
-        --gap-y: 2vh;
-        --content-pad-x: 1.8vw;
-        --content-pad-y: 2.2vh;
-        --radius-base: 1vw;
+        --gap-x: 12px;
+        --gap-y: 14px;
+        --content-pad-x: 12px;
+        --content-pad-y: 14px;
 
         --fs-2xs:  0.65rem;
         --fs-xs:   0.75rem;
@@ -189,7 +212,7 @@
         flex-direction: column;
     }
 
-    /* 2. BANNER VE ÜST BUTONLAR */
+    /* 2.2: Banner ve Üst Butonlar */
     .banner {
         flex: 0 0 clamp(90px, 12vh, 140px);
         height: clamp(90px, 12vh, 140px);
@@ -209,6 +232,7 @@
     .home-trigger-btn {
         width: 34px;
         height: 34px;
+        border-radius: var(--radius-btn);
     }
 
     .app-home-logo,
@@ -234,7 +258,7 @@
         height: 34px;
     }
 
-    /* 2b. NOOK COLOR PICKER POPUP (Küçük Ekran Ortalanmış Modal Kasa) */
+    /* 2.3: Nook Color Picker Mobilde Ortalanmış Modal Kasa */
     .nook-picker-popup {
         --fs-2xs: 0.82rem;
         --fs-xs: 0.92rem;
@@ -250,7 +274,7 @@
         overflow-y: auto;
         padding: clamp(14px, 4vw, 20px);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 100vmax rgba(0, 0, 0, 0.6);
-        border-radius: var(--radius-xl);
+        border-radius: var(--radius-panel);
         z-index: var(--z-modal-top);
     }
 
@@ -277,7 +301,7 @@
         gap: 0.8em;
     }
 
-    /* 3. ANA GRID -> DİKEY AKIŞ */
+    /* 2.4: Ana Grid -> Dikey Sıralama (Profil -> İçerik -> Widgetlar) */
     .container {
         display: flex;
         flex-direction: column;
@@ -288,7 +312,7 @@
     }
 
     .box {
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-panel);
         min-height: auto;
     }
 
@@ -305,7 +329,7 @@
     .content { order: 2; }
     .widgets { order: 3; }
 
-    /* 4. PROFİL MOBİL DÜZENİ */
+    /* 2.5: Profil Kartı Mobilde */
     .profile {
         height: auto;
         min-height: auto;
@@ -323,7 +347,7 @@
         height: auto;
         min-height: auto;
         padding: 16px;
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-panel);
     }
 
     .profile-flip-back {
@@ -377,11 +401,11 @@
         max-height: none;
     }
 
-    /* 5. İÇERİK KUTUSU VE 2 SATIRLI YATAY KAYDIRMALI STRIP */
+    /* 2.6: İçerik Kutusu ve 2 Satırlı Yatay Kaydırmalı Strip */
     .box.content {
         padding: 16px 12px;
         overflow: hidden;
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-panel);
     }
 
     .content-tabs-row {
@@ -404,7 +428,7 @@
         flex: none;
         height: auto;
         overflow: visible;
-        margin-top: 0px;
+        margin-top: 0;
     }
 
     .content-grid {
@@ -418,7 +442,7 @@
         scroll-padding-left: 12px;
         justify-content: start;
         gap: 12px;
-        padding-top: 0px;
+        padding-top: 0;
         padding-bottom: 8px;
         scrollbar-gutter: auto;
         -webkit-overflow-scrolling: touch;
@@ -433,7 +457,7 @@
     .card-thumb {
         width: 110px;
         aspect-ratio: 2 / 3;
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-card);
     }
 
     .card-label {
@@ -455,7 +479,7 @@
     .ghost-add-slot {
         width: 110px;
         aspect-ratio: 2 / 3;
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-card);
     }
 
     .ghost-add-slot svg {
@@ -463,7 +487,7 @@
         height: 36px;
     }
 
-    /* 6. WIDGET KAPSAYICISI (MOBİL) */
+    /* 2.7: Widget Kapsayıcısı (Mobil) */
     .widgets {
         padding: 0;
         background-color: transparent;
@@ -475,7 +499,7 @@
         flex: none;
     }
 
-    /* 7. PROMPT / BOŞ DURUM */
+    /* 2.8: Prompt / Boş Durum */
     .prompt-block {
         width: 92%;
         padding: 8px 0;
@@ -485,19 +509,19 @@
     }
     .prompt-pill {
         padding: 12px 16px;
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-card);
     }
     .prompt-btn {
         font-size: var(--fs-sm);
         padding: 10px 20px;
     }
 
-    /* 8. DÜZENLEME İŞLEM ÇUBUĞU (ACTION BAR - MOBİL) */
+    /* 2.9: Düzenleme İşlem Çubuğu (Action Bar - Mobil) */
     .edit-action-bar {
         width: calc(100% - 24px);
         max-width: 420px;
         padding: 8px 12px;
-        border-radius: var(--radius-full);
+        border-radius: var(--radius-pill);
         box-sizing: border-box;
     }
 
@@ -534,10 +558,10 @@
         padding: 6px 12px;
         font-size: var(--fs-xs);
         white-space: nowrap;
-        border-radius: var(--radius-full);
+        border-radius: var(--radius-pill);
     }
 
-    /* 9. MODALLAR VE POP-UPLAR (MOBİL UYUM) */
+    /* 2.10: Modallar ve Pop-Uplar (Mobil Uyum) */
     .search-modal,
     .auth-modal {
         padding: 12px;
@@ -551,10 +575,9 @@
         max-height: 88vh;
         padding: 16px 14px;
         gap: 12px;
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-panel);
     }
 
-    /* Arama Modalı (İçerik Ekleme) Mobilde 3'lü Kompakt Grid */
     .search-modal-box {
         height: min(85vh, 520px);
     }
@@ -572,7 +595,6 @@
         font-size: var(--fs-2xs);
     }
 
-    /* Kategori Ekleme / Düzenleme Modalı Mobilde */
     .category-selection-grid {
         gap: 8px;
         margin-bottom: 8px;
@@ -592,7 +614,6 @@
         font-size: var(--fs-2xs);
     }
 
-    /* Widget Seçim Modalı Mobilde */
     .widget-selection-grid {
         gap: 8px;
     }
@@ -615,7 +636,6 @@
         font-size: var(--fs-2xs);
     }
 
-    /* Cropper Modalı Mobilde */
     #cropper-modal .auth-modal-box {
         max-height: 92vh;
     }

@@ -1,17 +1,25 @@
 /**
  * Nook CSS - 3. Components (Uygulama Bileşenleri)
- * Profil kartı (ön yüz, arka yüz link listesi, 3D flip mekaniği ve butonları),
- * Widget alanı (slotlar, kasa, Monkeytype widget'ı) ve
- * İçerik alanı (sekmeler, içerik gridi, standart kartlar, ziyaretçi boş durumları).
+ * 
+ * Bu dosya, tüm ziyaretçiler ve sayfa sahipleri tarafından görülen
+ * 3 ana çekirdek arayüz bileşenini içerir:
+ * 1. Profil Alanı (Ön yüz, 3D flip dönüşü, arka yüz bağlantı listesi ve link satırları)
+ * 2. Widget Alanı (Slotlar, sayfalama ve Monkeytype widget entegrasyonu)
+ * 3. İçerik Alanı (Kategori sekmeleri, 2:3 medya gridi, standart kartlar ve boş durumlar)
  */
 
-/* #region 4: Profil Alanı */
+/* ==========================================================================
+   #region 1: Profil Alanı (Profile Card & Social Links)
+   ========================================================================== */
 
-/* #region 4.1: Kapsayıcı ve Başlık (Layout & Header) */
+/* 1.1: Kapsayıcı ve 3D Flip Mekanizması
+   Neden 3D Flip? Profil alanı tek bir kartta hem kişisel biyografi/kimliği
+   hem de tüm sosyal medya/bağlantı listesini taşır. 180 derecelik 3D dönüş,
+   sayfayı terk etmeden veya modal açmadan derinlikli bir kartvizit hissi verir. */
 .profile {
     grid-column: 1 / 2;
     grid-row: 1 / 2;
-    perspective: 1200px; /* 3D derinliği dış kasaya veriyoruz */
+    perspective: 1200px;
     padding: 0; 
     background-color: transparent; 
     border: none;
@@ -42,7 +50,7 @@
     -webkit-backface-visibility: hidden;
     background-color: var(--theme-bg-panel);
     border: 1px solid rgba(var(--white-rgb), 0.08);
-    border-radius: var(--radius-box);
+    border-radius: var(--radius-panel);
     padding: 6cqw 6cqw;
     display: flex;
     flex-direction: column;
@@ -50,13 +58,14 @@
     box-sizing: border-box;
 }
 
-/* Arka yüz başlangıçta ters durmalı */
+/* Arka yüz başlangıçta 180 derece ters durur */
 .profile-flip-back {
     transform: rotateY(180deg);
     background-color: var(--theme-bg-panel);
 }
 
-/* Ters Yüz ve Dönüş Güvenliği (Misclick Koruması) */
+/* Ters Yüz ve Dönüş Güvenliği (Misclick Koruması)
+   Kart dönerken veya arkada kalan yüzde yanlışlıkla tıklamaları engeller. */
 .profile-flip-inner:not(.is-flipped) .profile-flip-back {
     pointer-events: none;
 }
@@ -75,9 +84,8 @@
     width: 100%;
     flex-shrink: 0;
 }
-/* #endregion */
 
-/* #region 4.2: Profil Görseli ve Katmanı (Avatar & Overlay) */
+/* 1.2: Profil Görseli ve Düzenleme Katmanı (Avatar & Overlay) */
 .profile-image {
     width: 22cqw;
     height: 22cqw;
@@ -113,14 +121,13 @@
     z-index: var(--z-inner-overlay);
 }
 
-/* Yalnızca sayfa sahibi profil resminin üzerine gelirse düzenle ikonunu göster */
+/* Sayfa sahibi avatarın üzerine geldiğinde fotoğraf değiştirme ikonunu göster */
 body.is-owner .profile-image:hover .pfp-edit-overlay {
     opacity: 1;
     pointer-events: auto;
 }
-/* #endregion */
 
-/* #region 4.3: Profil Metinleri (İsim, Ünvan ve Biyografi) */
+/* 1.3: Profil Metinleri (İsim, Ünvan ve Biyografi) */
 .profile-name-wrapper {
     display: flex;
     align-items: center;
@@ -178,15 +185,15 @@ body.is-owner .profile-image:hover .pfp-edit-overlay {
 .profile-bio::-webkit-scrollbar-track { background: transparent; }
 .profile-bio::-webkit-scrollbar-thumb {
     background: rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
 }
 .profile-bio::-webkit-scrollbar-thumb:hover { background: rgba(var(--theme-secondary-rgb), 0.6); }
 
-/* Sadece metin kutusu açık DEĞİLKEN üzerine gelince blok efekti ver */
+/* Sahip modunda düzenlenebilir metin alanlarına hover efekti */
 body.is-owner .profile-name:not(.is-input-active),
 body.is-owner .profile-title:not(.is-input-active),
 body.is-owner .profile-bio:not(.is-input-active) {
-    cursor: text; /* Tıklanıp yazılacağını belli etsin */
+    cursor: text;
     border-radius: var(--radius-xs);
     transition: background-color var(--transition-fast), padding var(--transition-fast);
     border: 1px solid transparent; 
@@ -197,6 +204,41 @@ body.is-owner .profile-title:not(.is-input-active):hover,
 body.is-owner .profile-bio:not(.is-input-active):hover {
     background-color: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 1.4: Profil Flip Tetikleyici Butonları (Kartı Çevir Butonları)
+   Bu butonlar hem ziyaretçiler hem sayfa sahibi için çalışır. */
+#profile-flip-to-back,
+#profile-flip-to-front {
+    color: var(--accent-500);
+    border: 1px solid color-mix(in srgb, var(--accent-500) 25%, transparent);
+    border-radius: var(--radius-pill);
+    aspect-ratio: 1 / 1;
+    width: clamp(28px, 11cqw, 40px);
+    height: auto;
+    padding: 0;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+#profile-flip-to-back svg,
+#profile-flip-to-front svg {
+    width: 54%;
+    height: 54%;
+    flex-shrink: 0;
+}
+
+#profile-flip-to-back:hover,
+#profile-flip-to-front:hover {
+    border-color: var(--accent-500);
+    background-color: color-mix(in srgb, var(--accent-500) 12%, transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent-500) 20%, transparent);
+    transform: scale(1.05);
 }
 
 /* Kutu Daraldığında (max-width: 230px) Kompakt/Ortalı Düzen */
@@ -228,9 +270,8 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
         text-align: center;
     }
 }
-/* #endregion */
 
-/* #region 4.4: Arka Yüz (Bağlantılar - Yeni UI) */
+/* 1.5: Arka Yüz (Bağlantılar Listesi) */
 .profile-back-header {
     display: flex;
     justify-content: space-between;
@@ -262,15 +303,19 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 }
 
 .profile-links-back::-webkit-scrollbar { width: 4px; }
-.profile-links-back::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-full); }
+.profile-links-back::-webkit-scrollbar-thumb { 
+    background: rgba(255, 255, 255, 0.1); 
+    border-radius: var(--radius-pill); 
+}
 
-/* --- 1. TEKİL BAĞLANTI SATIRI (LinkRow) --- */
+/* Tekil Bağlantı Satırı (LinkRow) */
 .nook-link-row {
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     background: rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    transition: border-color 150ms ease;
+    transition: border-color 150ms ease, opacity 250ms ease, transform 250ms ease, margin-top 250ms ease;
+    transform-origin: top center;
 }
 
 .nook-link-main {
@@ -349,42 +394,24 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     height: 55%;
 }
 
-/* Kutu Daraldığında (max-width: 230px) Arka Yüz Davranışı */
-@container (max-width: 230px) {
-    .nook-link-domain {
-        display: none; /* Dar alanda alt domain yazısını gizle */
-    }
-    .nook-link-info {
-        justify-content: center;
-    }
-    .nook-link-name {
-        font-size: var(--fs-sm);
-    }
-}
-
-/* --- LİNK SÜRÜKLE & BIRAK (DRAG) DÜZELTMELERİ --- */
-
-/* 1. Sürüklenen satırın stili ve DOM zıplamalarını çözen transition iptali */
+/* 1.6: Link Sürükle-Bırak, Form ve Yeni Ekle Butonu */
 .nook-link-row.is-dragging {
     opacity: 0.6;
     background: rgba(255, 255, 255, 0.05);
     border-color: var(--accent-500);
     transform: scale(0.98);
-    transition: none !important; /* DOM yer değişimlerinde layout'un çökmesini engeller */
+    transition: none !important;
     z-index: var(--z-drag);
 }
 
-/* 2. Sürükleme işlemi devam ederken tüm listedeki animasyonları dondur (Yeni butonunun titremesini önler) */
 #links-wrapper:has(.is-dragging) .nook-link-row {
     transition: none !important;
 }
 
-/* 3. Sürüklenen elementin içindeki tıklama olaylarını kapat (Pürüzsüz taşıma için) */
 .nook-link-row.is-dragging * {
     pointer-events: none;
 }
 
-/* --- 2. AKORDEON İÇ FORMU VE DÜZENLEME (Collapse) --- */
 .nook-link-collapse {
     height: 0;
     overflow: hidden;
@@ -401,7 +428,6 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     padding-top: 10px;
 }
 
-/* Tüm Inputların Ortak Tasarımı */
 .nook-link-input {
     background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.15);
@@ -416,7 +442,6 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 }
 .nook-link-input:focus { border-color: var(--accent-500); }
 
-/* Akordeon Açıkken Başlıkları Gizle ve İsim Inputunu Göster */
 .nook-link-row .edit-isim-input {
     display: none;
 }
@@ -429,7 +454,6 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     margin-bottom: 2px;
 }
 
-/* Sürükleme (Drag) Sırasında Yeni Ekle Butonunun Gelmesini Engelleyen Düzeltme */
 #links-wrapper {
     display: flex !important;
     flex-direction: column;
@@ -437,39 +461,28 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
     width: 100%;
 }
 
-/* Global Onay Butonu Kilit Durumu (Geçersiz URL girildiğinde) */
-.save-btn.is-locked {
-    opacity: 0.5;
-    pointer-events: none;
-    background-color: var(--color-danger) !important;
-    box-shadow: none !important;
-}
-
-/* Açık Akordeon Çerçeve Parlaması */
 .nook-link-row.is-expanded {
     border-color: rgba(255, 255, 255, 0.15);
 }
 
 .nook-link-row:not(.is-expanded) .nook-link-toggle:hover { 
     background: rgba(255, 255, 255, 0.1); 
-    color: #fff; 
+    color: #ffffff; 
 }
 
-/* Akordeon Açıkken Sil Butonuna Dönüşür */
 .nook-link-row.is-expanded .nook-link-toggle { 
     background: rgba(var(--color-danger-rgb), 0.15); 
     color: var(--color-danger-light); 
 }
 
-.nook-link-row.is-expanded .nook-link-toggle:hover {
+.nook-link-row.is-expanded .nook-link-toggle:hover { 
     background: var(--color-danger); 
-    color: #fff; 
+    color: #ffffff; 
 }
 
-/* --- 4. YENİ BAĞLANTI EKLE BUTONU (AddLinkRow) --- */
 .nook-add-btn {
     border: 1.5px dashed rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     background: transparent;
     color: rgba(255, 255, 255, 0.5);
     padding: clamp(8px, 2.5cqw, 12px) 0;
@@ -489,71 +502,22 @@ body.is-owner .profile-bio:not(.is-input-active):hover {
 }
 .nook-add-btn:hover { border-color: var(--accent-500); color: var(--accent-500); }
 
-/* Düzenleme Modu Sürükleme Efekti */
 .nook-link-row[draggable="true"] { cursor: grab; }
 .nook-link-row[draggable="true"]:active { cursor: grabbing; }
-
-/* Yeni Tag Alanı İçin Hazırlık */
-.profile-tags-container {
-    margin-top: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-/* --- LİNK SİLİNME (YOK OLUŞ) ANİMASYONU --- */
-.nook-link-row {
-    transition: border-color 150ms ease, opacity 250ms ease, transform 250ms ease, margin-top 250ms ease;
-    transform-origin: top center;
-}
 
 .nook-link-row.is-deleting {
     opacity: 0;
     transform: scale(0.9) translateY(-10px);
     pointer-events: none;
 }
-
-/* Kutu Daraldığında (max-width: 260px) Link Düzeni */
-@container (max-width: 260px) {
-    .nook-link-domain {
-        display: none;
-    }
-    .nook-link-main {
-        gap: 6px;
-        padding: 6px 8px;
-    }
-}
-
-/* Daha da Daraldığında (max-width: 190px) Kompakt İkonlar ve Metin */
-@container (max-width: 190px) {
-    .nook-link-icon {
-        width: 24px;
-        height: 24px;
-    }
-    .nook-link-icon img, .nook-link-icon svg { 
-        width: 14px; 
-        height: 14px; 
-    }
-    .nook-link-toggle {
-        width: 24px;
-        height: 24px;
-    }
-    .nook-link-toggle svg {
-        width: 14px;
-        height: 14px;
-    }
-    .nook-link-name {
-        font-size: var(--fs-xs);
-    }
-}
 /* #endregion */
 
-/* #endregion */
 
-/* #region 5: Widget Alanı (Slotlar ve Katmanlar) */
+/* ==========================================================================
+   #region 2: Widget Alanı (Widget Slots, Pagination & Types)
+   ========================================================================== */
 
-/* #region 5.1: GENEL WIDGET KASASI VE ALTYAPI */
-
-/* 1. Kapsayıcı ve Izgara */
+/* 2.1: Genel Widget Kasası, Slotlar ve Sayfalama */
 .widgets {
     grid-column: 2 / 3;
     grid-row: 1 / 2;
@@ -589,7 +553,7 @@ body:not(.is-owner) .widgets {
     opacity: 1;
 }
 
-/* 2. Sayfalama (Pagination) */
+/* Sayfalama Noktaları (Pagination Dots) */
 .widget-pagination {
     display: flex;
     justify-content: center;
@@ -621,7 +585,7 @@ body:not(.is-owner) .widgets {
     transform: scale(1.2);
 }
 
-/* 3. Slot ve Widget Kartı */
+/* Widget Yuvası (Slot) ve İç Kart */
 .widget-slot { 
     flex: 0 0 auto;
     width: 100%;
@@ -642,10 +606,10 @@ body:not(.is-owner) .widgets {
 .widget-card {
     position: relative; 
     width: 100%; 
-    height: 100%;
+    height: 100%; 
     background-color: var(--theme-bg-panel); 
     border: 1px solid rgba(var(--white-rgb), 0.08); 
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-card); 
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
     box-sizing: border-box;
     overflow: hidden;
@@ -655,12 +619,11 @@ body:not(.is-owner) .widgets {
     border-color: rgba(var(--theme-secondary-rgb), 0.4); 
 }
 
-/* 4. İçerik Kapsayıcıları */
 .widget-link { 
     width: 100%; 
     height: 100%; 
     position: relative; 
-    border-radius: var(--radius-lg); 
+    border-radius: var(--radius-card); 
     cursor: pointer; 
 }
 
@@ -672,12 +635,12 @@ body:not(.is-owner) .widgets {
     justify-content: space-between; 
 }
 
-/* 5. Boş Slot (Hayalet Yuva) */
+/* 2.2: Hayalet Yuva (Yeni Widget Ekleme) ve Sürükleme */
 .widget-ghost-slot {
     width: 100%; 
     height: 100%; 
     border: 2px dashed rgba(var(--white-rgb), 0.08);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-card);
     display: flex; 
     flex-direction: column; 
     align-items: center; 
@@ -715,7 +678,6 @@ body:not(.is-owner) .widgets {
     color: rgb(var(--white-rgb)); 
 }
 
-/* 6. Düzenleme ve Silme Butonları */
 .widget-card .card-delete-btn {
     top: 6px;
     right: 6px;
@@ -727,7 +689,6 @@ body:not(.is-owner) .widgets {
     transform: scale(1);
 }
 
-/* 7. Ortak Widget İkonları */
 .widget-type-icon { 
     width: clamp(34px, 15cqi, 72px);
     height: clamp(34px, 15cqi, 72px);
@@ -741,7 +702,6 @@ body:not(.is-owner) .widgets {
     position: relative;
 }
 
-/* Inline Kullanıcı Adı Düzenleme Kutusu */
 .widget-inline-input {
     width: 100%;
     background: rgba(255, 255, 255, 0.08);
@@ -757,12 +717,11 @@ body:not(.is-owner) .widgets {
     box-shadow: 0 0 8px rgba(var(--theme-secondary-rgb), 0.25);
 }
 
-/* 8. Sürükle-Bırak Efektleri */
 .widget-slot.is-dragging {
     opacity: 0.4;
     transform: scale(0.95);
     border: 2px dashed var(--accent-500);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-card);
     z-index: var(--z-drag);
     border-color: color-mix(in srgb, var(--accent-500) 30%, transparent);
 }
@@ -778,11 +737,8 @@ body.is-owner .widget-slot.is-draggable {
 body.is-owner .widget-slot.is-draggable:active {
     cursor: grabbing;
 }
-/* #endregion */
 
-/* #region 5.3: WIDGET TİPLERİ: MONKEYTYPE */
-
-/* MT İkon Markalaması */
+/* 2.3: Widget Tipleri: Monkeytype (WPM & Accuracy Gösterimi) */
 .widget-type-icon.mt-brand { 
     background-color: var(--brand-monkeytype, #e2b714); 
     container-type: inline-size;
@@ -792,7 +748,7 @@ body.is-owner .widget-slot.is-draggable:active {
 .widget-type-icon.mt-brand::after { 
     content: 'mt'; 
     font-family: var(--font-mono); 
-    color: var(--brand-monkeytype-dark, #111); 
+    color: var(--brand-monkeytype-dark, #111111); 
     font-size: 42cqi; 
     font-weight: var(--fw-extrabold); 
     line-height: 1; 
@@ -801,7 +757,6 @@ body.is-owner .widget-slot.is-draggable:active {
     justify-content: center; 
 }
 
-/* Ön Yüz: Kapsayıcı */
 .mt-front-view { 
     display: flex; 
     align-items: center; 
@@ -809,16 +764,14 @@ body.is-owner .widget-slot.is-draggable:active {
     width: 100%; 
     height: 100%; 
     padding: 1.2cqh 1.8cqw; 
-    border-radius: var(--radius-lg); 
+    border-radius: var(--radius-card); 
     box-sizing: border-box; 
 }
 
-/* Sayfa sahibi modunda düzenleme butonu için esnek sağ boşluk */
 body.is-owner .mt-front-view {
     padding-right: clamp(24px, 3.2cqw, 36px);
 }
 
-/* Sol Taraf: İkon ve Kullanıcı Adı */
 .mt-front-left { 
     flex: 1.1; 
     display: flex; 
@@ -865,7 +818,6 @@ body.is-owner .mt-front-username:hover {
     font-style: italic;
 }
 
-/* Dikey Ayraç */
 .mt-front-divider { 
     width: 2px; 
     height: 52%; 
@@ -877,7 +829,6 @@ body.is-owner .mt-front-username:hover {
     flex-shrink: 0; 
 }
 
-/* Sağ Taraf: İstatistik Kutuları */
 .mt-front-right { 
     flex: 2; 
     display: flex; 
@@ -906,7 +857,6 @@ body.is-owner .mt-front-username:hover {
     white-space: nowrap; 
 }
 
-/* Ortadaki Değer: Belirgin, Dominant ve Odak Noktası */
 .mt-stat-value { 
     font-family: var(--font-mono); 
     font-size: clamp(1.45rem, 3.2cqh, var(--fs-3xl)); 
@@ -924,7 +874,6 @@ body.is-owner .mt-front-username:hover {
     font-weight: var(--fw-medium); 
 }
 
-/* Dar / Mobil Ekranlar İçin Container Query */
 @container widgetcard (max-width: 299px) {
     .mt-front-view,
     body.is-owner .mt-front-view { 
@@ -936,27 +885,19 @@ body.is-owner .mt-front-username:hover {
         gap: 6px; 
         flex: 1.6; 
     }
-    .mt-stat-value { 
-        font-size: var(--fs-xl); 
-    }
-    .mt-stat-label { 
-        font-size: var(--fs-2xs); 
-    }
-    .mt-front-username { 
-        font-size: var(--fs-xs); 
-    }
-    .mt-front-divider { 
-        margin-inline: 4px; 
-        height: 48%; 
-    }
+    .mt-stat-value { font-size: var(--fs-xl); }
+    .mt-stat-label { font-size: var(--fs-2xs); }
+    .mt-front-username { font-size: var(--fs-xs); }
+    .mt-front-divider { margin-inline: 4px; height: 48%; }
 }
 /* #endregion */
 
-/* #endregion */
 
-/* #region 6: İçerik Alanı (Sekmeler, Grid ve Kartlar) */
+/* ==========================================================================
+   #region 3: İçerik Alanı (Tabs, Grid & Content Cards)
+   ========================================================================== */
 
-/* #region 6.1: Ana Kapsayıcı ve Izgara (Main Layout & Grid) */
+/* 3.1: Kapsayıcı ve Izgara Yapısı */
 .content {
     grid-column: 3 / 4;
     grid-row: 1 / 2;
@@ -992,9 +933,8 @@ body.is-owner .mt-front-username:hover {
     padding-top: clamp(10px, 2cqh, 20px);
     padding-inline: 14px;
 }
-/* #endregion */
 
-/* #region 6.2: Sekmeler ve Navigasyon (Tabs & Link Animations) */
+/* 3.2: Kategori Sekmeleri (Tabs Row, Hover Glow & Çizgi Animasyonu) */
 .content-tabs-row {
     display: flex;
     align-items: center;
@@ -1013,17 +953,17 @@ body.is-owner .mt-front-username:hover {
     width: 100%;
     overflow-x: auto;
     overflow-y: visible;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
-    padding-block: 16px; /* Gölgelerin (glow) kesilmeden yumuşakça sönümlenmesini sağlar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-block: 16px;
     padding-inline: 8px;
-    margin-block: -16px; /* Layout yüksekliğini sıfırlayarak düzeni bozmaz */
-    padding-left: 2px;  /* Tableri sola yanaştırır */
+    margin-block: -16px;
+    padding-left: 2px;
     padding-right: 8px;
 }
 
 .content-tabs::-webkit-scrollbar {
-    display: none; /* Chrome/Safari/Brave */
+    display: none;
 }
 
 .tab {
@@ -1033,11 +973,11 @@ body.is-owner .mt-front-username:hover {
     justify-content: center;
     flex-shrink: 0;
     white-space: nowrap;
-    overflow: visible; /* Silme butonu taşabilsin diye visible kalmalı */
+    overflow: visible;
     background-color: transparent;
     border: 1px solid color-mix(in srgb, var(--theme-secondary) 30%, transparent);
     color: var(--theme-secondary);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     height: auto;
     padding-block: 0.5em;
     padding-inline: 1.15em;
@@ -1068,21 +1008,20 @@ body.is-owner .mt-front-username:hover {
     display: inline-block;
 }
 
-/* Kategori isminin altındaki çizgi (Doğrudan metne endeksli, başlangıçta sıfır genişlik) */
+/* Kategori İsminin Altındaki Dinamik Çizgi */
 .tab.has-link .tab-text::after {
     content: '';
     position: absolute;
-    top: calc(100%);
+    top: 100%;
     left: 0;
     width: 0;
     height: 2px;
     background: var(--accent-500);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     box-shadow: 0 0 8px var(--accent-500);
     transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Aktif kategorinin çizgisi metin genişliğinde açılır */
 .tab.active.has-link .tab-text::after {
     width: 100%;
 }
@@ -1130,7 +1069,7 @@ body.is-owner .tab .tab-link-icon {
     object-fit: contain;
 }
 
-/* Sekme Yanındaki Kategori Ekleme Butonu (+) */
+/* Yeni Kategori Ekleme (+) Butonu */
 .add-content-btn {
     flex-shrink: 0;
     display: flex;
@@ -1141,7 +1080,7 @@ body.is-owner .tab .tab-link-icon {
     height: 2.2em;
     background-color: transparent;
     border: 1px solid rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     color: rgba(var(--theme-secondary-rgb), 0.7);
     cursor: pointer;
     transition: all var(--transition-base);
@@ -1169,9 +1108,11 @@ body.is-owner .tab .tab-link-icon {
     background-color: transparent;
     box-shadow: none;
 }
-/* #endregion */
 
-/* #region 6.3: İçerik Kartları (Standard Content Cards) */
+/* 3.3: İçerik Kartları (Standard 2:3 Media Cards)
+   Neden 2:3 En-Boy Oranı? Sinema posterleri, anime afişleri ve oyun kapakları
+   dünya genelinde 2:3 altın oranında basılır. Bu oran görsellerin bozulmadan
+   en yüksek çözünürlükle sunulmasını sağlar. */
 .content-card {
     display: flex;
     flex-direction: column;
@@ -1212,7 +1153,7 @@ body.is-owner .tab .tab-link-icon {
     transform: scale(1.06);
 }
 
-/* --- Kart Görsel Yer Tutucusu (Placeholder & Fallback) --- */
+/* Kart Görseli Yüklenemediğinde veya Yokken Gösterilen Placeholder */
 .card-placeholder {
     width: 100%;
     height: 100%;
@@ -1263,7 +1204,6 @@ body.is-owner .tab .tab-link-icon {
     transition: color var(--transition-base);
 }
 
-/* Hover Etkileşimleri */
 .content-card:hover .card-placeholder-icon,
 .search-result-card:hover .card-placeholder-icon {
     transform: scale(1.12);
@@ -1284,11 +1224,7 @@ body.is-owner .tab .tab-link-icon {
     text-align: center;
     color: rgba(var(--white-rgb), 0.6);
     transition: color var(--transition-base);
-
-    /* 2 satırlık sabit yükseklik */
     height: calc(1.25em * 2);
-
-    /* Webkit ve standart line-clamp */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -1300,27 +1236,25 @@ body.is-owner .tab .tab-link-icon {
 .content-card:hover .card-label {
     color: rgba(var(--white-rgb), 0.95);
 }
-/* #endregion */
 
-/* #region 6.5: Boş Durumlar ve Karşılama (Empty States & Prompts) */
-/* Zıplamayı engellemek için grid yerine flex'e geçiş sınıfı */
+/* 3.4: Boş Durumlar (Ziyaretçi Modu & Sahip Karşılama Promptu) */
 .content-grid.is-empty-grid {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
     width: 100%;
-    margin-top: -15px; /* Üstteki boş sekme satırının gap itmesini nötrler */
+    margin-top: -15px;
 }
 
-/* ZİYARETÇİ MODU (Tek Satırlık Blok) */
+/* Ziyaretçi Boş Durumu (Zarif Pasif Kutu) */
 .empty-state-block {
     width: fit-content; 
     max-width: 90%; 
     padding: 16px 32px;
     background-color: color-mix(in srgb, var(--theme-secondary) 5%, transparent);
     border: 1px dashed color-mix(in srgb, var(--theme-secondary) 25%, transparent);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     text-align: center;
     display: flex;
     align-items: center;
@@ -1344,7 +1278,7 @@ body.is-owner .tab .tab-link-icon {
     text-overflow: ellipsis;
 }
 
-/* SAHİP MODU (Prompt Block) */
+/* Sayfa Sahibi Boş Durumu (Harekete Geçirici Prompt Kutusu) */
 .prompt-block {
     container-type: inline-size;
     container-name: promptblock;
@@ -1365,7 +1299,7 @@ body.is-owner .tab .tab-link-icon {
 .prompt-pill {
     width: 100%;
     border: 1px dashed color-mix(in srgb, var(--accent-500) 28%, transparent);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-card);
     background: linear-gradient(180deg, color-mix(in srgb, var(--accent-500) 4.5%, transparent), color-mix(in srgb, var(--accent-500) 1.5%, transparent));
     padding: clamp(12px, 4.4cqi, 20px) clamp(14px, 4.6cqi, 20px);
     display: flex;
@@ -1401,13 +1335,11 @@ body.is-owner .tab .tab-link-icon {
     align-items: center;
     gap: clamp(6px, 1.8cqi, 9px);
     padding: clamp(8px, 2.6cqi, 11px) clamp(16px, 5.2cqi, 24px);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     font-size: var(--fs-sm);
     font-family: var(--font-primary);
     font-weight: var(--fw-semibold);
     letter-spacing: .01em;
-    
-    /* Metin rengini contrast formülüyle Nook'tan çeker, arkayı temanın kendisine boyar */
     color: var(--accent-text); 
     background: var(--accent-500); 
     box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--accent-500) 45%, transparent);
@@ -1429,7 +1361,4 @@ body.is-owner .tab .tab-link-icon {
     height: clamp(11px, 2.8cqi, 13px);
     flex-shrink: 0;
 }
-
-/* #endregion */
-
 /* #endregion */

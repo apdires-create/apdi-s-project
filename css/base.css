@@ -1,14 +1,17 @@
 /**
  * Nook CSS - 2. Base (Temel İskelet ve Paylaşılan Yapılar)
- * Global reset, body, scrollbar, erişilebilirlik (:focus-visible),
- * yükleme ekranları, starfield canvas, 16:9 sahne sistemi, banner alanı
- * ve ortak modal iskeleti / form yapıları.
+ * 
+ * Bu dosya genel sayfa sıfırlamasını, erişilebilirlik kurallarını,
+ * açılış siyah yükleme perdelerini, dinamik yıldız arka planını (Starfield),
+ * ana sahne taşıyıcısını (.scene-viewport / .container), üst banner alanını
+ * ve tüm uygulamada paylaşılan modal / diyalog kasa iskeletini barındırır.
  */
 
-/* #region 1: Temel Yapı ve Sahne Mimarisi */
+/* ==========================================================================
+   #region 1: Temel Sıfırlama, Tipografi ve Scrollbar (Reset & Accessibility)
+   ========================================================================== */
 
-/* #region 1.1: SIFIRLAMA, TEMEL ELEMANLAR VE SCROLLBAR */
-/* Sıfırlama */
+/* 1.1: CSS Sıfırlama */
 * {
     margin: 0;
     padding: 0;
@@ -45,34 +48,49 @@ a, a:visited, a:hover, a:active {
 
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+    * { 
+        animation-duration: 0.001ms !important; 
+        animation-iteration-count: 1 !important; 
+        transition-duration: 0.001ms !important; 
+    }
 }
 
-/* Global Scrollbar Tasarımı */
+/* 1.2: Global Scrollbar Tasarımı (Minimal Taupe Çizgisi) */
 ::-webkit-scrollbar {
     width: 4px;
     height: 4px;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
     background: rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(var(--theme-secondary-rgb), 0.6);
 }
 /* #endregion */
 
-/* #region 1.2: YÜKLEME EKRANLARI (LOADING SCREENS) */
+
+/* ==========================================================================
+   #region 2: Yükleme Perdesi ve Açılış Durumları (Loading Screens)
+   ========================================================================== */
+
+/* Neden Simsiyah Perde?
+   Kullanıcı profili veya landing verisi Supabase'den çekilirken ekranda
+   oluşabilecek görsel sıçramaları (FOUC) engellemek için sayfa simsiyah
+   bir perde ile açılır ve render tamamlanınca yumuşakça kaybolur. */
 .app-loading-screen,
 .landing-loading-screen {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #000000; /* İstendiği gibi: simsiyah bomboş sayfa temeli */
+    background-color: #000000;
     z-index: var(--z-loading);
     display: flex;
     align-items: center;
@@ -89,7 +107,7 @@ a, a:visited, a:hover, a:active {
     pointer-events: none;
 }
 
-/* Profil açılışında ilk andan itibaren siyah perdeyi aktif et */
+/* Profil açılışında ilk andan itibaren siyah perdeyi zorunlu kıl */
 html.is-profile-loading #app-loading-screen {
     display: flex !important;
 }
@@ -98,7 +116,6 @@ html.is-profile-loading #landing-screen {
     display: none !important;
 }
 
-/* Yükleme Ekranı İçerik Mimarisi */
 .app-loading-content {
     display: flex;
     flex-direction: column;
@@ -108,10 +125,11 @@ html.is-profile-loading #landing-screen {
     user-select: none;
 }
 
+/* Yükleme Logo Simgesi (N) */
 .app-loading-brand {
     width: clamp(46px, 6vh, 58px);
     height: clamp(46px, 6vh, 58px);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-card);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
     border: 1px solid rgba(255, 255, 255, 0.12);
     display: flex;
@@ -124,7 +142,7 @@ html.is-profile-loading #landing-screen {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px color-mix(in srgb, var(--accent-500) 20%, transparent);
     animation: appLoadingBrandPulse 2s ease-in-out infinite;
     transition: transform var(--transition-fast), box-shadow 0.4s ease, border-color 0.4s ease;
-    pointer-events: none; /* Hata durumu oluşana kadar asla tıklanamaz */
+    pointer-events: none;
     cursor: default;
 }
 
@@ -170,7 +188,7 @@ html.is-profile-loading #landing-screen {
     width: 60px;
     height: 2px;
     background: rgba(255, 255, 255, 0.08);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     overflow: hidden;
     position: relative;
     margin-top: 2px;
@@ -183,7 +201,7 @@ html.is-profile-loading #landing-screen {
     height: 100%;
     width: 45%;
     background: linear-gradient(90deg, transparent, var(--accent-500), transparent);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     animation: appLoadingBarSweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
@@ -202,13 +220,13 @@ html.is-profile-loading #landing-screen {
     transition: opacity var(--transition-fast);
 }
 
-/* Hata Durumu (Kullanıcı bulunamadı veya bright-task çöktü) */
+/* Hata Durumu (Profil bulunamadı veya ağ bağlantısı koptu) */
 .app-loading-screen.is-error .app-loading-bar {
     display: none !important;
 }
 
 .app-loading-screen.is-error .app-loading-brand {
-    pointer-events: auto; /* Sadece hata durumunda tıklanabilir olur */
+    pointer-events: auto;
     cursor: pointer;
     border-color: rgba(var(--orange-500-rgb), 0.5);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(var(--orange-500-rgb), 0.35);
@@ -253,7 +271,11 @@ html.is-profile-loading #landing-screen {
 }
 /* #endregion */
 
-/* #region 1.3: KOZMİK ARKA PLAN (STARFIELD) */
+
+/* ==========================================================================
+   #region 3: Kozmik Arka Plan (Starfield Canvas)
+   ========================================================================== */
+
 #starfield {
     position: fixed;
     inset: 0;
@@ -268,7 +290,7 @@ html.is-profile-loading #landing-screen {
 .star {
     position: absolute;
     border-radius: var(--radius-circle);
-    background: #fff;
+    background: #ffffff;
     opacity: 0.6;
     animation: twinkle var(--dur, 4s) ease-in-out infinite;
     animation-delay: var(--delay, 0s);
@@ -280,7 +302,11 @@ html.is-profile-loading #landing-screen {
 }
 /* #endregion */
 
-/* #region 1.4: 16:9 SAHNE SİSTEMİ VE IZGARA (STAGE & VIEWPORT) */
+
+/* ==========================================================================
+   #region 4: Sahne ve Taşıyıcı Kasa (Stage & Viewport Carrier)
+   ========================================================================== */
+
 /* Gövde ve Sahne (Stage) */
 #app-wrapper,
 .stage {
@@ -293,34 +319,20 @@ html.is-profile-loading #landing-screen {
     flex-direction: column;
 }
 
+/* Sahne Taşıyıcı Alanı (.scene-viewport)
+   Masaüstünde içeriği ekranın tam ortasında zarifçe tutan taşıyıcıdır. */
 .scene-viewport {
     flex: 1;
     min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    container-type: size;
-    container-name: nook-scene;
     overflow: hidden;
-    background-color: var(--theme-bg-base); /* letterbox rengi, ileride bg görseli buraya eklenecek */
+    background-color: var(--theme-bg-base);
 }
 
-.scene-viewport .container {
-    aspect-ratio: 16 / 9;
-    width: min(100cqw, 100cqh * 16 / 9);
-    height: min(100cqh, 100cqw * 9 / 16);
-    max-width: 2200px;
-
-    --gap-x: 1.8cqw;
-    --gap-y: 2cqh;
-    --content-pad-x: 1.8cqw;
-    --content-pad-y: 2.2cqh;
-    --radius-base: 0.8cqw;
-
-    margin: 0 auto;
-}
-
-/* Ana Izgara (Row) */
+/* Ana Konsol Taşıyıcısı (.container)
+   3 ana sütunu (Profil, Widget alanı, İçerik) yan yana barındırır. */
 .container {
     flex: 1;
     min-height: 0;
@@ -336,22 +348,23 @@ html.is-profile-loading #landing-screen {
     box-sizing: border-box;
 }
 
-/* Temel Kutu */
+/* Temel Panel Kutusu (.box)
+   Profil, widget kasa alanı ve içerik alanının ortak zemin paneli. */
 .box {
     background-color: var(--theme-bg-panel);
     border: 1px solid rgba(var(--white-rgb), 0.08);
-    border-radius: var(--radius-box);
+    border-radius: var(--radius-panel);
     min-width: 0;
     min-height: 0;
     box-sizing: border-box;
 }
 /* #endregion */
 
-/* #endregion */
 
-/* #region 2: Banner Alanı */
+/* ==========================================================================
+   #region 5: Banner Alanı ve Etkileşim Katmanları (Banner Architecture)
+   ========================================================================== */
 
-/* #region 2.1: Banner Sahnesi ve Katmanları (Layout & Overlays) */
 .banner {
     flex: 0 0 var(--banner-h);
     position: relative;
@@ -371,13 +384,15 @@ html.is-profile-loading #landing-screen {
     display: block;
 }
 
-/* 1. ETKİLEŞİM KATMANI (Sadece Ortadaki Güvenli Tıklama Alanı) */
+/* 1. ETKİLEŞİM KATMANI: Sadece ortadaki güvenli tıklama alanı (%30)
+   Neden? Kullanıcı banner'ın sağındaki / solundaki butonlara basarken
+   yanlışlıkla görsel değiştirme modalını tetiklemesin diye. */
 .banner-edit-overlay {
     position: absolute;
     top: 0; 
     bottom: 0;
     left: 35%; 
-    right: 35%; /* Sadece ortadaki %30'luk alan tıklanabilir */
+    right: 35%;
     z-index: 10;
     cursor: pointer;
     
@@ -392,53 +407,47 @@ html.is-profile-loading #landing-screen {
     font-weight: var(--fw-semibold);
     letter-spacing: 0.02em;
     
-    pointer-events: none; /* Sadece sayfa sahibi için açılacak */
+    pointer-events: none; /* Sadece sayfa sahibi için açılır */
 }
 
-/* Başlangıçta İkon ve Yazı Görünmez */
 .banner-edit-overlay svg,
 .banner-edit-overlay span {
-    filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.8));
     opacity: 0; 
     transform: translateY(0);
-    transition: opacity 0.3s ease, transform 0.3s ease; /* Yükselme efekti ortak yapıldı */
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 2. GÖRSEL KATMAN (Tüm Banner'ı Kaplayan Blur ve Karartma) */
+/* 2. GÖRSEL KATMAN: Tüm banner alanını kaplayan yumuşak karartma ve blur
+   Kullanıcı ortadaki alana hover olduğunda arkadaki görsel tatlı bir şekilde bulanıklaşır. */
 .banner-visual-bg {
     position: absolute;
-    inset: 0; /* Sınır tanımadan tüm banner'ı kaplar */
+    inset: 0;
     background-color: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    
-    opacity: 0; /* BÜTÜN SIR BURADA: Blur değil, görünürlük canlandırılıyor! */
-    pointer-events: none; /* Fareyi asla tutmaz, tıklamalar içinden geçer */
+    opacity: 0;
+    pointer-events: none;
     transition: opacity 0.4s ease; 
-    z-index: 1; /* Tıklama alanının (10) altında kalır */
+    z-index: 1;
 }
 
-
-/* --- SADECE SAYFA SAHİBİ İÇİN ETKİLEŞİMLER --- */
-
-/* Sahip için tıklamayı aktif et */
+/* Sadece Sayfa Sahibi İçin Etkileşimler */
 body.is-owner .banner-edit-overlay {
     pointer-events: auto;
 }
 
-/* SADECE ORTADAKİ ALANA Hover Olunca (Yazı ve İkon belirip havaya kalksın) */
 body.is-owner .banner-edit-overlay:hover svg,
 body.is-owner .banner-edit-overlay:hover span {
     opacity: 1;
-    transform: translateY(-4px); /* Hem ikon hem yazı yükselir */
+    transform: translateY(-4px);
 }
 
-/* SADECE ORTADAKİ ALANA Hover Olunca (Arkadaki Görsel Katman Yavaşça Belirsin) */
 body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     opacity: 1;
 }
 
-/* --- Placeholder Banner Ayarları --- */
+/* Placeholder Banner Görünümü (Görsel seçilmemişse grid dokusu) */
 .banner.no-banner {
     background-color: var(--theme-bg-base);
     background-image: 
@@ -459,7 +468,11 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 }
 /* #endregion */
 
-/* #region 2.2: Banner Kontrolleri ve Butonlar (Controls & Actions) */
+
+/* ==========================================================================
+   #region 6: Banner Kontrol Butonları ve Aksiyonlar (Banner Controls)
+   ========================================================================== */
+
 .banner-controls {
     position: absolute;
     top: clamp(16px, 3vh, 32px);
@@ -478,6 +491,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     pointer-events: auto;
 }
 
+/* Ana Sayfaya Dön Butonu (Sol Üst Nook Logosu) */
 .app-home-btn,
 .home-trigger-btn {
     position: relative;
@@ -490,7 +504,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     border: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: var(--blur-md);
     -webkit-backdrop-filter: var(--blur-md);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     cursor: pointer;
     transition: var(--transition-fast);
     text-decoration: none;
@@ -530,6 +544,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     flex-shrink: 0;
 }
 
+/* Giriş / Çıkış Tetikleyici Butonu (Sağ Üst) */
 .auth-trigger-btn {
     position: relative;
     width: auto; 
@@ -542,10 +557,10 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     border: 1px solid rgba(var(--white-rgb), 0.08);
     backdrop-filter: var(--blur-md);
     -webkit-backdrop-filter: var(--blur-md);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     color: rgba(var(--white-rgb), 0.6);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all var(--transition-fast);
 }
 
 .auth-trigger-btn .login-text {
@@ -563,22 +578,16 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     box-shadow: 0 4px 12px rgba(var(--theme-secondary-rgb), 0.1);
 }
 /* #endregion */
-/* #endregion */
 
-/* #region Ortak Modal İskeleti */
 
-/* #region 7.1: ORTAK MODAL KURALLARI VE BOYUTLANDIRMA */
-.search-modal,
-.auth-modal {
-    /* Scoped Typography (>1024px Masaüstü için ferah ve okunaklı ölçek) */
-    --fs-2xs: clamp(0.75rem, 0.75vw, 0.82rem);
-    --fs-xs:  clamp(0.85rem, 0.85vw, 0.92rem);
-    --fs-sm:  clamp(0.95rem, 0.95vw, 1.02rem);
-    --fs-base: clamp(1.05rem, 1.08vw, 1.15rem);
-    --fs-md:   clamp(1.2rem, 1.25vw, 1.35rem);
-    --fs-lg:   clamp(1.38rem, 1.5vw, 1.55rem);
-    --fs-xl:   clamp(1.65rem, 1.8vw, 1.95rem);
-}
+/* ==========================================================================
+   #region 7: Paylaşılan Modal ve Form İskeleti (Shared Modal System)
+   ========================================================================== */
+
+/* Neden Doğrudan <body> Altında?
+   Modallar 3D transform (transform-style: preserve-3d) içeren kapsayıcıların
+   içine yerleştirilirse CSS containing block tuzağına düşer ve fixed konumunu
+   kaybeder. Bu yüzden tüm modallar HTML'de doğrudan body altında yaşar. */
 
 .search-modal-backdrop {
     position: absolute;
@@ -602,7 +611,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 }
 
 .search-modal { z-index: var(--z-modal); }
-.auth-modal { z-index: var(--z-modal-top); }
+.auth-modal   { z-index: var(--z-modal-top); }
 
 .search-modal.is-open,
 .auth-modal.is-open {
@@ -610,7 +619,7 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     pointer-events: auto;
 }
 
-/* Ortak Modal Kasa Altyapısı */
+/* Ortak Modal Gövde Kasası */
 .search-modal-box,
 .auth-modal-box,
 .modal-box {
@@ -621,12 +630,12 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     overscroll-behavior: contain;
     background-color: var(--theme-bg-panel);
     border: 1px solid rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-panel);
     box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
     transform: translateY(10px) scale(0.98);
-    transition: transform 0.25s ease;
+    transition: transform 0.25s var(--ease-spring);
     box-sizing: border-box;
 }
 
@@ -646,10 +655,10 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
 .auth-modal-box::-webkit-scrollbar-thumb,
 .modal-box::-webkit-scrollbar-thumb {
     background: rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
 }
 
-/* Modalların Özel Boyutlandırma Sınıfları (> 1024px Desktop) */
+/* Modalların Özel Genişlik ve Dolgu Varyantları */
 .modal-box--category {
     width: min(580px, 90vw);
     padding: clamp(24px, 3.6vh, 34px);
@@ -680,18 +689,17 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     padding: clamp(24px, 3.6vh, 34px);
     gap: clamp(16px, 2.5vh, 22px);
 }
-/* #endregion */
 
-/* #region 7.2: ORTAK INPUT VE KAPATMA YAPILARI */
+/* Ortak Arama ve Input Yapıları */
 .search-input {
     width: 100%;
     flex: 1;
     height: clamp(44px, 6vh, 52px);
     padding: 0 20px;
     box-sizing: border-box;
-    background-color: rgba(var(--white-rgb), 0.04);
-    border: 1px solid rgba(var(--theme-secondary-rgb), 0.25);
-    border-radius: var(--radius-full);
+    background-color: var(--theme-bg-input);
+    border: 1px solid var(--theme-border-input);
+    border-radius: var(--radius-pill);
     color: rgb(var(--white-rgb));
     font-family: var(--font-primary);
     font-size: var(--fs-base);
@@ -699,12 +707,16 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.search-input::placeholder { color: rgba(var(--white-rgb), 0.35); }
+.search-input::placeholder {
+    color: rgba(var(--white-rgb), 0.35);
+}
+
 .search-input:focus {
     border-color: rgba(var(--theme-secondary-rgb), 0.8);
     box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
 }
 
+/* Modal Kapatma Çarpı Butonu */
 .search-modal-close {
     flex-shrink: 0;
     width: clamp(34px, 4.5vh, 42px);
@@ -726,6 +738,4 @@ body.is-owner .banner-edit-overlay:hover ~ .banner-visual-bg {
     color: rgb(var(--white-rgb));
     background-color: rgba(var(--white-rgb), 0.08);
 }
-/* #endregion */
-
 /* #endregion */

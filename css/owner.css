@@ -1,14 +1,55 @@
 /**
  * Nook CSS - 5. Owner (Sayfa Sahibine Özel Yönetim Araçları)
- * Profil düzenleme araçları, avatar yükleme overlay'i, link düzenleme formları,
- * kart silme rozetleri, hayalet yuva (yeni içerik ekleme posteri),
- * widget seçim menüsü, kategori yönetim modalları, işlem çubuğu (Action Bar),
- * Nook Color Picker, cropper modalı ve body:not(.is-owner) koruma kuralları.
+ * 
+ * Bu dosya, yalnızca sayfa sahibi oturum açtığında (body.is-owner) aktif olan
+ * yönetim, düzenleme ve kişiselleştirme araçlarını içerir:
+ * 1. Sayfa Sahibi Güvenlik Koruması (body:not(.is-owner) kuralları)
+ * 2. Profil Metinleri ve İsim Düzenleme (Inline Edit Inputları)
+ * 3. Profil Bağlantı Yönetimi (Link Akordeonu, Formlar ve Yeni Link Ekleme)
+ * 4. Widget Yönetimi (Widget Seçim Menüsü & Düzenleme)
+ * 5. İçerik Yönetimi (Kart Silme Rozetleri, Hayalet Yuva & Arama/Seçim Modalları)
+ * 6. Kategori Yönetimi (Sekme Sürükleme & Kategori Ekleme/Düzenleme)
+ * 7. Küresel İşlem Çubuğu (Global Action Bar & Unsaved State)
+ * 8. Toast Bildirimleri (Kaydedildi Mesajı)
+ * 9. Nook Color Picker (Dinamik Renk Paleti ve Damlalık)
  */
 
-/* #region 4: Profil Alanı (Yönetim & Düzenleme) */
+/* ==========================================================================
+   #region 1: Sayfa Sahibi Güvenlik Koruması (Visitor Protection)
+   ========================================================================== */
 
-/* #region 4.5: Düzenleme Araçları, Formlar ve Boş Durumlar (Edit Mode & States) */
+/* Neden CSS Tabanlı Koruma?
+   Yönetim butonları DOM'dan silinmek yerine CSS ile gizlenir (body:not(.is-owner)).
+   Böylece sayfa sahibi oturumu doğrulandığında sayfa yeniden yüklenmeye gerek 
+   kalmadan tüm kontroller anında görünür hale gelir. */
+body:not(.is-owner) .banner-edit-overlay,
+body:not(.is-owner) .pfp-edit-overlay,
+body:not(.is-owner) #inline-add-link-btn,
+body:not(.is-owner) .card-delete-btn,
+body:not(.is-owner) #add-content-btn,
+body:not(.is-owner) .ghost-add-slot,
+body:not(.is-owner) .link-edit-badge,
+body:not(.is-owner) .global-color-picker-wrapper {
+    display: none !important;
+}
+
+body.is-owner .card-delete-btn {
+    display: flex;
+}
+
+body.is-owner #inline-add-link-btn {
+    display: flex;
+}
+
+body.is-owner .global-color-picker-wrapper {
+    display: flex;
+}
+/* #endregion */
+
+
+/* ==========================================================================
+   #region 2: Profil Metinleri ve İsim Düzenleme (Inline Editing)
+   ========================================================================== */
 
 .profile-name.is-input-active {
     display: block !important;
@@ -41,42 +82,13 @@
     transform: scale(1.05);
 }
 
-#profile-flip-to-back,
-#profile-flip-to-front {
-    color: var(--accent-500);
-    border: 1px solid color-mix(in srgb, var(--accent-500) 25%, transparent);
-    border-radius: var(--radius-full);
-    aspect-ratio: 1 / 1;
-    width: clamp(28px, 11cqw, 100px);
-    height: auto;
-    padding: 0;
-    background: transparent;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-#profile-flip-to-back svg,
-#profile-flip-to-front svg {
-    width: 54%;
-    height: 54%;
-    flex-shrink: 0;
-}
-
-#profile-flip-to-back:hover,
-#profile-flip-to-front:hover {
-    border-color: var(--accent-500);
-    background-color: color-mix(in srgb, var(--accent-500) 12%, transparent);
-    box-shadow: 0 0 10px color-mix(in srgb, var(--accent-500) 20%, transparent);
-    transform: scale(1.05);
-}
-
 #inline-edit-trigger:hover .pen-icon { color: rgb(var(--white-rgb)); }
 #inline-edit-trigger:hover .check-icon { stroke: var(--color-success); }
 
+/* Neden Tipografi Özelliklerini Miras Alır (inherit)?
+   İsim, biyografi ve ünvan inputları tıklanarak açıldığında metnin tam üstüne 
+   aynı font boyutu, satır yüksekliği ve harf aralığı ile oturur; böylece arayüz
+   titremez veya kaymaz. */
 .edit-name-input {
     font-size: inherit;
     font-weight: inherit;
@@ -95,8 +107,8 @@
     letter-spacing: inherit;
     line-height: inherit;
     color: rgb(var(--white-rgb));
-    background-color: rgba(var(--white-rgb), 0.05);
-    border: 1px solid rgba(var(--theme-secondary-rgb), 0.4);
+    background-color: var(--theme-bg-input);
+    border: 1px solid var(--theme-border-input);
     border-radius: var(--radius-xs);
     padding: 4px 8px;
     margin-bottom: 4px;
@@ -111,7 +123,7 @@
     box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.2);
 }
 
-/* EKSİK/BOŞ VERİ GÖRÜNÜMLERİ */
+/* Eksik / Boş Veri Durumları */
 .ghost-text {
     color: var(--theme-secondary);
     opacity: 0.6;
@@ -150,11 +162,10 @@ body.is-owner .ghost-text:hover {
     box-shadow: 0 0 10px color-mix(in srgb, var(--theme-secondary) 15%, transparent);
 }
 
-/* Yeni Link Butonunun Tam Alan Kaplaması */
 .profile-links-back .dashed-add-btn {
     width: 100%;
     padding: clamp(7px, 2.2cqw, 12px) clamp(9px, 2.8cqw, 14px);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -164,17 +175,14 @@ body.is-owner .ghost-text:hover {
     background: rgba(255, 255, 255, 0.02);
 }
 
-/* JavaScript'in eklediği kare sınıfını CSS ile eziyoruz */
 .profile-links-back .dashed-add-btn.square-add-btn {
     width: 100%; 
     height: auto;
 }
 
-/* #endregion */
-
-/* #region 4.6: Animasyonlar ve Uyarılar (Animations & Warnings) */
+/* Sallanma ve Kaydedilmemiş Değişiklik Uyarıları */
 .shake-box-animation {
-    animation: shakeUI 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    animation: shakeUI 0.4s cubic-bezier(.36, .07, .19, .97) both;
     border-color: rgba(var(--color-danger-rgb), 0.5) !important;
 }
 
@@ -196,7 +204,7 @@ body.is-owner .ghost-text:hover {
     padding: 6px 16px;
     background: rgba(var(--color-danger-rgb), 0.95);
     box-shadow: 0 4px 12px rgba(var(--color-danger-rgb), 0.4);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
     animation: fadeInDown var(--transition-base);
     z-index: var(--z-warning); 
 }
@@ -207,11 +215,11 @@ body.is-owner .ghost-text:hover {
 }
 /* #endregion */
 
-/* #endregion */
 
-/* #region 5: Widget Alanı (Slotlar ve Katmanlar) */
+/* ==========================================================================
+   #region 3: Widget Yönetimi & Widget Seçim Menüsü
+   ========================================================================== */
 
-/* #region 5.2: WIDGET SEÇİM MENÜSÜ */
 .widget-selection-grid {
     display: flex;
     flex-direction: column;
@@ -226,7 +234,7 @@ body.is-owner .ghost-text:hover {
     background-color: rgba(var(--white-rgb), 0.03);
     border: 1px solid rgba(var(--white-rgb), 0.08);
     padding: clamp(14px, 2.4vh, 22px) clamp(16px, 2vw, 24px);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-card);
     cursor: pointer;
     text-align: left;
     transition: all var(--transition-fast);
@@ -274,11 +282,12 @@ body.is-owner .ghost-text:hover {
 }
 /* #endregion */
 
-/* #endregion */
 
-/* #region 6: İçerik Alanı (Sekmeler, Grid ve Kartlar - Yönetim) */
+/* ==========================================================================
+   #region 4: İçerik Yönetimi (Kart Silme Rozeti, Hayalet Yuva & Arama)
+   ========================================================================== */
 
-/* #region 6.4: Kart Düzenleme ve Etkileşim (Edit & Drag States) */
+/* Kart Silme Rozeti (Hover ile beliren çöp kovası) */
 .card-delete-btn {
     position: absolute;
     top: 8px;
@@ -316,8 +325,7 @@ body.is-owner .ghost-text:hover {
     background-color: rgba(var(--color-danger-rgb), 0.85);
 }
 
-
-/* YENİ KART EKLEME SLOTU (Düzenleme Modu) */
+/* Yeni Kart Ekleme Slotu (Dashed Yuva) */
 .content-card.empty-add-card {
     opacity: 0.7;
 }
@@ -354,22 +362,58 @@ body.is-owner .ghost-text:hover {
     color: rgb(var(--white-rgb));
 }
 
-/* Sürüklenen (Tutulan) Kartın Görünümü */
+/* Sürüklenen Kart */
 .content-card.is-dragging {
     opacity: 0.4;
     transform: scale(0.95);
     border: 2px dashed rgba(var(--theme-secondary-rgb), 0.8);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-card);
     z-index: var(--z-drag);
 }
 
-/* Sürükleme esnasında iç elemanların fare olaylarını engelle */
 .content-card.is-dragging * {
     pointer-events: none;
 }
-/* #endregion */
 
-/* #region 6.6: Modal Bileşenleri (Category Selection) */
+/* Hayalet Yuva (Kocaman Artı Posteri) */
+.ghost-add-slot {
+    container-type: inline-size;
+    aspect-ratio: 2 / 3;
+    width: 100%;
+    min-width: 0;
+    border: 2px dashed rgba(var(--theme-secondary-rgb), 0.35);
+    border-radius: var(--radius-card);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: transparent;
+    transition: all var(--transition-fast);
+    margin-top: 0;
+}
+
+body.is-owner .ghost-add-slot {
+    display: flex !important;
+}
+
+.ghost-add-slot:hover {
+    border-color: rgba(var(--theme-secondary-rgb), 0.8);
+    background: rgba(var(--theme-secondary-rgb), 0.05);
+    transform: translateY(-2px);
+}
+
+.ghost-add-slot svg {
+    width: 32cqw;
+    height: 32cqw;
+    color: rgba(var(--theme-secondary-rgb), 0.5);
+    transition: color var(--transition-fast);
+}
+
+.ghost-add-slot:hover svg {
+    color: rgb(var(--white-rgb));
+}
+
+/* Kategori Seçim Izgarası (Category Selection Modal) */
 .category-selection-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -385,7 +429,7 @@ body.is-owner .ghost-text:hover {
     gap: clamp(8px, 1.2vh, 12px);
     background-color: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-card);
     padding: clamp(18px, 2.8vh, 26px) clamp(14px, 1.8vw, 22px);
     cursor: pointer;
     color: rgba(255, 255, 255, 0.5);
@@ -412,7 +456,6 @@ body.is-owner .ghost-text:hover {
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Seçili (Aktif) Durum - Yüksek Kontrastlı Parlama */
 .category-option-btn.active {
     background-color: color-mix(in srgb, var(--accent-500) 15%, transparent);
     border-color: var(--accent-500);
@@ -426,7 +469,6 @@ body.is-owner .ghost-text:hover {
     transform: scale(1.15);
 }
 
-/* Zaten Ekli / Devre Dışı Durum */
 .category-option-btn:disabled,
 .category-option-btn.is-disabled {
     opacity: 0.25;
@@ -444,13 +486,8 @@ body.is-owner .ghost-text:hover {
     transform: none !important;
     color: currentColor !important;
 }
-/* #endregion */
 
-/* #endregion */
-
-/* #region 7: Modallar ve Ekran Katmanları (Arama & Giriş & Ayarlar) */
-
-/* #region 7.3: ARAMA MODALI (Search) */
+/* Arama Modalı (Search Modal) */
 .search-modal-box {
     width: min(700px, 90vw);
     height: min(84vh, 720px);
@@ -478,7 +515,7 @@ body.is-owner .ghost-text:hover {
 .search-results::-webkit-scrollbar { width: 4px; }
 .search-results::-webkit-scrollbar-thumb {
     background: rgba(var(--theme-secondary-rgb), 0.3);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-pill);
 }
 
 .search-hint, .search-empty, .search-loading {
@@ -500,7 +537,7 @@ body.is-owner .ghost-text:hover {
 .search-result-thumb {
     width: 100%;
     aspect-ratio: 2 / 3;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     overflow: hidden;
     border: 1px solid transparent;
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -528,9 +565,7 @@ body.is-owner .ghost-text:hover {
     line-clamp: 2;
     overflow: hidden;
 }
-/* #endregion */
 
-/* #region 7.4: KİMLİK DOĞRULAMA VE AYARLAR MODALI (Auth) */
 .auth-modal-box {
     width: min(480px, 90vw);
     padding: clamp(26px, 3.8vh, 38px);
@@ -554,23 +589,448 @@ body.is-owner .ghost-text:hover {
     text-transform: uppercase;
 }
 
-/* Modallardaki butonların masaüstü ferah ölçeği */
 .auth-modal .auth-submit-btn,
 .search-modal .auth-submit-btn {
     height: clamp(42px, 5.5vh, 48px);
     font-size: var(--fs-base);
 }
 
-/* Modallardaki çift buton yan yana düzeni */
 #confirm-modal .auth-submit-btn,
 #cropper-modal .auth-submit-btn {
     flex: 1;
     min-width: 0;
     width: auto;
 }
+/* #endregion */
 
-/* Modallar ve Pop-Uplar (<= 1024px Kompakt Masaüstü / Tablet) */
+
+/* ==========================================================================
+   #region 5: Kategori (Sekme) Yönetimi & Sürükle-Bırak
+   ========================================================================== */
+
+body.is-owner #add-content-btn {
+    display: flex; 
+}
+
+#add-content-btn.is-hidden,
+body.is-owner #add-content-btn.is-hidden {
+    display: none !important;
+}
+
+body.is-owner .tab {
+    position: relative;
+    overflow: visible;
+    cursor: grab;
+}
+
+body.is-owner .tab:active {
+    cursor: grabbing;
+}
+
+.tab-edit-badge {
+    position: absolute;
+    right: -0.35em;
+    top: -0.35em;
+    background: rgba(20, 24, 32, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-circle);
+    width: 1.35em;
+    height: 1.35em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-2xs);
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.tab-edit-badge svg {
+    width: 0.65em;
+    height: 0.65em;
+}
+
+body.is-owner .tab:hover .tab-edit-badge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.tab-edit-badge:hover {
+    background: var(--theme-secondary);
+    color: #111111;
+    border-color: transparent;
+    transform: scale(1.2) !important;
+}
+
+.tab.is-dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+    border: 1px dashed var(--accent-500) !important;
+}
+
+.tab.is-dragging * {
+    pointer-events: none;
+}
+
+.empty-categories-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    color: rgba(var(--white-rgb), 0.4);
+    gap: 10px;
+    font-size: var(--fs-base);
+}
+/* #endregion */
+
+
+/* ==========================================================================
+   #region 6: Küresel İşlem Çubuğu (Global Action Bar & Dirty State)
+   ========================================================================== */
+
+/* Neden Küresel Action Bar?
+   Her bileşenin veya kartın ayrı ayrı "Kaydet" butonu olamaz. Kullanıcı 
+   herhangi bir şeyi değiştirdiğinde (isDirty) ekranın altından bu bar yükselir.
+   Tüm değişiklikler EditManager.Global.kaydet() ile tek bir işlemde Supabase'e yazılır. */
+.edit-action-bar {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    z-index: var(--z-modal-top);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: bottom var(--transition-smooth), background-color var(--transition-fast), border-color var(--transition-fast);
+    width: max-content;
+    max-width: 90%;
+    box-sizing: border-box;
+}
+
+body.has-unsaved-changes .edit-action-bar {
+    bottom: 30px;
+}
+
+/* Hata Durumunda Sallanma Efekti (Shake) */
+.edit-action-bar.has-error {
+    border-color: rgba(var(--color-danger-rgb), 0.7);
+    background-color: color-mix(in srgb, var(--color-danger) 30%, rgba(20, 20, 20, 0.95));
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: shakeActionBar 0.35s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+@keyframes shakeActionBar {
+    10%, 90% { transform: translateX(calc(-50% - 1px)); }
+    20%, 80% { transform: translateX(calc(-50% + 2px)); }
+    30%, 50%, 70% { transform: translateX(calc(-50% - 3px)); }
+    40%, 60% { transform: translateX(calc(-50% + 3px)); }
+}
+
+.edit-bar-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+}
+
+.edit-status-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-medium);
+}
+
+.edit-action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.edit-bar-btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-fast);
+}
+
+.cancel-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.save-btn {
+    background-color: var(--color-success);
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: var(--color-success);
+    box-shadow: 0 0 10px rgba(46, 160, 67, 0.4);
+}
+/* #endregion */
+
+
+/* ==========================================================================
+   #region 7: Toast Bildirimleri (Toast Notifications)
+   ========================================================================== */
+
+.toast-notification {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-success);
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-primary);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: var(--z-toast);
+    transition: bottom var(--transition-smooth);
+    pointer-events: none;
+}
+
+.toast-notification.show {
+    bottom: 30px;
+}
+/* #endregion */
+
+
+/* ==========================================================================
+   #region 8: Nook Color Picker (Kişiselleştirilmiş Tema Seçici)
+   ========================================================================== */
+
+.global-color-picker-wrapper {
+    position: relative;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tetikleyici Küre (Banner Sağ Üst) */
+.nook-color-trigger {
+    width: var(--btn-banner-size);
+    height: var(--btn-banner-size);
+    border-radius: var(--radius-circle); 
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.nook-color-trigger:hover {
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.6);
+}
+
+/* Renk Seçici Popup Kasası */
+.nook-picker-popup {
+    --font-fluid-base: 2.4cqh;
+    --font-fluid-step: calc(var(--font-fluid-base) * 1.5);
+
+    --fs-2xs:  calc(var(--font-fluid-step) * 0.578);
+    --fs-xs:   calc(var(--font-fluid-step) * 0.694);
+    --fs-sm:   calc(var(--font-fluid-step) * 0.833);
+    --fs-base: var(--font-fluid-step);
+
+    position: absolute;
+    top: calc(100% + 1.8cqh); 
+    right: 0;
+    width: 34cqh;
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
+    background: var(--theme-bg-panel);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-card);
+    padding: 2cqh;
+    box-shadow: 0 1.2cqh 5cqh rgba(0, 0, 0, 0.65); 
+    z-index: var(--z-modal-top);
+}
+
+.nook-picker-popup[hidden] { display: none; }
+
+.nook-picker-popup .edit-section-title {
+    margin-top: 0;
+    margin-bottom: 1.5cqh;
+    font-size: var(--fs-xs);
+}
+
+/* Doygunluk ve Parlaklık Karesi (Saturation / Value Square) */
+.nook-sv-square {
+    position: relative;
+    width: 100%;
+    height: 20cqh;
+    border-radius: var(--radius-xs);
+    background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+    cursor: crosshair;
+    touch-action: none;
+    margin-bottom: 2cqh;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.nook-sv-cursor {
+    position: absolute;
+    width: 2.2cqh;
+    height: 2.2cqh;
+    border-radius: var(--radius-circle);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+/* Renk Tonu Şeridi (Hue Slider) */
+.nook-hue-slider {
+    position: relative;
+    width: 100%;
+    height: 2.2cqh;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+    cursor: pointer;
+    touch-action: none;
+}
+
+.nook-hue-cursor {
+    position: absolute;
+    top: 50%;
+    width: 2.6cqh;
+    height: 2.6cqh;
+    border-radius: var(--radius-circle);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+/* Alt Hex ve Damlalık Satırı */
+.nook-picker-bottom-row {
+    display: flex;
+    align-items: center;
+    font-size: var(--fs-2xs);
+    gap: 0.8em;
+    margin-top: 2cqh;
+}
+
+.nook-eyedropper-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6em;
+    height: 2.6em;
+    font-size: inherit;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xs);
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0; 
+}
+
+.nook-eyedropper-btn svg {
+    width: 1.3em;
+    height: 1.3em;
+}
+
+.nook-eyedropper-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: var(--accent-500);
+}
+
+.nook-hex-input {
+    flex: 1;
+    min-width: 0;
+    height: 2.6em;
+    line-height: 2.6em;
+    padding: 0 0.8em;
+    margin: 0;
+    background-color: var(--theme-bg-input);
+    border: 1px solid var(--theme-border-input);
+    border-radius: var(--radius-xs);
+    color: rgb(var(--white-rgb));
+    font-family: var(--font-mono);
+    font-size: inherit;
+    text-transform: uppercase;
+    text-align: center;
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.nook-hex-input:focus {
+    border-color: rgba(var(--theme-secondary-rgb), 0.8);
+    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
+}
+
+/* Kompakt Ekran Uyarlamaları (<= 1024px) */
 @media (max-width: 1024px) {
+    .nook-picker-popup {
+        --font-fluid-base: clamp(1.4cqh, 1.8cqh, 2.1cqh);
+        width: clamp(185px, 22cqh, 240px);
+        padding: clamp(10px, 1.3cqh, 14px);
+        top: calc(100% + 1cqh);
+    }
+
+    .nook-picker-popup .edit-section-title {
+        margin-bottom: clamp(0.7cqh, 0.9cqh, 1.1cqh);
+    }
+
+    .nook-sv-square {
+        height: clamp(95px, 12.5cqh, 135px);
+        margin-bottom: clamp(0.9cqh, 1.2cqh, 1.4cqh);
+    }
+
+    .nook-sv-cursor {
+        width: 1.4cqh;
+        height: 1.4cqh;
+    }
+
+    .nook-hue-slider {
+        height: 1.3cqh;
+    }
+
+    .nook-hue-cursor {
+        width: 1.6cqh;
+        height: 1.6cqh;
+    }
+
+    .nook-picker-bottom-row {
+        margin-top: clamp(0.9cqh, 1.2cqh, 1.4cqh);
+        gap: 0.6em;
+    }
+
+    .nook-eyedropper-btn {
+        width: 2.4em;
+        height: 2.4em;
+    }
+
+    .nook-hex-input {
+        height: 2.4em;
+        line-height: 2.4em;
+        padding: 0 0.6em;
+    }
+
     .modal-box--category {
         width: min(380px, 88vw);
     }
@@ -629,487 +1089,4 @@ body.is-owner .ghost-text:hover {
         gap: clamp(8px, 1.2vw, 14px);
     }
 }
-/* #endregion */
-
-/* #region 7.5: İŞLEM ÇUBUĞU (ACTION BAR) */
-.edit-action-bar {
-    position: fixed;
-    bottom: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(20, 20, 20, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 12px 24px;
-    border-radius: var(--radius-full);
-    z-index: var(--z-modal-top, 600);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    transition: bottom var(--transition-smooth), background-color var(--transition-fast), border-color var(--transition-fast);
-    width: max-content;
-    max-width: 90%;
-    box-sizing: border-box;
-}
-
-body.has-unsaved-changes .edit-action-bar {
-    bottom: 30px;
-}
-
-.edit-action-bar.has-error {
-    border-color: rgba(var(--color-danger-rgb), 0.7);
-    background-color: color-mix(in srgb, var(--color-danger) 30%, rgba(20, 20, 20, 0.95));
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    animation: shakeActionBar 0.35s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-@keyframes shakeActionBar {
-    10%, 90% { transform: translateX(calc(-50% - 1px)); }
-    20%, 80% { transform: translateX(calc(-50% + 2px)); }
-    30%, 50%, 70% { transform: translateX(calc(-50% - 3px)); }
-    40%, 60% { transform: translateX(calc(-50% + 3px)); }
-}
-
-.edit-bar-content {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xl);
-}
-
-.edit-status-text {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: var(--fs-base);
-    font-weight: var(--fw-medium);
-}
-
-.edit-action-buttons {
-    display: flex;
-    gap: 10px;
-    flex-shrink: 0;
-}
-
-.edit-bar-btn {
-    padding: 8px 16px;
-    border-radius: var(--radius-full);
-    font-size: var(--fs-sm);
-    font-weight: var(--fw-semibold);
-    cursor: pointer;
-    border: none;
-    transition: all var(--transition-fast);
-}
-
-.cancel-btn {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.cancel-btn:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.save-btn {
-    background-color: var(--color-success, #2ea043);
-    color: white;
-}
-
-.save-btn:hover {
-    background-color: var(--color-success, #2ea043);
-    box-shadow: 0 0 10px rgba(46, 160, 67, 0.4);
-}
-/* #endregion */
-
-/* #region 7.6: ZİYARETÇİ KORUMASI VE SATIRIÇİ GÖRÜNÜRLÜK */
-body:not(.is-owner) .banner-edit-overlay,
-body:not(.is-owner) .pfp-edit-overlay,
-body:not(.is-owner) #inline-add-link-btn,
-body:not(.is-owner) .card-delete-btn,
-body:not(.is-owner) #add-content-btn,
-body:not(.is-owner) .ghost-add-slot,
-body:not(.is-owner) .link-edit-badge {
-    display: none !important;
-}
-
-body.is-owner .card-delete-btn {
-    display: flex;
-}
-
-body.is-owner #inline-add-link-btn {
-    display: flex;
-}
-/* #endregion */
-
-/* #region 7.7: HAYALET YUVA (YENİ İÇERİK EKLEME POSTERİ) */
-.ghost-add-slot {
-    container-type: inline-size;
-    aspect-ratio: 2 / 3;
-    width: 100%;
-    min-width: 0;
-    border: 2px dashed rgba(var(--theme-secondary-rgb), 0.35);
-    border-radius: var(--radius-card);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background: transparent;
-    transition: all var(--transition-fast);
-    margin-top: 0;
-}
-
-body.is-owner .ghost-add-slot {
-    display: flex !important;
-}
-
-.ghost-add-slot:hover {
-    border-color: rgba(var(--theme-secondary-rgb), 0.8);
-    background: rgba(var(--theme-secondary-rgb), 0.05);
-    transform: translateY(-2px);
-}
-
-/* Sadece koca bir artı ikonu */
-.ghost-add-slot svg {
-    width: 32cqw;
-    height: 32cqw;
-    color: rgba(var(--theme-secondary-rgb), 0.5);
-    transition: color var(--transition-fast);
-}
-
-.ghost-add-slot:hover svg {
-    color: rgb(var(--white-rgb));
-}
-/* #endregion */
-
-/* #region 7.8: DİNAMİK KATEGORİ (SEKME) YÖNETİMİ */
-body.is-owner #add-content-btn {
-    display: flex; 
-}
-
-#add-content-btn.is-hidden,
-body.is-owner #add-content-btn.is-hidden {
-    display: none !important;
-}
-
-/* Sekmeler Düzenleme Modunda Tutulabilir (Sürüklenebilir) Olur */
-body.is-owner .tab {
-    position: relative;
-    overflow: visible;
-    cursor: grab;
-}
-
-body.is-owner .tab:active {
-    cursor: grabbing;
-}
-
-/* Düzenleme (Kalem) İkonu - Sabit Kontrastlı Yapı (Tab Fontuna Göre em Ölçekli) */
-.tab-edit-badge {
-    position: absolute;
-    right: -0.35em;
-    top: -0.35em;
-    background: rgba(20, 24, 32, 0.95); /* Sabit koyu arka plan */
-    border: 1px solid rgba(255, 255, 255, 0.15); /* Hafif çerçeve */
-    color: rgba(255, 255, 255, 0.85); /* Sabit görünür ikon rengi */
-    border-radius: var(--radius-circle);
-    width: 1.35em;
-    height: 1.35em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--fs-2xs);
-    cursor: pointer;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 10;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-}
-
-.tab-edit-badge svg {
-    width: 0.65em;
-    height: 0.65em;
-}
-
-body.is-owner .tab:hover .tab-edit-badge {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.tab-edit-badge:hover {
-    background: var(--theme-secondary); /* Diğer edit butonlarındaki ortak hover */
-    color: #111;
-    border-color: transparent;
-    transform: scale(1.2) !important;
-}
-
-/* Sekme Sürükleme Efektleri */
-.tab.is-dragging {
-    opacity: 0.4;
-    transform: scale(0.95);
-    border: 1px dashed var(--accent-500) !important;
-}
-
-.tab.is-dragging * {
-    pointer-events: none;
-}
-
-.empty-categories-state {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 0;
-    color: rgba(var(--white-rgb), 0.4);
-    gap: 10px;
-    font-size: var(--fs-base);
-}
-/* #endregion */
-
-/* #region 7.9: TOAST BİLDİRİMİ (BAŞARILI KAYIT MESAJI) */
-.toast-notification {
-    position: fixed;
-    bottom: -100px; /* Başlangıçta ekran dışında saklı */
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--color-success, #2ea043);
-    color: white;
-    padding: 12px 24px;
-    border-radius: var(--radius-full);
-    font-family: var(--font-primary);
-    font-size: var(--fs-sm);
-    font-weight: var(--fw-semibold);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    z-index: var(--z-toast);
-    transition: bottom var(--transition-smooth);
-    pointer-events: none;
-}
-
-.toast-notification.show {
-    bottom: 30px; /* Aktifleşince yukarı fırlar */
-}
-/* #endregion */
-
-/* #region 7.10: NOOK COLOR PICKER (TEMA SEÇİCİ) */
-
-/* 1. Global Wrapper ve Açılma Animasyonu */
-.global-color-picker-wrapper {
-    position: relative;
-    display: none;
-    align-items: center;
-    justify-content: center;
-}
-
-body.is-owner .global-color-picker-wrapper {
-    display: flex;
-}
-
-/* 2. Tetikleyici Buton (Dış Renk Küresi) */
-.nook-color-trigger {
-    width: var(--btn-banner-size);
-    height: var(--btn-banner-size);
-    border-radius: var(--radius-circle); 
-    border: 2px solid rgba(255, 255, 255, 0.15); /* Temiz çerçeve */
-    cursor: pointer;
-    padding: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5); /* Sadece dış gölge */
-    transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
-    box-sizing: border-box;
-    flex-shrink: 0;
-}
-
-.nook-color-trigger:hover {
-    transform: scale(1.1);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.6);
-}
-
-/* 3. Açılır Seçici (Popup) Kasa */
-.nook-picker-popup {
-    /* Sahne Tipografi Motoru Formülü (cqh tabanlı eşleşme) */
-    --font-fluid-base: 2.4cqh;
-    --font-fluid-step: calc(var(--font-fluid-base) * 1.5);
-
-    --fs-2xs:  calc(var(--font-fluid-step) * 0.578); /* İçerik / Renk Kodu Boyutu */
-    --fs-xs:   calc(var(--font-fluid-step) * 0.694); /* Başlık Boyutu */
-    --fs-sm:   calc(var(--font-fluid-step) * 0.833);
-    --fs-base: var(--font-fluid-step);
-
-    position: absolute;
-    top: calc(100% + 1.8cqh); 
-    right: 0; /* Sağ kenara hizalar, ekrandan taşmasını önler */
-    width: 34cqh;
-    max-width: calc(100vw - 32px);
-    box-sizing: border-box;
-    background: var(--theme-bg-panel);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--radius-lg);
-    padding: 2cqh;
-    box-shadow: 0 1.2cqh 5cqh rgba(0, 0, 0, 0.65); 
-    z-index: var(--z-modal-top);
-}
-
-.nook-picker-popup[hidden] { display: none; }
-
-.nook-picker-popup .edit-section-title {
-    margin-top: 0;
-    margin-bottom: 1.5cqh;
-    font-size: var(--fs-xs); /* Başlık boyutu */
-}
-
-/* 4. Doygunluk ve Parlaklık Karesi (SV Square) */
-.nook-sv-square {
-    position: relative;
-    width: 100%;
-    height: 20cqh;
-    border-radius: var(--radius-xs);
-    background-image: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
-    cursor: crosshair;
-    touch-action: none;
-    margin-bottom: 2cqh;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-}
-
-.nook-sv-cursor {
-    position: absolute;
-    width: 2.2cqh;
-    height: 2.2cqh;
-    border-radius: var(--radius-circle);
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-}
-
-/* 5. Renk Şeridi (Hue Slider) */
-.nook-hue-slider {
-    position: relative;
-    width: 100%;
-    height: 2.2cqh;
-    border-radius: var(--radius-full);
-    background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
-    cursor: pointer;
-    touch-action: none;
-}
-
-.nook-hue-cursor {
-    position: absolute;
-    top: 50%;
-    width: 2.6cqh;
-    height: 2.6cqh;
-    border-radius: var(--radius-circle);
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-}
-
-/* 6. Alt Satır Düzeni (Hex ve Damlalık) */
-.nook-picker-bottom-row {
-    display: flex;
-    align-items: center;
-    font-size: var(--fs-2xs); /* İçerik boyutu: Satırın boyutunu yazı belirler */
-    gap: 0.8em;
-    margin-top: 2cqh;
-}
-
-/* Damlalık (Color Picker) Butonu - Boyutunu yanındaki yazıdan alır */
-.nook-eyedropper-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.6em;
-    height: 2.6em;
-    font-size: inherit;
-    flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-xs);
-    color: rgba(255, 255, 255, 0.8);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    padding: 0; 
-}
-
-.nook-eyedropper-btn svg {
-    width: 1.3em;
-    height: 1.3em;
-}
-
-.nook-eyedropper-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border-color: var(--accent-500);
-}
-
-/* Hex Input Düzeni - Yüksekliğini ve paddingini yazı boyutu belirler */
-.nook-hex-input {
-    flex: 1;
-    min-width: 0;
-    height: 2.6em;
-    line-height: 2.6em;
-    padding: 0 0.8em;
-    margin: 0;
-    background-color: var(--theme-bg-input, rgba(255, 255, 255, 0.04));
-    border: 1px solid var(--theme-border-input, rgba(var(--theme-secondary-rgb), 0.25));
-    border-radius: var(--radius-xs);
-    color: rgb(var(--white-rgb));
-    font-family: var(--font-mono);
-    font-size: inherit; /* var(--fs-2xs) ile tam eşit içerik boyutu */
-    text-transform: uppercase;
-    text-align: center;
-    outline: none;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.nook-hex-input:focus {
-    border-color: rgba(var(--theme-secondary-rgb), 0.8);
-    box-shadow: 0 0 10px rgba(var(--theme-secondary-rgb), 0.15);
-}
-
-/* 7. Ara Ekranlar & Kompakt Masaüstü (1024px altı ara ölçeklendirme) */
-@media (max-width: 1024px) {
-    .nook-picker-popup {
-        --font-fluid-base: clamp(1.4cqh, 1.8cqh, 2.1cqh);
-        width: clamp(185px, 22cqh, 240px);
-        padding: clamp(10px, 1.3cqh, 14px);
-        top: calc(100% + 1cqh);
-    }
-
-    .nook-picker-popup .edit-section-title {
-        margin-bottom: clamp(0.7cqh, 0.9cqh, 1.1cqh);
-    }
-
-    .nook-sv-square {
-        height: clamp(95px, 12.5cqh, 135px);
-        margin-bottom: clamp(0.9cqh, 1.2cqh, 1.4cqh);
-    }
-
-    .nook-sv-cursor {
-        width: 1.4cqh;
-        height: 1.4cqh;
-    }
-
-    .nook-hue-slider {
-        height: 1.3cqh;
-    }
-
-    .nook-hue-cursor {
-        width: 1.6cqh;
-        height: 1.6cqh;
-    }
-
-    .nook-picker-bottom-row {
-        margin-top: clamp(0.9cqh, 1.2cqh, 1.4cqh);
-        gap: 0.6em;
-    }
-
-    .nook-eyedropper-btn {
-        width: 2.4em;
-        height: 2.4em;
-    }
-
-    .nook-hex-input {
-        height: 2.4em;
-        line-height: 2.4em;
-        padding: 0 0.6em;
-    }
-}
-/* #endregion */
-
 /* #endregion */
