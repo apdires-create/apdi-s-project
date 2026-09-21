@@ -2,480 +2,231 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nook</title>
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/landing.css">
-    <link rel="stylesheet" href="css/owner.css">
-    <link rel="stylesheet" href="css/mobile.css">
-    <script>
-        // Profil açılıyorsa ilk frame'den itibaren siyah yükleme ekranını hazırla
-        const initialUserParam = new URLSearchParams(window.location.search).get('user')?.trim();
-        if (initialUserParam) {
-            document.documentElement.classList.add('is-profile-loading');
-        }
-    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 1. PROFİL YÜKLEME EKRANI (Başlangıç: Marka + Kullanıcı Adı / Hata Durumu) -->
-    <div id="app-loading-screen" class="app-loading-screen" style="display: none;">
-        <div class="app-loading-content">
-            <div class="app-loading-brand" id="app-loading-brand">N</div>
-            <div class="app-loading-user-wrap">
-                <span id="app-loading-user" class="app-loading-user"></span>
-            </div>
-            <div class="app-loading-bar" id="app-loading-bar">
-                <div class="app-loading-bar-inner"></div>
-            </div>
-            <div class="app-loading-error-hint" id="app-loading-error-hint"></div>
-        </div>
-    </div>
-    <script>
-        if (initialUserParam) {
-            const initialUserEl = document.getElementById('app-loading-user');
-            if (initialUserEl) initialUserEl.textContent = `@${initialUserParam}`;
-        }
-    </script>
 
-    <!-- 2. LANDING SAYFASI YÜKLEME EKRANI -->
-    <div id="landing-loading-screen" class="landing-loading-screen" style="display: none;"></div>
+    <!-- Arka plan ortamı -->
+    <div class="ambient-background"></div>
 
-    <div id="starfield"></div>
-    <div id="landing-screen" class="landing-screen">
-        
-        <!-- 1. SABİT ÜST MENÜ (Absolute) -->
-        <nav class="landing-navbar">
-            <div class="nav-brand">
-                <div class="nav-logo-box">N</div>
-                <span class="nav-brand-text">Nook</span>
-            </div>
-            
-            <div class="nav-links">
-                <a href="#">About</a>
-                <a href="#">Explore</a>
-                <a href="#">Features</a>
-            </div>
-            
-            <div class="nav-actions">
-                <!-- Giriş Yapmamış Kullanıcı İçin -->
-                <button id="hero-login-btn" class="nav-login-btn">Log in</button>
+    <!-- Sahne ve Kart Kapsayıcısı -->
+    <main class="stage">
+        <div class="card-container" id="cardContainer">
+            <div class="nook-card" id="nookCard">
                 
-                <!-- YENİ: Giriş Yapmış Kullanıcı Menüsü (Başlangıçta Gizli) -->
-                <div id="nav-user-menu" class="nav-user-menu" style="display: none;">
-                    <button class="nav-user-trigger" id="nav-user-trigger">
-                        <img src="https://i.ibb.co/8gvf4SNF/pfp-placeholder.png" alt="Profil" id="nav-user-pfp" class="nav-user-pfp">
-                        <span id="nav-user-name" class="nav-user-name">Kullanıcı</span>
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <!-- KART ÖN YÜZÜ (VİTRİN) -->
+                <section class="card-face card-front" id="cardFront">
+                    <!-- Üst Flip İkonu -->
+                    <button class="flip-trigger-btn" id="flipToBackBtn" aria-label="Arka Yüzü Aç" title="Menüyü Gör">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 12v-3a3 3 0 0 1 3-3h13m0 0l-4-4m4 4l-4 4"></path>
+                            <path d="M20 12v3a3 3 0 0 1-3 3H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
                     </button>
-                    <div class="nav-dropdown" id="nav-dropdown">
-                        <a href="#" id="nav-go-profile" class="nav-dropdown-item">Sayfam</a>
-                        <button id="nav-logout-btn" class="nav-dropdown-item text-danger">Çıkış Yap</button>
-                    </div>
-                </div>
-            </div>
-        </nav>
 
-        <div class="landing-hero">
-            
-            <div class="hero-left">
-                <h1 class="hero-title">Nook</h1>
-                <p class="hero-subtitle">
-                    Your very own corner on the internet — rank the shows you love, pin the games you're grinding, and hand people a page that's actually <strong>you</strong>.
-                </p>
-                <button class="hero-cta-btn" id="hero-start-btn">
-                    Get your Nook 
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="hero-right">
-                
-                <div class="tilted-visual-wrapper">
-                    
-                    <!-- Dönen İç Mekanizma -->
-                    <div class="flip-card-inner" id="hero-flip-card">
-                        
-                        <!-- ÖN YÜZ: Dinamik Profil Kartı -->
-                        <div class="flip-card-front" id="flip-front-trigger" style="cursor: pointer;" title="Giriş yapmak için tıkla">
-                            <div class="nook-profile-card nook-profile-card--md" data-nook-card data-nook-key="hero-card"></div>
+                    <!-- 1. Üst Kimlik Bölgesi (Tepeye Kilitli) -->
+                    <header class="identity-zone">
+                        <div class="banner-box">
+                            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop" alt="Banner" class="banner-img" id="bannerImg">
                         </div>
+                        <div class="avatar-box">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop" alt="Avatar" class="avatar-img" id="avatarImg">
+                        </div>
+                        <h1 class="profile-name" id="profileName">Evangeline Cassandra</h1>
+                        <p class="profile-title" id="profileTitle">Senior Software Engineer</p>
+                    </header>
 
-                        <!-- ARKA YÜZ: Giriş ve Kayıt Formu -->
-                        <div class="flip-card-back">
-                            <div class="landing-box" id="main-landing-box">
-                                
-                                <!-- Arkaya dönüş (kapatma) butonu -->
-                                <button class="landing-box-close" id="flip-back-btn">&times;</button>
-                                
-                                <h1 id="landing-main-title" class="landing-title">Nook</h1>
-                                
-                                <div class="auth-form-container">
-                                    <div class="input-group" id="landing-username-group">
-                                        <input type="text" id="landing-username" class="landing-auth-input" placeholder="Kullanıcı Adı (Örn: apdi)" autocomplete="off">
-                                    </div>
-                                    <div class="input-group">
-                                        <input type="email" id="landing-email" class="landing-auth-input" placeholder="E-posta" autocomplete="email">
-                                    </div>
-                                    <div class="input-group">
-                                        <input type="password" id="landing-password" class="landing-auth-input" placeholder="Şifre">
-                                    </div>
-                                    <div class="auth-error-box" style="display: none;"></div>
-                                    
-                                    <button id="landing-submit-btn" class="auth-submit-btn">Giriş Yap</button>
-                                    
-                                    <div class="auth-switch">
-                                        <span id="landing-switch-text">Hesabın yok mu?</span>
-                                        <button id="landing-switch-action" class="auth-switch-btn">Kayıt Ol</button>
-                                    </div>
-                                </div>
+                    <!-- 2. Esnek Gövde (Bio / Alıntı) -->
+                    <div class="bio-zone">
+                        <p class="profile-bio" id="profileBio">
+                            Building expressive web systems, collecting minimalist digital artifacts, and wandering through neon rainy nights.
+                        </p>
+                    </div>
+
+                    <!-- 3. Taban (Tag Izgarası) -->
+                    <footer class="tags-zone">
+                        <div class="tags-grid" id="tagsGrid">
+                            <span class="tag-pill">Gamer</span>
+                            <span class="tag-pill">Coder</span>
+                            <span class="tag-pill">Stylist</span>
+                            <span class="tag-pill">Music</span>
+                            <span class="tag-pill">Sci-Fi</span>
+                            <span class="tag-pill">Anime</span>
+                        </div>
+                    </footer>
+                </section>
+
+                <!-- KART ARKA YÜZÜ (DRILL-DOWN NAVİGASYON) -->
+                <section class="card-face card-back" id="cardBack">
+                    <!-- Üst Flip İkonu (Ön Yüze Dönüş) -->
+                    <button class="flip-trigger-btn" id="flipToFrontBtn" aria-label="Ön Yüze Dön" title="Ön Yüze Dön">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+
+                    <!-- Navigasyon Sahnesi (Görünüm Yöneticisi) -->
+                    <div class="views-wrapper" id="viewsWrapper">
+                        
+                        <!-- 1. KÖK MENÜ GÖRÜNÜMÜ -->
+                        <div class="view-panel view-menu active" id="viewMenu">
+                            <div class="menu-header">
+                                <h2 class="menu-owner-name" id="menuOwnerName">Evangeline Cassandra</h2>
                             </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        
-        </div>
-        
-    </div>
-    <div id="not-found-screen" class="landing-screen" style="display: none;">
-        <div class="landing-box">
-            <h1 class="landing-title" style="font-size: var(--fs-3xl); color: rgba(255, 136, 0, 0.8);">404</h1>
-            <p class="landing-subtitle" style="font-size: var(--fs-base); margin-top: 0;">Bu kullanıcıya ait bir arşiv bulunamadı.</p>
-            <button onclick="window.location.href=window.location.pathname" class="auth-submit-btn" style="margin-top: 15px;">Ana Sayfaya Dön</button>
-        </div>
-    </div>
-    <div id="app-wrapper" class="stage" style="display: none;">
-        <div class="banner-controls">
-            <a href="/" class="app-home-btn" id="home-trigger-btn" title="Ana Sayfaya Dön">
-                <div class="app-home-logo">N</div>
-            </a>
-            <div class="header-actions">
-                <div id="global-color-picker-wrapper" class="global-color-picker-wrapper">
-                    <button type="button" class="nook-color-trigger" id="colorTrigger" title="Tema Rengini Değiştir"></button>
-                    
-                    <!-- Açılır Özel Seçici (Popup) -->
-                    <div class="nook-picker-popup" id="pickerPopup" hidden>
-                        <p class="edit-section-title">Tema Rengi</p>
-                        
-                        <div class="nook-sv-square" id="svSquare">
-                            <div class="nook-sv-cursor" id="svCursor"></div>
-                        </div>
-                        <div class="nook-hue-slider" id="hueSlider">
-                            <div class="nook-hue-cursor" id="hueCursor"></div>
-                        </div>
-                        
-                        <!-- YENİ ALT SATIR: Damlalık ve Hex Kodu Yan Yana -->
-                        <div class="nook-picker-bottom-row">
-                            <button type="button" class="nook-eyedropper-btn" id="eyedropperBtn" title="Ekrandan renk seç">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/>
-                                </svg>
-                            </button>
-                            <input type="text" id="hexInput" class="nook-hex-input" maxlength="7" spellcheck="false" value="#FFFFFF">
-                        </div>
-                    </div>
-                </div>
-                <button id="auth-trigger-btn" class="auth-trigger-btn" title="Giriş / Ayarlar">
-                    <span class="login-text" id="auth-trigger-text">Giriş Yap</span>
-                </button>
-            </div>
-        </div>
-
-        <div class="banner">
-            <img src="https://i.ibb.co/RTNFJZXT/banner-placeholder.png" alt="Banner" class="banner-image" id="banner-img">
-            
-            <!-- 1. ETKİLEŞİM KATMANI: Sadece ortadaki tıklanabilir alan -->
-            <div class="banner-edit-overlay" id="banner-edit-overlay">
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                    <circle cx="12" cy="13" r="4"></circle>
-                </svg>
-                <span>Banner'ı Değiştir</span>
-            </div>
-
-            <!-- 2. GÖRSEL KATMAN: Tüm ekranı kaplayan ama tıklanamayan blur/kararma katmanı -->
-            <!-- HTML SIRALAMASI ÖNEMLİ: Etkileşim katmanının altında olmalı ki CSS algılasın -->
-            <div class="banner-visual-bg"></div>
-            
-            <input type="file" id="banner-file-input" accept="image/*" style="display: none;">
-        </div>
-        <!-- YENİ -->
-        <div class="scene-viewport" id="scene-viewport">
-            <div class="container">
-                <div class="box profile">
-                    <div class="profile-flip-inner" id="profile-flip-inner">
-                        
-                        <!-- ÖN YÜZ (Mevcut Profil ve Gelecek Tag'ler) -->
-                        <div class="profile-flip-front">
-                            <div class="profile-header">
-                                <div class="profile-image" style="position: relative;">
-                                    <img src="https://i.ibb.co/8gvf4SNF/pfp-placeholder.png" alt="Profil" id="pfp-img">
-                                    <div class="pfp-edit-overlay" id="pfp-edit-overlay">
-                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M12 20h9"></path>
-                                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                        </svg>
-                                    </div>
-                                    <input type="file" id="pfp-file-input" accept="image/*" style="display: none;">
-                                </div>
-                                
-                                <div class="profile-name-wrapper">
-                                    <h1 class="profile-name" id="inline-name">-</h1>
-                                    
-                                    <!-- YENİ: Kartı Arkaya Çevirme Butonu -->
-                                    <button id="profile-flip-to-back" class="edit-btn" title="Bağlantıları Gör" style="flex-shrink: 0;">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <h2 class="profile-title ghost-text" id="inline-title">Ünvan Ekle (Örn: Designer)</h2>
-                            <p class="profile-bio ghost-text" id="inline-bio">Kendinden bahset, arşivini tanıt...</p>
-                            
-                            <!-- 2. Aşamada Tag'lerin (Yetenekler/İlgi Alanları) geleceği boş konteyner -->
-                            <div class="profile-tags-container" id="profile-tags-container"></div>
-                        </div>
-
-                        <!-- ARKA YÜZ (Yeni Link Arayüzü) -->
-                        <div class="profile-flip-back">
-                            <div class="profile-back-header">
-                                <h3 class="profile-back-title">Bağlantılar</h3>
-                                
-                                <!-- YENİ: Kartı Öne Çevirme Butonu -->
-                                <button id="profile-flip-to-front" class="edit-btn" title="Profile Dön" style="flex-shrink: 0;">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                                    </svg>
+                            <nav class="menu-nav">
+                                <button class="nav-item-btn" data-target="links">
+                                    <span>Links</span>
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                 </button>
-                            </div>
-                            
-                            <!-- Orijinal ID korundu, JS burayı hedefleyecek -->
-                            <div class="profile-links-back" id="profile-links-container">
-                                <button id="inline-add-link-btn" class="dashed-add-btn" style="display: none;">+ Yeni Link</button>
-                            </div>
+                                <button class="nav-item-btn" data-target="tops">
+                                    <span>Tops</span>
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </button>
+                                <button class="nav-item-btn" data-target="trophies">
+                                    <span>Trophies</span>
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </button>
+                                <button class="nav-item-btn" data-target="widgets">
+                                    <span>Widgets</span>
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </button>
+                                <button class="nav-item-btn" data-target="working-on">
+                                    <span>Working on</span>
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </button>
+                            </nav>
                         </div>
-                        
-                    </div>
-                </div>
 
-                <div class="box widgets" id="widgets-container">
-
-                </div>
-
-                <div class="box content">
-                    <div class="content-tabs-row">
-                        <div class="content-tabs" id="content-tabs">
-                            <button class="add-content-btn" id="add-content-btn" type="button" title="Yeni Ekle">
-                                <span class="plus-icon">+</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="content-body">
-                        <div class="content-grid" id="content-grid">
-                            
-                            <div class="content-card empty-add-card" id="inline-add-content-card" style="display: none;">
-                                <div class="card-thumb dashed-thumb">
-                                    <span class="plus-icon">+</span>
+                        <!-- 2. LINKS ALT EKRANI -->
+                        <div class="view-panel view-detail" id="view-links">
+                            <div class="view-header">
+                                <button class="back-btn" data-action="back" title="Geri">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                </button>
+                                <h3 class="view-title">Links</h3>
+                            </div>
+                            <div class="view-scrollable">
+                                <div class="link-item-row">
+                                    <div class="link-icon-box" style="background: #e50914;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                                    </div>
+                                    <div class="link-info">
+                                        <span class="link-label">YouTube</span>
+                                        <span class="link-url">https://youtube.com/@evangeline</span>
+                                    </div>
                                 </div>
-                                <p class="card-label ghost-text">Yeni Ekle</p>
+                                <div class="link-item-row">
+                                    <div class="link-icon-box" style="background: #24292e;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                                    </div>
+                                    <div class="link-info">
+                                        <span class="link-label">GitHub</span>
+                                        <span class="link-url">https://github.com/evangeline</span>
+                                    </div>
+                                </div>
+                                <div class="link-item-row">
+                                    <div class="link-icon-box" style="background: #1da1f2;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                    </div>
+                                    <div class="link-info">
+                                        <span class="link-label">X / Twitter</span>
+                                        <span class="link-url">https://x.com/evangeline</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- 3. TOPS ALT EKRANI -->
+                        <div class="view-panel view-detail" id="view-tops">
+                            <div class="view-header">
+                                <button class="back-btn" data-action="back" title="Geri">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                </button>
+                                <h3 class="view-title">Favorite Movies</h3>
+                            </div>
+                            <div class="view-scrollable">
+                                <div class="top-item-card">
+                                    <div class="top-item-thumb"></div>
+                                    <div class="top-item-content">
+                                        <h4 class="top-item-title">Blade Runner 2049</h4>
+                                        <p class="top-item-desc">A visually mesmerizing cyberpunk masterpiece exploring humanity and memory.</p>
+                                    </div>
+                                </div>
+                                <div class="top-item-card">
+                                    <div class="top-item-thumb"></div>
+                                    <div class="top-item-content">
+                                        <h4 class="top-item-title">Interstellar</h4>
+                                        <p class="top-item-desc">Humanity's journey through love, spacetime, and gravity across distant stars.</p>
+                                    </div>
+                                </div>
+                                <div class="top-item-card">
+                                    <div class="top-item-thumb"></div>
+                                    <div class="top-item-content">
+                                        <h4 class="top-item-title">Her</h4>
+                                        <p class="top-item-desc">A poignant exploration of emotional connection in an increasingly digital world.</p>
+                                    </div>
+                                </div>
+                                <div class="top-external-link">
+                                    <a href="#" class="letterboxd-link">Letterboxd Account &rarr;</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. TROPHIES ALT EKRANI -->
+                        <div class="view-panel view-detail" id="view-trophies">
+                            <div class="view-header">
+                                <button class="back-btn" data-action="back" title="Geri">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                </button>
+                                <h3 class="view-title">Trophies</h3>
+                            </div>
+                            <div class="view-scrollable">
+                                <p class="placeholder-text">Trophies & achievements showcase coming soon.</p>
+                            </div>
+                        </div>
+
+                        <!-- 5. WIDGETS ALT EKRANI -->
+                        <div class="view-panel view-detail" id="view-widgets">
+                            <div class="view-header">
+                                <button class="back-btn" data-action="back" title="Geri">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                </button>
+                                <h3 class="view-title">Widgets</h3>
+                            </div>
+                            <div class="view-scrollable">
+                                <p class="placeholder-text">Live widgets (Monkeytype, Stats) coming soon.</p>
+                            </div>
+                        </div>
+
+                        <!-- 6. WORKING ON ALT EKRANI -->
+                        <div class="view-panel view-detail" id="view-working-on">
+                            <div class="view-header">
+                                <button class="back-btn" data-action="back" title="Geri">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                </button>
+                                <h3 class="view-title">Working on</h3>
+                            </div>
+                            <div class="view-scrollable">
+                                <div class="status-card">
+                                    <span class="status-dot"></span>
+                                    <p class="status-text">Architecting Nook v2 with fixed 5:7 aspect ratio and drill-down navigation.</p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                </div>
+                </section>
+
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- GLOBAL OVERLAYS & MODALS (DOM Root Level) -->
-    <div class="search-modal" id="search-modal">
-        <div class="search-modal-backdrop" id="search-modal-backdrop"></div>
-        <div class="search-modal-box">
-            <div class="search-modal-header">
-                <input type="text" id="search-input" class="search-input" placeholder="İsim ara..." autocomplete="off">
-                <button class="search-modal-close" id="search-modal-close" type="button">&times;</button>
-            </div>
-            <div class="search-results" id="search-results">
-                <p class="search-hint">Aramak istediğin ismi yaz.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="auth-modal" class="auth-modal">
-        <div class="search-modal-backdrop" id="auth-modal-backdrop"></div>
-        <div class="auth-modal-box">
-            <div class="search-modal-header">
-                <h3 class="auth-modal-title" id="auth-title">Giriş Yap</h3>
-                <button class="search-modal-close" id="auth-modal-close">&times;</button>
-            </div>
-
-            <div id="auth-form-container" class="auth-form-container">
-                <div class="input-group" id="auth-username-group" style="display: none;">
-                    <input type="text" id="auth-username" class="search-input" placeholder="Kullanıcı Adı (Örn: apdi)">
-                </div>
-                <div class="input-group">
-                    <input type="email" id="auth-email" class="search-input" placeholder="E-posta">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="auth-password" class="search-input" placeholder="Şifre">
-                </div>
-                <div id="auth-error-box" class="auth-error-box" style="display: none;"></div>
-                <button id="auth-submit-btn" class="auth-submit-btn">Giriş Yap</button>
-                
-                <div class="auth-switch">
-                    <span id="auth-switch-text">Hesabın yok mu?</span>
-                    <button id="auth-switch-action" class="auth-switch-btn">Kayıt Ol</button>
-                </div>
-            </div>
-
-            <div id="auth-logged-in-view" class="auth-logged-in-view" style="display: none;">
-                <p class="auth-status-text">Şu anda <strong><span id="auth-current-user"></span></strong> olarak giriş yapmış durumdasın.</p>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button id="auth-logout-btn" class="auth-submit-btn logout-btn">Güvenli Çıkış Yap</button>
-                    <button id="auth-delete-account-btn" class="auth-submit-btn danger-action">Hesabımı Kalıcı Olarak Sil</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="category-modal" class="auth-modal">
-        <div class="search-modal-backdrop" id="category-modal-backdrop"></div>
-        <div class="auth-modal-box modal-box--category">
-            <div class="search-modal-header">
-                <h3 class="auth-modal-title">Kategori Ekle</h3>
-                <button class="search-modal-close" id="category-modal-close">&times;</button>
-            </div>
-            <div class="auth-form-container">
-                <p class="edit-section-title" style="margin-top: 0;">Arşiv Türü Seçin</p>
-                
-                <!-- JS Tarafından Doldurulacak Boş Taşıyıcı Kutu -->
-                <div class="category-selection-grid" id="custom-category-select"></div>
-
-                <!-- YENİ: Opsiyonel Link Alanı -->
-                <div class="input-group" style="margin-top: 15px;">
-                    <input type="url" id="category-url-input" class="search-input" placeholder="Bağlantı (Örn: letterboxd.com/apdi) - İsteğe Bağlı" autocomplete="off">
-                </div>
-
-                <button id="category-submit-btn" class="auth-submit-btn" style="margin-top: 5px;">Ekle</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="category-edit-modal" class="auth-modal">
-        <div class="search-modal-backdrop" id="category-edit-modal-backdrop"></div>
-        <div class="auth-modal-box modal-box--category-edit">
-            <div class="search-modal-header">
-                <h3 class="auth-modal-title">Kategori Ayarları</h3>
-                <button class="search-modal-close" id="category-edit-modal-close">&times;</button>
-            </div>
-            <div class="auth-form-container">
-                <div class="input-group">
-                    <input type="url" id="category-edit-url-input" class="search-input" placeholder="Bağlantı (Örn: letterboxd.com/apdi)" autocomplete="off">
-                </div>
-                <div id="category-edit-error-box" class="auth-error-box" style="display: none;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 5px;">
-                    <button id="category-edit-delete-btn" class="auth-submit-btn danger-action" style="margin-top: 0; flex: 1;">Sil</button>
-                    <button id="category-edit-submit-btn" class="auth-submit-btn" style="margin-top: 0; flex: 1.5;">Güncelle</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="widget-selection-modal" class="auth-modal">
-        <div class="search-modal-backdrop" id="widget-modal-backdrop"></div>
-        <div class="auth-modal-box modal-box--widget">
-            <div class="search-modal-header">
-                <h3 class="auth-modal-title">Widget Ekle</h3>
-                <button class="search-modal-close" id="widget-modal-close">&times;</button>
-            </div>
-            
-            <div class="widget-selection-grid">
-                <!-- Aktif Widget: Monkeytype -->
-                <button class="widget-select-btn" data-type="monkeytype">
-                    <div class="widget-type-icon mt-brand" style="margin-bottom: 0; width: 40px; height: 40px;"></div>
-                    <div class="widget-select-info">
-                        <span class="widget-select-title">Monkeytype</span>
-                        <span class="widget-select-desc">Canlı klavye hız istatistikleri</span>
-                    </div>
-                </button>
-                
-                <!-- İlerisi İçin Hazırlık (Pasif Widgetlar) -->
-                <button class="widget-select-btn disabled" disabled>
-                    <div class="widget-type-icon" style="background-color: #1db954; margin-bottom: 0; width: 40px; height: 40px;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.24 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.84.24 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.6.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.239.54-.959.72-1.56.3z"/></svg>
-                    </div>
-                    <div class="widget-select-info">
-                        <span class="widget-select-title">Spotify <span style="font-size: var(--fs-2xs); background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: var(--radius-full); margin-left: 5px;">Yakında</span></span>
-                        <span class="widget-select-desc">Şu an çalan müzik ve favoriler</span>
-                    </div>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="confirm-modal" class="auth-modal">
-            <div class="search-modal-backdrop" id="confirm-modal-backdrop"></div>
-            <div class="auth-modal-box modal-box--confirm">
-                <h3 class="auth-modal-title" style="text-align: center; font-size: var(--fs-md); color: #ffb8b8;">Emin misin?</h3>
-                <p id="confirm-modal-text" style="font-size: var(--fs-sm); color: rgba(255,255,255,0.7); margin-bottom: 15px;">Bu işlemi geri alamazsın.</p>
-                <div style="display: flex; gap: 10px;">
-                    <button id="confirm-cancel-btn" class="auth-submit-btn" style="background: rgba(255,255,255,0.1); border-color: transparent;">İptal</button>
-                    <button id="confirm-ok-btn" class="auth-submit-btn logout-btn">Sil</button>
-                </div>
-            </div>
-    </div>
-    <div id="toast-notification" class="toast-notification">Değişiklikler kaydedildi!</div>
-    <div id="edit-action-bar" class="edit-action-bar">
-        <div class="edit-bar-content">
-            <span class="edit-status-text">Değişiklikler yapıldı...</span>
-            <div class="edit-action-buttons">
-                <button id="edit-cancel-btn" class="edit-bar-btn cancel-btn">Sıfırla</button>
-                <button id="edit-save-btn" class="edit-bar-btn save-btn">Onayla</button>
-            </div>
-        </div>
-    </div>
-    <div id="cropper-modal" class="auth-modal">
-        <div class="search-modal-backdrop" id="cropper-modal-backdrop"></div>
-        <div class="auth-modal-box modal-box--cropper">
-            <div class="search-modal-header">
-                <h3 class="auth-modal-title">Görseli Ayarla</h3>
-                <button class="search-modal-close" id="cropper-modal-close">&times;</button>
-            </div>
-            
-            <!-- Cropper Alanı -->
-            <div style="width: 100%; max-height: 45vh; min-height: 250px; background: rgba(0,0,0,0.3); border-radius: var(--radius-xs); margin: 15px 0; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                <img id="cropper-image" src="" style="max-width: 100%; display: block;">
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button id="cropper-cancel-btn" class="auth-submit-btn" style="background: rgba(255,255,255,0.1); border-color: transparent;">İptal</button>
-                <button id="cropper-save-btn" class="auth-submit-btn">Kırp ve Yükle</button>
-            </div>
-            <p style="font-size: var(--fs-xs); color: rgba(255,255,255,0.4); text-align: center; margin-top: 15px;">PFP ve Banner için maksimum dosya boyutu 2 MB'dır.</p>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/config.js" defer></script>
-    <script src="js/utils.js" defer></script>
-    <script src="js/auth.js" defer></script>
-    <script src="js/ui.js" defer></script>
-    <script src="js/landing.js" defer></script>
-    <script src="js/main.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

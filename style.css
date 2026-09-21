@@ -1,0 +1,575 @@
+/* ==========================================================================
+   NOOK v2 — 5:7 MONOLITHIC CARD ARCHITECTURE
+   ========================================================================== */
+
+:root {
+    --bg-stage: #0c0e14;
+    --bg-card: #151824;
+    --bg-card-subtle: #1c2030;
+    --bg-pill: rgba(255, 255, 255, 0.07);
+    --bg-pill-hover: rgba(255, 255, 255, 0.12);
+    
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.65);
+    --text-tertiary: rgba(255, 255, 255, 0.45);
+    
+    --accent-color: #3b5bdb;
+    --accent-glow: rgba(59, 91, 219, 0.35);
+    --border-soft: rgba(255, 255, 255, 0.08);
+    --border-highlight: rgba(255, 255, 255, 0.14);
+    
+    --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'Roboto Mono', monospace;
+    
+    --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 1. Global Sıfırlama ve Sahne */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-stage);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+}
+
+.ambient-background {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(35, 45, 75, 0.4) 0%, rgba(12, 14, 20, 1) 75%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1200px;
+    z-index: 1;
+    padding: 20px;
+}
+
+/* 2. Form Faktörü ve Container Query Matematiği (Sabit 5:7 Oranı) */
+.card-container {
+    position: relative;
+    /* Kart hem masaüstünde hem mobilde 5:7 oranına kilitlidir */
+    aspect-ratio: 5 / 7;
+    height: min(85vh, 660px);
+    width: auto;
+    max-width: 92vw;
+    container-type: size;
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out;
+}
+
+@media (max-aspect-ratio: 5/7) {
+    .card-container {
+        width: min(90vw, 420px);
+        height: auto;
+    }
+}
+
+/* 3. 3D Kart Çift Yüz Gövdesi */
+.nook-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 5cqw;
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    box-shadow: 
+        0 10px 30px -10px rgba(0, 0, 0, 0.7),
+        0 20px 50px -20px rgba(0, 0, 0, 0.9),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    transform-style: preserve-3d;
+    transition: transform 0.6s var(--ease-spring), box-shadow 0.3s ease;
+}
+
+.card-container.is-flipped .nook-card {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 5cqw;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Flip Butonları (Ön ve Arka Yüz Sağ Üst) */
+.flip-trigger-btn {
+    position: absolute;
+    top: 3.5cqw;
+    right: 3.5cqw;
+    width: 8.5cqw;
+    height: 8.5cqw;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.flip-trigger-btn svg {
+    width: 4.5cqw;
+    height: 4.5cqw;
+}
+
+.flip-trigger-btn:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.75);
+}
+
+/* ==========================================================================
+   ÖN YÜZ (VİTRİN) — SIFIR SCROLL KURALI
+   ========================================================================== */
+.card-front {
+    padding: 0 4.5cqw 4.5cqw 4.5cqw;
+    z-index: 2;
+    transform: rotateY(0deg);
+}
+
+/* 1. Üst Kimlik Bölgesi (Tepeye Kilitli) */
+.identity-zone {
+    flex-shrink: 0;
+    margin: -0cqw -4.5cqw 0 -4.5cqw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.banner-box {
+    width: 100%;
+    height: 28cqh;
+    overflow: hidden;
+    position: relative;
+}
+
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.avatar-box {
+    width: 22cqw;
+    height: 22cqw;
+    border-radius: 50%;
+    margin-top: -11cqw;
+    position: relative;
+    z-index: 2;
+    border: 3.5px solid var(--bg-card);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    background: var(--bg-card);
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-name {
+    margin-top: 2cqh;
+    width: 90%;
+    font-size: 5.6cqw;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.02em;
+}
+
+.profile-title {
+    margin-top: 0.5cqh;
+    width: 85%;
+    font-size: 3.4cqw;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 2. Esnek Gövde (Bio / Alıntı) */
+.bio-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2cqh 2cqw;
+    text-align: center;
+}
+
+.profile-bio {
+    font-size: 3.1cqw;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 95%;
+}
+
+/* 3. Taban (Tag Izgarası) */
+.tags-zone {
+    margin-top: auto;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.tags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.8cqw;
+}
+
+.tag-pill {
+    padding: 1.6cqw 0;
+    background: var(--bg-pill);
+    border: 1px solid var(--border-soft);
+    border-radius: 999px;
+    font-size: 2.8cqw;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tag-pill:hover {
+    background: var(--bg-pill-hover);
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   ARKA YÜZ (DRILL-DOWN NAVİGASYON)
+   ========================================================================== */
+.card-back {
+    transform: rotateY(180deg);
+    background: var(--bg-card);
+    padding: 4.5cqw;
+}
+
+.views-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Panel Geçiş Sistemi */
+.view-panel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(30px);
+    transition: transform 0.35s var(--ease-spring), opacity 0.25s ease;
+}
+
+.view-panel.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+
+.view-panel.slide-left {
+    transform: translateX(-30px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 1. Kök Menü */
+.menu-header {
+    text-align: center;
+    padding-top: 3.5cqh;
+    padding-bottom: 3cqh;
+}
+
+.menu-owner-name {
+    font-size: 5.6cqw;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.menu-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2.2cqw;
+    margin-top: 1cqh;
+}
+
+.nav-item-btn {
+    width: 100%;
+    padding: 3cqw 4cqw;
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border-soft);
+    border-radius: 3cqw;
+    color: var(--text-primary);
+    font-size: 3.6cqw;
+    font-weight: 600;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-item-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-highlight);
+    transform: translateX(3px);
+}
+
+/* 2. Alt Ekran Başlığı & Geri Butonu */
+.view-header {
+    display: flex;
+    align-items: center;
+    padding-top: 2cqh;
+    padding-bottom: 2.5cqh;
+    gap: 2.5cqw;
+    flex-shrink: 0;
+}
+
+.back-btn {
+    width: 8cqw;
+    height: 8cqw;
+    border-radius: 50%;
+    background: var(--bg-pill);
+    border: 1px solid var(--border-soft);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.back-btn:hover {
+    background: var(--bg-pill-hover);
+    transform: translateX(-2px);
+}
+
+.view-title {
+    font-size: 5cqw;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+/* 3. Scrollable Alan ve Mask Fade Geçişi */
+.view-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 1cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5cqw;
+    /* Üst ve alt kenarlarda degrade fade out */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+/* Minimalist Scrollbar */
+.view-scrollable::-webkit-scrollbar {
+    width: 4px;
+}
+
+.view-scrollable::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.view-scrollable::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+/* 4. Alt Ekran İçerik Stilleri (Links, Tops, vb.) */
+.link-item-row {
+    display: flex;
+    align-items: center;
+    gap: 3cqw;
+    padding: 2.5cqw;
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border-soft);
+    border-radius: 2.5cqw;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.link-item-row:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--border-highlight);
+}
+
+.link-icon-box {
+    width: 8.5cqw;
+    height: 8.5cqw;
+    border-radius: 2cqw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.link-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.link-label {
+    font-size: 3.2cqw;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.link-url {
+    font-size: 2.4cqw;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-item-card {
+    display: flex;
+    gap: 3cqw;
+    padding: 2.5cqw;
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border-soft);
+    border-radius: 2.5cqw;
+}
+
+.top-item-thumb {
+    width: 14cqw;
+    aspect-ratio: 2 / 3;
+    border-radius: 1.5cqw;
+    background: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.top-item-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.top-item-title {
+    font-size: 3.4cqw;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-item-desc {
+    margin-top: 0.5cqh;
+    font-size: 2.6cqw;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.top-external-link {
+    text-align: center;
+    padding-top: 1cqh;
+}
+
+.letterboxd-link {
+    font-size: 2.8cqw;
+    font-style: italic;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.letterboxd-link:hover {
+    color: var(--text-primary);
+}
+
+.placeholder-text {
+    font-size: 3cqw;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: 4cqh 2cqw;
+}
+
+.status-card {
+    display: flex;
+    align-items: center;
+    gap: 2.5cqw;
+    padding: 3cqw;
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border-soft);
+    border-radius: 2.5cqw;
+}
+
+.status-dot {
+    width: 2.5cqw;
+    height: 2.5cqw;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    flex-shrink: 0;
+}
+
+.status-text {
+    font-size: 3cqw;
+    line-height: 1.45;
+    color: var(--text-secondary);
+}
