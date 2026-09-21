@@ -7,219 +7,74 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    
+    <!-- Modüler CSS Katmanları (Cascade Sırası) -->
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/front.css">
+    <link rel="stylesheet" href="css/back.css">
 </head>
 <body>
 
     <!-- Arka plan ortamı -->
     <div class="ambient-background"></div>
 
-    <!-- Sahne ve Kart Kapsayıcısı -->
+    <!-- Sahne ve 5:7 Kart Kapsayıcısı -->
     <main class="stage">
         <div class="card-container" id="cardContainer">
             <div class="nook-card" id="nookCard">
                 
-                <!-- KART ÖN YÜZÜ (VİTRİN) -->
+                <!-- ÖN YÜZ (VİTRİN) -->
                 <section class="card-face card-front" id="cardFront">
-                    <!-- Üst Flip İkonu -->
-                    <button class="flip-trigger-btn" id="flipToBackBtn" aria-label="Arka Yüzü Aç" title="Menüyü Gör">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <button class="flip-trigger-btn" id="flipToBackBtn" aria-label="Menüyü Aç" title="Menüyü Gör">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M4 12v-3a3 3 0 0 1 3-3h13m0 0l-4-4m4 4l-4 4"></path>
                             <path d="M20 12v3a3 3 0 0 1-3 3H4m0 0l4 4m-4-4l4-4"></path>
                         </svg>
                     </button>
 
-                    <!-- 1. Üst Kimlik Bölgesi (Tepeye Kilitli) -->
+                    <!-- 1. Bölge: Üst Kimlik -->
                     <header class="identity-zone">
                         <div class="banner-box">
-                            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop" alt="Banner" class="banner-img" id="bannerImg">
+                            <img src="" alt="Banner" class="banner-img" id="bannerImg">
                         </div>
                         <div class="avatar-box">
-                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop" alt="Avatar" class="avatar-img" id="avatarImg">
+                            <img src="" alt="Avatar" class="avatar-img" id="avatarImg">
                         </div>
-                        <h1 class="profile-name" id="profileName">Evangeline Cassandra</h1>
-                        <p class="profile-title" id="profileTitle">Senior Software Engineer</p>
+                        <h1 class="profile-name" id="profileName">-</h1>
+                        <p class="profile-title" id="profileTitle">-</p>
                     </header>
 
-                    <!-- 2. Esnek Gövde (Bio / Alıntı) -->
+                    <!-- 2. Bölge: Esnek Gövde (Alıntı / Bio) -->
                     <div class="bio-zone">
-                        <p class="profile-bio" id="profileBio">
-                            Building expressive web systems, collecting minimalist digital artifacts, and wandering through neon rainy nights.
-                        </p>
+                        <p class="profile-bio" id="profileBio">-</p>
                     </div>
 
-                    <!-- 3. Taban (Tag Izgarası) -->
+                    <!-- 3. Bölge: Taban (Tag Izgarası) -->
                     <footer class="tags-zone">
-                        <div class="tags-grid" id="tagsGrid">
-                            <span class="tag-pill">Gamer</span>
-                            <span class="tag-pill">Coder</span>
-                            <span class="tag-pill">Stylist</span>
-                            <span class="tag-pill">Music</span>
-                            <span class="tag-pill">Sci-Fi</span>
-                            <span class="tag-pill">Anime</span>
-                        </div>
+                        <div class="tags-grid" id="tagsGrid"></div>
                     </footer>
                 </section>
 
-                <!-- KART ARKA YÜZÜ (DRILL-DOWN NAVİGASYON) -->
+                <!-- ARKA YÜZ (DRILL-DOWN NAVİGASYON) -->
                 <section class="card-face card-back" id="cardBack">
-                    <!-- Üst Flip İkonu (Ön Yüze Dönüş) -->
                     <button class="flip-trigger-btn" id="flipToFrontBtn" aria-label="Ön Yüze Dön" title="Ön Yüze Dön">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
                     </button>
 
-                    <!-- Navigasyon Sahnesi (Görünüm Yöneticisi) -->
+                    <!-- Görünüm Yöneticisi Sahnesi -->
                     <div class="views-wrapper" id="viewsWrapper">
-                        
-                        <!-- 1. KÖK MENÜ GÖRÜNÜMÜ -->
+                        <!-- Kök Menü -->
                         <div class="view-panel view-menu active" id="viewMenu">
                             <div class="menu-header">
-                                <h2 class="menu-owner-name" id="menuOwnerName">Evangeline Cassandra</h2>
+                                <h2 class="menu-owner-name" id="menuOwnerName">-</h2>
                             </div>
-                            <nav class="menu-nav">
-                                <button class="nav-item-btn" data-target="links">
-                                    <span>Links</span>
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                </button>
-                                <button class="nav-item-btn" data-target="tops">
-                                    <span>Tops</span>
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                </button>
-                                <button class="nav-item-btn" data-target="trophies">
-                                    <span>Trophies</span>
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                </button>
-                                <button class="nav-item-btn" data-target="widgets">
-                                    <span>Widgets</span>
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                </button>
-                                <button class="nav-item-btn" data-target="working-on">
-                                    <span>Working on</span>
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                </button>
-                            </nav>
+                            <nav class="menu-nav" id="menuNav"></nav>
                         </div>
-
-                        <!-- 2. LINKS ALT EKRANI -->
-                        <div class="view-panel view-detail" id="view-links">
-                            <div class="view-header">
-                                <button class="back-btn" data-action="back" title="Geri">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                                </button>
-                                <h3 class="view-title">Links</h3>
-                            </div>
-                            <div class="view-scrollable">
-                                <div class="link-item-row">
-                                    <div class="link-icon-box" style="background: #e50914;">
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-                                    </div>
-                                    <div class="link-info">
-                                        <span class="link-label">YouTube</span>
-                                        <span class="link-url">https://youtube.com/@evangeline</span>
-                                    </div>
-                                </div>
-                                <div class="link-item-row">
-                                    <div class="link-icon-box" style="background: #24292e;">
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                                    </div>
-                                    <div class="link-info">
-                                        <span class="link-label">GitHub</span>
-                                        <span class="link-url">https://github.com/evangeline</span>
-                                    </div>
-                                </div>
-                                <div class="link-item-row">
-                                    <div class="link-icon-box" style="background: #1da1f2;">
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                    </div>
-                                    <div class="link-info">
-                                        <span class="link-label">X / Twitter</span>
-                                        <span class="link-url">https://x.com/evangeline</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 3. TOPS ALT EKRANI -->
-                        <div class="view-panel view-detail" id="view-tops">
-                            <div class="view-header">
-                                <button class="back-btn" data-action="back" title="Geri">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                                </button>
-                                <h3 class="view-title">Favorite Movies</h3>
-                            </div>
-                            <div class="view-scrollable">
-                                <div class="top-item-card">
-                                    <div class="top-item-thumb"></div>
-                                    <div class="top-item-content">
-                                        <h4 class="top-item-title">Blade Runner 2049</h4>
-                                        <p class="top-item-desc">A visually mesmerizing cyberpunk masterpiece exploring humanity and memory.</p>
-                                    </div>
-                                </div>
-                                <div class="top-item-card">
-                                    <div class="top-item-thumb"></div>
-                                    <div class="top-item-content">
-                                        <h4 class="top-item-title">Interstellar</h4>
-                                        <p class="top-item-desc">Humanity's journey through love, spacetime, and gravity across distant stars.</p>
-                                    </div>
-                                </div>
-                                <div class="top-item-card">
-                                    <div class="top-item-thumb"></div>
-                                    <div class="top-item-content">
-                                        <h4 class="top-item-title">Her</h4>
-                                        <p class="top-item-desc">A poignant exploration of emotional connection in an increasingly digital world.</p>
-                                    </div>
-                                </div>
-                                <div class="top-external-link">
-                                    <a href="#" class="letterboxd-link">Letterboxd Account &rarr;</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 4. TROPHIES ALT EKRANI -->
-                        <div class="view-panel view-detail" id="view-trophies">
-                            <div class="view-header">
-                                <button class="back-btn" data-action="back" title="Geri">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                                </button>
-                                <h3 class="view-title">Trophies</h3>
-                            </div>
-                            <div class="view-scrollable">
-                                <p class="placeholder-text">Trophies & achievements showcase coming soon.</p>
-                            </div>
-                        </div>
-
-                        <!-- 5. WIDGETS ALT EKRANI -->
-                        <div class="view-panel view-detail" id="view-widgets">
-                            <div class="view-header">
-                                <button class="back-btn" data-action="back" title="Geri">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                                </button>
-                                <h3 class="view-title">Widgets</h3>
-                            </div>
-                            <div class="view-scrollable">
-                                <p class="placeholder-text">Live widgets (Monkeytype, Stats) coming soon.</p>
-                            </div>
-                        </div>
-
-                        <!-- 6. WORKING ON ALT EKRANI -->
-                        <div class="view-panel view-detail" id="view-working-on">
-                            <div class="view-header">
-                                <button class="back-btn" data-action="back" title="Geri">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                                </button>
-                                <h3 class="view-title">Working on</h3>
-                            </div>
-                            <div class="view-scrollable">
-                                <div class="status-card">
-                                    <span class="status-dot"></span>
-                                    <p class="status-text">Architecting Nook v2 with fixed 5:7 aspect ratio and drill-down navigation.</p>
-                                </div>
-                            </div>
-                        </div>
-
+                        <!-- Alt Ekranlar RenderEngine tarafından dinamik üretilir -->
                     </div>
                 </section>
 
@@ -227,6 +82,11 @@
         </div>
     </main>
 
-    <script src="script.js"></script>
+    <!-- Modüler JS Katmanları -->
+    <script src="js/config.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/tilt.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
