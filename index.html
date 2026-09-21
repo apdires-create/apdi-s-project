@@ -13,8 +13,26 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/front.css">
     <link rel="stylesheet" href="css/back.css">
+    <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
+
+    <!-- Üst Menü Barı (Top Nav) -->
+    <header class="top-nav">
+        <a href="/" class="top-nav-brand" id="topNavHome" title="Landing Page">
+            <span class="nav-logo">N</span>
+            <span class="nav-brand-text">Nook</span>
+        </a>
+        <div class="top-nav-actions">
+            <button class="top-nav-btn" id="authTriggerBtn" title="Hesabım">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span id="authBtnText">Giriş Yap</span>
+            </button>
+        </div>
+    </header>
 
     <!-- Arka plan ortamı -->
     <div class="ambient-background"></div>
@@ -82,11 +100,44 @@
         </div>
     </main>
 
+    <!-- AUTH MODAL (GİRİŞ & KAYIT) -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-modal-backdrop" id="authModalBackdrop"></div>
+        <div class="auth-modal-box">
+            <div class="auth-modal-header">
+                <h3 class="auth-modal-title" id="authTitle">Giriş Yap</h3>
+                <button class="auth-modal-close" id="authModalClose" aria-label="Kapat">&times;</button>
+            </div>
+
+            <form class="auth-form" id="authForm" onsubmit="return false;">
+                <div class="auth-input-group" id="authUsernameGroup" style="display: none;">
+                    <input type="text" id="authUsername" class="auth-input" placeholder="Kullanıcı Adı (Örn: apdi)" autocomplete="username">
+                </div>
+                <div class="auth-input-group">
+                    <input type="email" id="authEmail" class="auth-input" placeholder="E-posta" autocomplete="email">
+                </div>
+                <div class="auth-input-group">
+                    <input type="password" id="authPassword" class="auth-input" placeholder="Şifre" autocomplete="current-password">
+                </div>
+                
+                <div class="auth-error-box" id="authErrorBox" style="display: none;"></div>
+
+                <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Giriş Yap</button>
+
+                <div class="auth-switch">
+                    <span id="authSwitchText">Hesabın yok mu?</span>
+                    <button type="button" id="authSwitchBtn" class="auth-switch-btn">Kayıt Ol</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modüler JS Katmanları -->
     <script src="js/config.js"></script>
     <script src="js/render.js"></script>
     <script src="js/router.js"></script>
     <script src="js/tilt.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

@@ -16,5 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof TiltEngine !== 'undefined') {
         TiltEngine.init();
     }
+
+    // 4. Auth Modal yöneticisini başlat
+    if (typeof AuthModal !== 'undefined') {
+        AuthModal.init();
+    }
 });
 // #endregion
+
