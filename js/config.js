@@ -11,13 +11,36 @@ let aktifKullaniciAdi = null;
 let isOwner = false;
 // #endregion
 
-// #region 2: SABİT NAVİGASYON MENÜLERİ
+// #region 2: SABİT NAVİGASYON MENÜLERİ VE TAG HAVUZU
 const SABIT_MENULER = [
     { id: "links", baslik: "Links" },
     { id: "tops", baslik: "Tops" },
     { id: "trophies", baslik: "Trophies" },
     { id: "widgets", baslik: "Widgets" },
     { id: "working-on", baslik: "Working on" }
+];
+
+const TAG_HAVUZU = [
+    "Coder",
+    "Developer",
+    "Designer",
+    "Gamer",
+    "Music",
+    "Stylist",
+    "Sci-Fi",
+    "Anime",
+    "Minimalist",
+    "Writer",
+    "Artist",
+    "Cyberpunk",
+    "Photographer",
+    "Reader",
+    "Coffee",
+    "Tech",
+    "Open Source",
+    "Student",
+    "Indie",
+    "Creator"
 ];
 // #endregion
 

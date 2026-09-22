@@ -35,6 +35,7 @@ const Router = {
                 // Menü butonuna tıklandıysa
                 const navBtn = e.target.closest('.nav-item-btn');
                 if (navBtn) {
+                    if (window._suruklemeBitti && Date.now() - window._suruklemeBitti < 250) return;
                     const target = navBtn.getAttribute('data-target');
                     if (target) this.openDetailView(target);
                     return;

@@ -19,6 +19,7 @@ const EditManager = {
         this.Vitrin.init();
         this.BackViews.init();
         this.SectionPicker.init();
+        this.TagPicker.init();
 
         document.body.classList.add('global-edit-mode');
     },
@@ -113,6 +114,36 @@ const EditManager = {
             `;
             document.body.appendChild(modal);
         }
+
+        // 6. Etiket Seçici Modalı (Tag Picker Modal)
+        if (!document.getElementById('tag-picker-modal')) {
+            const tagModal = document.createElement('div');
+            tagModal.id = 'tag-picker-modal';
+            tagModal.className = 'tag-picker-modal';
+            tagModal.innerHTML = `
+                <div class="tag-picker-backdrop" id="tag-picker-backdrop"></div>
+                <div class="tag-picker-panel">
+                    <div class="tag-picker-header">
+                        <div>
+                            <h3 class="tag-picker-title">Etiket Seç</h3>
+                            <p class="tag-picker-desc">Profiline eklemek istediğin etiketi havuzdan seçebilirsin.</p>
+                        </div>
+                        <button type="button" class="tag-picker-close" id="tag-picker-close">&times;</button>
+                    </div>
+                    <div class="tag-search-box">
+                        <span class="tag-search-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" id="tag-search-input" class="tag-search-input" placeholder="Etiket ara..." autocomplete="off">
+                    </div>
+                    <div class="tag-pool-wrap" id="tagPoolWrap"></div>
+                </div>
+            `;
+            document.body.appendChild(tagModal);
+        }
     }
 };
 // #endregion
@@ -134,13 +165,26 @@ EditManager.Global = {
         });
     },
 
+    getTemizVeri(veri) {
+        if (!veri) return null;
+        return {
+            front_data: veri.front_data || {},
+            links: veri.links || [],
+            tops: veri.tops || {},
+            trophies: veri.trophies || [],
+            widgets: veri.widgets || [],
+            working_on: veri.working_on || {},
+            theme_config: veri.theme_config || {}
+        };
+    },
+
     degisiklikYapildi() {
         if (EditManager.state.orijinalVeri) {
-            const guncelStr = JSON.stringify(kartVerisi);
-            const orijStr = JSON.stringify(EditManager.state.orijinalVeri);
+            const guncelStr = JSON.stringify(this.getTemizVeri(kartVerisi));
+            const orijStr = JSON.stringify(this.getTemizVeri(EditManager.state.orijinalVeri));
             EditManager.state.hasUnsavedChanges = (guncelStr !== orijStr);
         } else {
-            EditManager.state.hasUnsavedChanges = true;
+            EditManager.state.hasUnsavedChanges = false;
         }
 
         document.body.classList.toggle('has-unsaved-changes', EditManager.state.hasUnsavedChanges);
@@ -446,17 +490,21 @@ EditManager.Vitrin = {
 
             const kaydetVeKapat = () => {
                 const yeniDeger = inputEl.value.trim();
+                const eskiDeger = guncelDeger.trim();
+
                 if (!kartVerisi.front_data) kartVerisi.front_data = {};
 
                 if (fieldName === 'gorunen_isim') {
                     kartVerisi.front_data.gorunen_isim = yeniDeger;
-                    el.textContent = yeniDeger || `@${kartVerisi.kullanici_adi}`;
+                    el.textContent = yeniDeger || kartVerisi.kullanici_adi || '';
                 } else {
                     kartVerisi.front_data[fieldName] = yeniDeger;
                     el.textContent = yeniDeger || (fieldName === 'unvan' ? 'Nook Üyesi' : 'Kendi dijital köşesini inşa ediyor.');
                 }
 
-                EditManager.Global.degisiklikYapildi();
+                if (yeniDeger !== eskiDeger) {
+                    EditManager.Global.degisiklikYapildi();
+                }
             };
 
             inputEl.addEventListener('blur', kaydetVeKapat);
@@ -473,8 +521,9 @@ EditManager.Vitrin = {
         const tagsGrid = document.getElementById('tagsGrid');
         if (!tagsGrid) return;
 
-        // Tag silme butonlarını bağla
-        tagsGrid.querySelectorAll('.tag-pill').forEach((pill, idx) => {
+        // Tag silme butonlarını bağla ve sürüklenebilir yap
+        tagsGrid.querySelectorAll('.tag-pill:not(.tag-add-pill)').forEach((pill, idx) => {
+            pill.setAttribute('draggable', 'true');
             if (!pill.querySelector('.tag-remove-btn')) {
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'tag-remove-btn';
@@ -500,18 +549,69 @@ EditManager.Vitrin = {
             addPill.className = 'tag-add-pill';
             addPill.textContent = '+ Tag Ekle';
             addPill.addEventListener('click', () => {
-                const yeniTag = prompt("Yeni etiket girin (Maks. 15 karakter):");
-                if (yeniTag && yeniTag.trim()) {
-                    const temiz = yeniTag.trim().slice(0, 15);
-                    if (!kartVerisi.front_data) kartVerisi.front_data = {};
-                    if (!Array.isArray(kartVerisi.front_data.tags)) kartVerisi.front_data.tags = [];
-                    kartVerisi.front_data.tags.push(temiz);
-                    RenderEngine.vitrinCiz(kartVerisi);
-                    EditManager.Vitrin.init();
-                    EditManager.Global.degisiklikYapildi();
+                if (EditManager.TagPicker) {
+                    EditManager.TagPicker.ac();
                 }
             });
             tagsGrid.appendChild(addPill);
+        }
+
+        // Sürükle-Bırak Sistemi (Hover, Grab, Drop)
+        if (!tagsGrid._dragBound) {
+            tagsGrid._dragBound = true;
+            let tagHareketEtti = false;
+
+            tagsGrid.addEventListener('dragstart', (e) => {
+                const pill = e.target.closest('.tag-pill:not(.tag-add-pill)');
+                if (!pill) return;
+                tagHareketEtti = false;
+                pill.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', pill.textContent);
+            });
+
+            tagsGrid.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggingPill = tagsGrid.querySelector('.tag-pill.is-dragging');
+                if (!draggingPill) return;
+
+                const targetPill = e.target.closest('.tag-pill:not(.is-dragging):not(.tag-add-pill)');
+                if (targetPill) {
+                    tagHareketEtti = true;
+                    const box = targetPill.getBoundingClientRect();
+                    const offset = e.clientX - box.left;
+                    if (offset > box.width / 2) {
+                        targetPill.after(draggingPill);
+                    } else {
+                        targetPill.before(draggingPill);
+                    }
+                }
+            });
+
+            tagsGrid.addEventListener('dragend', () => {
+                const draggingPill = tagsGrid.querySelector('.tag-pill.is-dragging');
+                if (draggingPill) draggingPill.classList.remove('is-dragging');
+
+                if (tagHareketEtti) {
+                    const yeniTagler = [...tagsGrid.querySelectorAll('.tag-pill:not(.tag-add-pill)')]
+                        .map(p => {
+                            const clone = p.cloneNode(true);
+                            const rm = clone.querySelector('.tag-remove-btn');
+                            if (rm) rm.remove();
+                            return clone.textContent.trim();
+                        })
+                        .filter(Boolean);
+
+                    const eskiTagler = Array.isArray(kartVerisi.front_data?.tags) ? kartVerisi.front_data.tags : [];
+                    if (JSON.stringify(yeniTagler) !== JSON.stringify(eskiTagler)) {
+                        if (!kartVerisi.front_data) kartVerisi.front_data = {};
+                        kartVerisi.front_data.tags = yeniTagler;
+                        EditManager.Global.degisiklikYapildi();
+                        RenderEngine.vitrinCiz(kartVerisi);
+                        EditManager.Vitrin.init();
+                    }
+                }
+            });
         }
     }
 };
@@ -520,10 +620,72 @@ EditManager.Vitrin = {
 // #region 5: ARKA YÜZ PANEL DÜZENLEMELERİ (BACK VIEWS EDIT)
 EditManager.BackViews = {
     init() {
+        this.menuSurukleBirakKur();
         this.linksDuzenlemeKur();
         this.topsDuzenlemeKur();
         this.workingOnDuzenlemeKur();
         this.widgetsDuzenlemeKur();
+    },
+
+    menuSurukleBirakKur() {
+        const menuNav = document.getElementById('menuNav');
+        if (!menuNav) return;
+
+        menuNav.querySelectorAll('.nav-item-btn').forEach(btn => {
+            btn.setAttribute('draggable', 'true');
+        });
+
+        if (!menuNav._dragBound) {
+            menuNav._dragBound = true;
+            let menuHareketEtti = false;
+
+            menuNav.addEventListener('dragstart', (e) => {
+                const btn = e.target.closest('.nav-item-btn');
+                if (!btn) return;
+                menuHareketEtti = false;
+                btn.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', btn.dataset.target || '');
+            });
+
+            menuNav.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggingBtn = menuNav.querySelector('.nav-item-btn.is-dragging');
+                if (!draggingBtn) return;
+
+                const targetBtn = e.target.closest('.nav-item-btn:not(.is-dragging)');
+                if (targetBtn) {
+                    menuHareketEtti = true;
+                    const box = targetBtn.getBoundingClientRect();
+                    const offset = e.clientY - box.top;
+                    if (offset > box.height / 2) {
+                        targetBtn.after(draggingBtn);
+                    } else {
+                        targetBtn.before(draggingBtn);
+                    }
+                }
+            });
+
+            menuNav.addEventListener('dragend', () => {
+                const draggingBtn = menuNav.querySelector('.nav-item-btn.is-dragging');
+                if (draggingBtn) draggingBtn.classList.remove('is-dragging');
+
+                window._suruklemeBitti = Date.now();
+
+                if (menuHareketEtti) {
+                    const yeniSira = [...menuNav.querySelectorAll('.nav-item-btn')].map(b => b.dataset.target).filter(Boolean);
+                    if (!kartVerisi.theme_config) kartVerisi.theme_config = {};
+                    const eskiSira = kartVerisi.theme_config.menu_order || [];
+
+                    if (JSON.stringify(yeniSira) !== JSON.stringify(eskiSira)) {
+                        kartVerisi.theme_config.menu_order = yeniSira;
+                        EditManager.Global.degisiklikYapildi();
+                        RenderEngine.menuCiz(kartVerisi);
+                        EditManager.BackViews.init();
+                    }
+                }
+            });
+        }
     },
 
     linksDuzenlemeKur() {
@@ -594,8 +756,10 @@ EditManager.BackViews = {
             if (header) header.after(addBtn);
         }
 
-        // Mevcut link satırlarına silme butonu koy
+        // Mevcut link satırlarına silme butonu koy ve sürüklenebilir yap
         scrollWrap.querySelectorAll('.link-item-row').forEach((row, idx) => {
+            row.setAttribute('draggable', 'true');
+            row.dataset.index = idx;
             if (!row.querySelector('.item-delete-btn')) {
                 const delBtn = document.createElement('button');
                 delBtn.className = 'item-delete-btn';
@@ -618,6 +782,56 @@ EditManager.BackViews = {
                 row.appendChild(delBtn);
             }
         });
+
+        // Link Satırları Sürükle-Bırak Sistemi
+        if (!scrollWrap._linksDragBound) {
+            scrollWrap._linksDragBound = true;
+            let linkHareketEtti = false;
+
+            scrollWrap.addEventListener('dragstart', (e) => {
+                const row = e.target.closest('.link-item-row');
+                if (!row) return;
+                linkHareketEtti = false;
+                row.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', row.dataset.index || '');
+            });
+
+            scrollWrap.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggingRow = scrollWrap.querySelector('.link-item-row.is-dragging');
+                if (!draggingRow) return;
+
+                const targetRow = e.target.closest('.link-item-row:not(.is-dragging)');
+                if (targetRow) {
+                    linkHareketEtti = true;
+                    const box = targetRow.getBoundingClientRect();
+                    const offset = e.clientY - box.top;
+                    if (offset > box.height / 2) {
+                        targetRow.after(draggingRow);
+                    } else {
+                        targetRow.before(draggingRow);
+                    }
+                }
+            });
+
+            scrollWrap.addEventListener('dragend', () => {
+                const draggingRow = scrollWrap.querySelector('.link-item-row.is-dragging');
+                if (draggingRow) draggingRow.classList.remove('is-dragging');
+
+                if (linkHareketEtti && Array.isArray(kartVerisi.links)) {
+                    const yeniSiraIndices = [...scrollWrap.querySelectorAll('.link-item-row')].map(r => parseInt(r.dataset.index, 10));
+                    const yeniLinks = yeniSiraIndices.map(i => kartVerisi.links[i]).filter(Boolean);
+
+                    if (JSON.stringify(yeniLinks) !== JSON.stringify(kartVerisi.links)) {
+                        kartVerisi.links = yeniLinks;
+                        EditManager.Global.degisiklikYapildi();
+                        RenderEngine.altEkranlariCiz(kartVerisi);
+                        EditManager.BackViews.init();
+                    }
+                }
+            });
+        }
     },
 
     topsDuzenlemeKur() {
@@ -629,8 +843,9 @@ EditManager.BackViews = {
             titleEl.classList.add('editable-hover');
             titleEl.title = "Kategori adını değiştirmek için tıkla";
             titleEl.onclick = () => {
-                const yeniAd = prompt("Yeni kategori adı (Örn: Favorite Movies, Anime, Games):", titleEl.textContent);
-                if (yeniAd && yeniAd.trim()) {
+                const mevcutKategori = kartVerisi.tops?.kategori || titleEl.textContent.trim();
+                const yeniAd = prompt("Yeni kategori adı (Örn: Favorite Movies, Anime, Games):", mevcutKategori);
+                if (yeniAd !== null && yeniAd.trim() && yeniAd.trim() !== mevcutKategori) {
                     if (!kartVerisi.tops) kartVerisi.tops = {};
                     kartVerisi.tops.kategori = yeniAd.trim();
                     titleEl.textContent = yeniAd.trim();
@@ -709,9 +924,11 @@ EditManager.BackViews = {
             if (header) header.after(addBtn);
         }
 
-        // Tops öğelerine silme butonu ekle
+        // Tops öğelerine silme butonu ekle ve sürüklenebilir yap
         if (scrollWrap) {
             scrollWrap.querySelectorAll('.top-item-card').forEach((card, idx) => {
+                card.setAttribute('draggable', 'true');
+                card.dataset.index = idx;
                 if (!card.querySelector('.item-delete-btn')) {
                     const delBtn = document.createElement('button');
                     delBtn.className = 'item-delete-btn';
@@ -737,6 +954,56 @@ EditManager.BackViews = {
                     card.appendChild(delBtn);
                 }
             });
+
+            // Tops Kartları Sürükle-Bırak Sistemi
+            if (!scrollWrap._topsDragBound) {
+                scrollWrap._topsDragBound = true;
+                let topHareketEtti = false;
+
+                scrollWrap.addEventListener('dragstart', (e) => {
+                    const card = e.target.closest('.top-item-card');
+                    if (!card) return;
+                    topHareketEtti = false;
+                    card.classList.add('is-dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', card.dataset.index || '');
+                });
+
+                scrollWrap.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const draggingCard = scrollWrap.querySelector('.top-item-card.is-dragging');
+                    if (!draggingCard) return;
+
+                    const targetCard = e.target.closest('.top-item-card:not(.is-dragging)');
+                    if (targetCard) {
+                        topHareketEtti = true;
+                        const box = targetCard.getBoundingClientRect();
+                        const offset = e.clientY - box.top;
+                        if (offset > box.height / 2) {
+                            targetCard.after(draggingCard);
+                        } else {
+                            targetCard.before(draggingCard);
+                        }
+                    }
+                });
+
+                scrollWrap.addEventListener('dragend', () => {
+                    const draggingCard = scrollWrap.querySelector('.top-item-card.is-dragging');
+                    if (draggingCard) draggingCard.classList.remove('is-dragging');
+
+                    if (topHareketEtti && kartVerisi.tops && Array.isArray(kartVerisi.tops.ogeler)) {
+                        const yeniSiraIndices = [...scrollWrap.querySelectorAll('.top-item-card')].map(c => parseInt(c.dataset.index, 10));
+                        const yeniOgeler = yeniSiraIndices.map(i => kartVerisi.tops.ogeler[i]).filter(Boolean);
+
+                        if (JSON.stringify(yeniOgeler) !== JSON.stringify(kartVerisi.tops.ogeler)) {
+                            kartVerisi.tops.ogeler = yeniOgeler;
+                            EditManager.Global.degisiklikYapildi();
+                            RenderEngine.altEkranlariCiz(kartVerisi);
+                            EditManager.BackViews.init();
+                        }
+                    }
+                });
+            }
         }
     },
 
@@ -749,13 +1016,17 @@ EditManager.BackViews = {
             textEl.classList.add('editable-hover');
             textEl.title = "Durumunuzu güncellemek için tıklayın";
             textEl.onclick = () => {
-                const yeniMetin = prompt("Şu anda ne üzerinde çalışıyorsunuz?", textEl.textContent);
+                const mevcutMetin = kartVerisi.working_on?.metin || textEl.textContent.trim();
+                const yeniMetin = prompt("Şu anda ne üzerinde çalışıyorsunuz?", mevcutMetin);
                 if (yeniMetin !== null) {
-                    if (!kartVerisi.working_on) kartVerisi.working_on = {};
-                    kartVerisi.working_on.metin = yeniMetin.trim() || 'Building on Nook.';
-                    textEl.textContent = kartVerisi.working_on.metin;
-                    RenderEngine.menuCiz(kartVerisi);
-                    EditManager.Global.degisiklikYapildi();
+                    const temiz = yeniMetin.trim() || 'Building on Nook.';
+                    if (temiz !== mevcutMetin) {
+                        if (!kartVerisi.working_on) kartVerisi.working_on = {};
+                        kartVerisi.working_on.metin = temiz;
+                        textEl.textContent = temiz;
+                        RenderEngine.menuCiz(kartVerisi);
+                        EditManager.Global.degisiklikYapildi();
+                    }
                 }
             };
         }
@@ -781,8 +1052,9 @@ EditManager.BackViews = {
             `;
 
             actionsWrap.querySelector('.mt-edit-user-btn').onclick = () => {
-                const yeniKullanici = prompt("Yeni Monkeytype kullanıcı adı:", mtCard.dataset.username || '');
-                if (yeniKullanici && yeniKullanici.trim()) {
+                const mevcutUser = mtCard.dataset.username || '';
+                const yeniKullanici = prompt("Yeni Monkeytype kullanıcı adı:", mevcutUser);
+                if (yeniKullanici !== null && yeniKullanici.trim() && yeniKullanici.trim() !== mevcutUser) {
                     const temiz = yeniKullanici.trim();
                     const w = (kartVerisi.widgets || []).find(item => item.tur === 'monkeytype');
                     if (w) {
@@ -1004,6 +1276,111 @@ EditManager.SectionPicker = {
         if (typeof Router !== 'undefined') {
             Router.openDetailView(catId);
         }
+    }
+};
+// #endregion
+
+// #region 7: ETİKET SEÇİCİ VE HAVUZ YÖNETİMİ (TAG PICKER)
+EditManager.TagPicker = {
+    init() {
+        const closeBtn = document.getElementById('tag-picker-close');
+        const backdrop = document.getElementById('tag-picker-backdrop');
+        const searchInput = document.getElementById('tag-search-input');
+
+        if (closeBtn) closeBtn.onclick = () => this.kapat();
+        if (backdrop) backdrop.onclick = () => this.kapat();
+
+        if (searchInput) {
+            searchInput.oninput = (e) => {
+                this.filtrele(e.target.value);
+            };
+        }
+    },
+
+    ac() {
+        const modal = document.getElementById('tag-picker-modal');
+        const searchInput = document.getElementById('tag-search-input');
+        if (!modal) return;
+
+        if (searchInput) {
+            searchInput.value = '';
+        }
+
+        this.havuzuCiz('');
+        modal.classList.add('is-open');
+
+        if (searchInput) {
+            setTimeout(() => searchInput.focus(), 50);
+        }
+    },
+
+    kapat() {
+        const modal = document.getElementById('tag-picker-modal');
+        if (modal) modal.classList.remove('is-open');
+    },
+
+    filtrele(arama) {
+        this.havuzuCiz(arama);
+    },
+
+    havuzuCiz(arama = '') {
+        const wrap = document.getElementById('tagPoolWrap');
+        if (!wrap) return;
+
+        const mevcutTags = Array.isArray(kartVerisi.front_data?.tags) ? kartVerisi.front_data.tags : [];
+        const havuz = (typeof TAG_HAVUZU !== 'undefined' && Array.isArray(TAG_HAVUZU)) ? TAG_HAVUZU : [
+            "Coder", "Developer", "Designer", "Gamer", "Music", "Stylist", "Sci-Fi", "Anime",
+            "Minimalist", "Writer", "Artist", "Cyberpunk", "Photographer", "Reader", "Coffee", "Tech"
+        ];
+
+        const filtreMetni = arama.trim().toLowerCase();
+        const filtrelenmis = havuz.filter(tag => tag.toLowerCase().includes(filtreMetni));
+
+        if (filtrelenmis.length === 0) {
+            wrap.innerHTML = `<div class="tag-pool-empty">Eşleşen etiket bulunamadı.</div>`;
+            return;
+        }
+
+        wrap.innerHTML = filtrelenmis.map(tag => {
+            const secili = mevcutTags.includes(tag);
+            return `
+                <div class="tag-pool-item ${secili ? 'is-already-selected' : ''}" data-tag="${EditManager.escapeHtml(tag)}">
+                    <span>${secili ? '✓' : '+'}</span>
+                    <span>${EditManager.escapeHtml(tag)}</span>
+                </div>
+            `;
+        }).join('');
+
+        wrap.querySelectorAll('.tag-pool-item').forEach(item => {
+            if (item.classList.contains('is-already-selected')) return;
+            item.onclick = () => {
+                const tag = item.dataset.tag;
+                this.etiketSec(tag);
+            };
+        });
+    },
+
+    etiketSec(tag) {
+        if (!tag) return;
+        if (!kartVerisi.front_data) kartVerisi.front_data = {};
+        if (!Array.isArray(kartVerisi.front_data.tags)) kartVerisi.front_data.tags = [];
+
+        if (kartVerisi.front_data.tags.length >= 6) {
+            alert("En fazla 6 etiket seçebilirsiniz!");
+            this.kapat();
+            return;
+        }
+
+        if (kartVerisi.front_data.tags.includes(tag)) {
+            return;
+        }
+
+        kartVerisi.front_data.tags.push(tag);
+        this.kapat();
+
+        RenderEngine.vitrinCiz(kartVerisi);
+        EditManager.Vitrin.init();
+        EditManager.Global.degisiklikYapildi();
     }
 };
 

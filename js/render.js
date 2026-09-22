@@ -5,7 +5,7 @@ const RenderEngine = {
     vitrinCiz(data) {
         if (!data) return;
         const front = data.front_data || {};
-        const isim = front.gorunen_isim || (data.kullanici_adi ? `@${data.kullanici_adi}` : '-');
+        const isim = front.gorunen_isim || data.kullanici_adi || '-';
 
         const bannerImg = document.getElementById('bannerImg');
         const avatarImg = document.getElementById('avatarImg');
@@ -82,6 +82,15 @@ const RenderEngine = {
         // Working on - SADECE içerik varsa
         if (kart.working_on && (kart.working_on.metin || kart.working_on.status)) {
             aktifMenuler.push({ id: "working-on", baslik: "Working on" });
+        }
+
+        // Kullanıcının belirlediği özel sıralama varsa ona göre diz
+        if (kart.theme_config && Array.isArray(kart.theme_config.menu_order)) {
+            aktifMenuler.sort((a, b) => {
+                const idxA = kart.theme_config.menu_order.indexOf(a.id);
+                const idxB = kart.theme_config.menu_order.indexOf(b.id);
+                return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+            });
         }
 
         let html = '';
