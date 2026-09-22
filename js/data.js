@@ -18,16 +18,42 @@ async function tumVerileriCek() {
             return false;
         }
 
+        const guvenliObje = (v) => {
+            if (!v) return {};
+            if (typeof v === 'string') {
+                try {
+                    const parsed = JSON.parse(v);
+                    return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
+                } catch {
+                    return {};
+                }
+            }
+            return (typeof v === 'object' && !Array.isArray(v)) ? v : {};
+        };
+
+        const guvenliDizi = (v) => {
+            if (!v) return [];
+            if (typeof v === 'string') {
+                try {
+                    const parsed = JSON.parse(v);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch {
+                    return [];
+                }
+            }
+            return Array.isArray(v) ? v : [];
+        };
+
         // Yeni veritabanı şemasına göre kartVerisi'ni doldur
         kartVerisi.auth_id = profil.auth_id;
         kartVerisi.kullanici_adi = profil.kullanici_adi;
-        kartVerisi.front_data = profil.front_data || {};
-        kartVerisi.links = profil.links || [];
-        kartVerisi.tops = profil.tops || {};
-        kartVerisi.trophies = profil.trophies || [];
-        kartVerisi.widgets = profil.widgets || [];
-        kartVerisi.working_on = profil.working_on || {};
-        kartVerisi.theme_config = profil.theme_config || {};
+        kartVerisi.front_data = guvenliObje(profil.front_data);
+        kartVerisi.links = guvenliDizi(profil.links);
+        kartVerisi.tops = guvenliObje(profil.tops);
+        kartVerisi.trophies = guvenliDizi(profil.trophies);
+        kartVerisi.widgets = guvenliDizi(profil.widgets);
+        kartVerisi.working_on = guvenliObje(profil.working_on);
+        kartVerisi.theme_config = guvenliObje(profil.theme_config);
 
         // Sahip kontrolü
         if (aktifKullaniciOturumu && profil.auth_id === aktifKullaniciOturumu.user.id) {

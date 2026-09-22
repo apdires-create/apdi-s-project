@@ -32,8 +32,8 @@
 }
 
 .avatar-box {
-    width: 22cqw;
-    height: 22cqw;
+    width: 25cqw;
+    height: 25cqw;
     border-radius: var(--radius-circle);
     margin-top: -11cqw;
     position: relative;

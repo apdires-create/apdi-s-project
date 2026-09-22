@@ -54,7 +54,7 @@ const EditManager = {
 
         // 4. Working on
         if (kartVerisi.working_on && (!kartVerisi.working_on.metin || kartVerisi.working_on.metin.trim() === '')) {
-            delete kartVerisi.working_on;
+            kartVerisi.working_on = {};
             degisiklik = true;
         }
 
@@ -282,16 +282,36 @@ EditManager.Global = {
         }
 
         try {
+            const guvenliObje = (v) => {
+                if (!v) return {};
+                if (typeof v === 'string') {
+                    try {
+                        const parsed = JSON.parse(v);
+                        return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
+                    } catch {
+                        return {};
+                    }
+                }
+                return (typeof v === 'object' && !Array.isArray(v)) ? v : {};
+            };
+
+            let workingOnPayload = {};
+            if (kartVerisi.working_on && typeof kartVerisi.working_on === 'object' && !Array.isArray(kartVerisi.working_on)) {
+                if (kartVerisi.working_on.metin && kartVerisi.working_on.metin.trim() !== '') {
+                    workingOnPayload = { metin: kartVerisi.working_on.metin.trim() };
+                }
+            }
+
             const { error } = await supabaseClient
                 .from('profiles')
                 .update({
-                    front_data: kartVerisi.front_data,
-                    links: kartVerisi.links,
-                    tops: kartVerisi.tops,
-                    trophies: kartVerisi.trophies,
-                    widgets: kartVerisi.widgets,
-                    working_on: kartVerisi.working_on,
-                    theme_config: kartVerisi.theme_config
+                    front_data: guvenliObje(kartVerisi.front_data),
+                    links: Array.isArray(kartVerisi.links) ? kartVerisi.links : [],
+                    tops: guvenliObje(kartVerisi.tops),
+                    trophies: Array.isArray(kartVerisi.trophies) ? kartVerisi.trophies : [],
+                    widgets: Array.isArray(kartVerisi.widgets) ? kartVerisi.widgets : [],
+                    working_on: workingOnPayload,
+                    theme_config: guvenliObje(kartVerisi.theme_config)
                 })
                 .eq('auth_id', kartVerisi.auth_id);
 
@@ -508,7 +528,7 @@ EditManager.Vitrin = {
     init() {
         this.metinDuzenlemeKur('profileName', 'gorunen_isim', 30, false);
         this.metinDuzenlemeKur('profileTitle', 'unvan', 50, false);
-        this.metinDuzenlemeKur('profileBio', 'aciklama', 170, true);
+        this.metinDuzenlemeKur('profileBio', 'aciklama', 160, true);
         this.tagYonetimiKur();
     },
 
@@ -1316,7 +1336,7 @@ EditManager.BackViews = {
 
             actionsWrap.querySelector('.working-remove-btn').onclick = (e) => {
                 e.stopPropagation();
-                delete kartVerisi.working_on;
+                kartVerisi.working_on = {};
                 RenderEngine.menuCiz(kartVerisi);
                 RenderEngine.altEkranlariCiz(kartVerisi);
                 EditManager.BackViews.init();
