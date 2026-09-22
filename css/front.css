@@ -42,7 +42,6 @@
     box-shadow: var(--shadow-avatar);
     overflow: hidden;
     background: var(--bg-card);
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
 }
 
 .avatar-img {
@@ -92,13 +91,9 @@
     line-height: 1.6;
     color: var(--text-secondary);
     font-weight: 450;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: center;
     max-width: 96%;
+    word-break: break-word;
 }
 /* #endregion */
 

@@ -110,12 +110,11 @@ body.is-owner .editable-hover:not(.is-input-active):hover {
     display: block !important;
     overflow: visible !important;
     width: 100% !important;
-    max-width: 100% !important;
+    max-width: 96% !important;
     padding: 0 !important;
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
-    -webkit-line-clamp: unset !important;
 }
 
 .edit-name-input {
@@ -125,7 +124,7 @@ body.is-owner .editable-hover:not(.is-input-active):hover {
     line-height: inherit;
     text-align: center;
     max-width: 85cqw;
-    min-width: 4ch;
+    min-width: 2ch;
     box-sizing: border-box;
 }
 
@@ -156,6 +155,7 @@ body.is-owner .editable-hover:not(.is-input-active):hover {
     align-items: center;
     justify-content: center;
     width: 100%;
+    max-width: 96% !important;
     overflow: visible;
 }
 
@@ -176,9 +176,10 @@ body.is-owner .editable-hover:not(.is-input-active):hover {
     line-height: 1.6;
     font-size: 4.1cqw;
     font-weight: 450;
-    padding: 3px 8px;
+    padding: 2px 8px;
     overflow: hidden;
     box-sizing: border-box;
+    word-break: break-word;
 }
 
 .bio-counter {
@@ -865,6 +866,8 @@ body.has-unsaved-changes .edit-action-bar {
     color: var(--accent-light);
     transform: translateX(2px);
 }
+/* #endregion */
+
 /* #region 8: ETİKET SEÇİCİ MODALI (TAG PICKER MODAL) */
 .tag-picker-modal {
     position: fixed;

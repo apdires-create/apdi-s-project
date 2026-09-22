@@ -545,8 +545,10 @@ EditManager.Vitrin = {
                 `;
             } else {
                 const placeholder = (fieldName === 'gorunen_isim') ? 'İsim gir...' : 'Ünvan ekle...';
-                const charWidth = Math.max(guncelDeger.length, placeholder.length, 4);
-                inputHtml = `<input type="text" class="edit-input-rect edit-name-input" maxlength="${maxLen}" value="${EditManager.escapeHtml(guncelDeger)}" placeholder="${placeholder}" style="width: ${charWidth + 2}ch;">`;
+                const charWidth = guncelDeger.length === 0 
+                    ? Math.max(placeholder.length, 4) 
+                    : Math.max(guncelDeger.length + 1, 2);
+                inputHtml = `<input type="text" class="edit-input-rect edit-name-input" maxlength="${maxLen}" value="${EditManager.escapeHtml(guncelDeger)}" placeholder="${placeholder}" style="width: ${charWidth}ch;">`;
             }
 
             el.innerHTML = inputHtml;
@@ -555,15 +557,18 @@ EditManager.Vitrin = {
 
             if (isTextarea) {
                 if (mevcutYukseklik > 0) {
-                    inputEl.style.height = `${mevcutYukseklik + 4}px`;
+                    inputEl.style.height = `${mevcutYukseklik}px`;
                 }
                 inputEl.addEventListener('input', function() {
                     const counter = el.querySelector('.bio-counter');
                     if (counter) counter.textContent = `${this.value.length}/${maxLen}`;
                 });
             } else {
+                const placeholder = (fieldName === 'gorunen_isim') ? 'İsim gir...' : 'Ünvan ekle...';
                 inputEl.addEventListener('input', function() {
-                    this.style.width = Math.max(this.value.length + 2, 4) + 'ch';
+                    const len = this.value.length;
+                    const w = len === 0 ? Math.max(placeholder.length, 4) : Math.max(len + 1, 2);
+                    this.style.width = `${w}ch`;
                 });
             }
 
