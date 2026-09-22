@@ -50,6 +50,58 @@ const Router = {
             });
         }
 
+        // Kartın boş alanlarına tıklandığında çevirme (Sadece ön yüz ve ana arka menüde aktif)
+        if (this.cardContainer) {
+            this.cardContainer.addEventListener('click', (e) => {
+                const interactiveSelector = [
+                    'button',
+                    'a',
+                    'input',
+                    'textarea',
+                    '.tag-pill',
+                    '.tag-add-pill',
+                    '.tag-remove-btn',
+                    '.editable-hover',
+                    '.image-edit-overlay',
+                    '.edit-action-bar',
+                    '.cropper-modal',
+                    '.tag-picker-modal',
+                    '.add-section-modal',
+                    '.nook-toast',
+                    '.inline-form-card',
+                    '.inline-form-input',
+                    '.form-btn-sm',
+                    '.item-delete-btn',
+                    '.nav-item-btn',
+                    '.add-section-nav-btn',
+                    '.add-section-big-btn'
+                ].join(', ');
+
+                if (e.target.closest(interactiveSelector)) return;
+
+                const selection = window.getSelection();
+                if (selection && selection.toString().trim().length > 0) return;
+                if (window._suruklemeBitti && Date.now() - window._suruklemeBitti < 300) return;
+
+                // 1. ÖN YÜZ: Ön yüze tıklandığında arkaya dön
+                if (!this.isFlipped) {
+                    const cardFront = document.getElementById('cardFront');
+                    if (cardFront && cardFront.contains(e.target)) {
+                        this.setFlipped(true);
+                    }
+                    return;
+                }
+
+                // 2. ARKA YÜZ: SADECE kök içerik menüsündeyken ön yüze dön (detay ekranlarındayken değil!)
+                if (this.isFlipped && !this.activeDetailView) {
+                    const cardBack = document.getElementById('cardBack');
+                    if (cardBack && cardBack.contains(e.target)) {
+                        this.setFlipped(false);
+                    }
+                }
+            });
+        }
+
         // Klavye Kısayolları (ESC)
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -93,6 +145,9 @@ const Router = {
         if (this.viewMenu) {
             this.viewMenu.classList.remove('slide-left');
             this.viewMenu.classList.add('active');
+        }
+        if (typeof EditManager !== 'undefined' && typeof EditManager.temizleBosKategorileri === 'function') {
+            EditManager.temizleBosKategorileri();
         }
     }
 };

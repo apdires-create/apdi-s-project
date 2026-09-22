@@ -105,7 +105,7 @@ const RenderEngine = {
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
-                            <span>Bölüm Ekle</span>
+                            <span>İçerik Ekle</span>
                         </button>
                     </div>
                 `;
@@ -127,14 +127,14 @@ const RenderEngine = {
                 </button>
             `).join('');
 
-            // Sahip ise yeni bölüm ekleme butonu
+            // Sahip ise yeni içerik ekleme butonu
             const addBtnHtml = isUserOwner ? `
                 <button type="button" class="add-section-nav-btn" id="open-add-section-modal">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
-                    <span>Bölüm Ekle</span>
+                    <span>İçerik Ekle</span>
                 </button>
             ` : '';
 
@@ -172,13 +172,13 @@ const RenderEngine = {
         viewsWrapper.appendChild(this.ekranKabuguOlustur('widgets', 'Widgets', this.widgetsIcerikHTML(data.widgets)));
 
         // 5. Working on Ekranı
-        const workingText = data.working_on?.metin || 'Building on Nook.';
-        viewsWrapper.appendChild(this.ekranKabuguOlustur('working-on', 'Working on', `
+        const workingText = data.working_on?.metin || '';
+        viewsWrapper.appendChild(this.ekranKabuguOlustur('working-on', 'Working on', workingText ? `
             <div class="status-card">
                 <span class="status-dot"></span>
                 <p class="status-text">${this.escapeHtml(workingText)}</p>
             </div>
-        `));
+        ` : `<p class="placeholder-text">Henüz durum bilgisi eklenmemiş.</p>`));
 
         // Eğer sahip modundaysak ve EditManager yüklüyse arka ekran kontrollerini bağla
         if (typeof isOwner !== 'undefined' && isOwner && typeof EditManager !== 'undefined') {

@@ -24,6 +24,48 @@ const EditManager = {
         document.body.classList.add('global-edit-mode');
     },
 
+    temizleBosKategorileri() {
+        if (!kartVerisi) return;
+        let degisiklik = false;
+
+        // 1. Links
+        if (kartVerisi.links && (!Array.isArray(kartVerisi.links) || kartVerisi.links.length === 0)) {
+            delete kartVerisi.links;
+            degisiklik = true;
+        }
+
+        // 2. Tops
+        if (kartVerisi.tops) {
+            const ogeler = Array.isArray(kartVerisi.tops.ogeler) ? kartVerisi.tops.ogeler : (Array.isArray(kartVerisi.tops) ? kartVerisi.tops : []);
+            if (ogeler.length === 0) {
+                delete kartVerisi.tops;
+                degisiklik = true;
+            }
+        }
+
+        // 3. Widgets
+        if (kartVerisi.widgets && (!Array.isArray(kartVerisi.widgets) || kartVerisi.widgets.length === 0)) {
+            delete kartVerisi.widgets;
+            degisiklik = true;
+        }
+
+        // 4. Working on
+        if (kartVerisi.working_on && (!kartVerisi.working_on.metin || kartVerisi.working_on.metin.trim() === '')) {
+            delete kartVerisi.working_on;
+            degisiklik = true;
+        }
+
+        if (degisiklik) {
+            if (typeof RenderEngine !== 'undefined') {
+                RenderEngine.menuCiz(kartVerisi);
+                RenderEngine.altEkranlariCiz(kartVerisi);
+            }
+            if (this.BackViews) this.BackViews.init();
+            if (this.SectionPicker) this.SectionPicker.bagla();
+            if (this.Global) this.Global.degisiklikYapildi();
+        }
+    },
+
     domElemanlariniOlustur() {
         // 1. Action Bar Enjeksiyonu
         if (!document.getElementById('edit-action-bar')) {
@@ -94,7 +136,7 @@ const EditManager = {
             document.body.appendChild(toast);
         }
 
-        // 5. Bölüm Ekleme Pop-up Modalı (Section Picker Modal)
+        // 5. İçerik Ekleme Pop-up Modalı (Section Picker Modal)
         if (!document.getElementById('add-section-modal')) {
             const modal = document.createElement('div');
             modal.id = 'add-section-modal';
@@ -104,8 +146,8 @@ const EditManager = {
                 <div class="section-picker-panel">
                     <div class="section-picker-header">
                         <div>
-                            <h3 class="section-picker-title">Bölüm Ekle</h3>
-                            <p class="section-picker-desc">Kartının arka yüzünde sergilemek istediğin bir kategoriyi seç.</p>
+                            <h3 class="section-picker-title">İçerik Ekle</h3>
+                            <p class="section-picker-desc">Kartının arka yüzünde sergilemek istediğin bir içeriği seç.</p>
                         </div>
                         <button type="button" class="section-picker-close" id="add-section-close">&times;</button>
                     </div>
@@ -688,6 +730,65 @@ EditManager.BackViews = {
         }
     },
 
+    // --- Links ---
+    acLinkFormu() {
+        const panel = document.getElementById('view-links');
+        if (!panel) return;
+        const scrollWrap = panel.querySelector('.scrollable-fade');
+        if (!scrollWrap) return;
+
+        let form = scrollWrap.querySelector('.link-add-form');
+        if (form) {
+            form.querySelector('.link-title-input')?.focus();
+            return;
+        }
+
+        form = document.createElement('div');
+        form.className = 'inline-form-card link-add-form';
+        form.innerHTML = `
+            <h4 class="inline-form-title">Yeni Bağlantı</h4>
+            <input type="text" class="inline-form-input link-title-input" placeholder="Başlık (Örn: GitHub, Spotify)">
+            <input type="url" class="inline-form-input link-url-input" placeholder="https://...">
+            <div class="inline-form-actions">
+                <button type="button" class="form-btn-sm form-btn-cancel link-cancel-btn">İptal</button>
+                <button type="button" class="form-btn-sm form-btn-submit link-save-btn">Ekle</button>
+            </div>
+        `;
+
+        scrollWrap.insertBefore(form, scrollWrap.firstChild);
+        const titleInput = form.querySelector('.link-title-input');
+        if (titleInput) setTimeout(() => titleInput.focus(), 50);
+
+        form.querySelector('.link-cancel-btn').onclick = () => {
+            form.remove();
+            if (!kartVerisi.links || kartVerisi.links.length === 0) {
+                if (typeof Router !== 'undefined') Router.resetToMainMenu();
+            }
+        };
+
+        form.querySelector('.link-save-btn').onclick = () => {
+            const baslik = form.querySelector('.link-title-input').value.trim();
+            const url = form.querySelector('.link-url-input').value.trim();
+            if (!baslik || !url) {
+                alert("Lütfen başlık ve URL girin!");
+                return;
+            }
+
+            if (!Array.isArray(kartVerisi.links)) kartVerisi.links = [];
+            kartVerisi.links.push({
+                baslik,
+                url,
+                renk: '#3b5bdb',
+                ikon: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>'
+            });
+
+            RenderEngine.menuCiz(kartVerisi);
+            RenderEngine.altEkranlariCiz(kartVerisi);
+            EditManager.BackViews.init();
+            EditManager.Global.degisiklikYapildi();
+        };
+    },
+
     linksDuzenlemeKur() {
         const panel = document.getElementById('view-links');
         if (!panel) return;
@@ -709,48 +810,7 @@ EditManager.BackViews = {
             `;
 
             addBtn.addEventListener('click', () => {
-                let form = scrollWrap.querySelector('.link-add-form');
-                if (form) {
-                    form.remove();
-                    return;
-                }
-
-                form = document.createElement('div');
-                form.className = 'inline-form-card link-add-form';
-                form.innerHTML = `
-                    <h4 class="inline-form-title">Yeni Bağlantı</h4>
-                    <input type="text" class="inline-form-input link-title-input" placeholder="Başlık (Örn: GitHub, Spotify)">
-                    <input type="url" class="inline-form-input link-url-input" placeholder="https://...">
-                    <div class="inline-form-actions">
-                        <button type="button" class="form-btn-sm form-btn-cancel link-cancel-btn">İptal</button>
-                        <button type="button" class="form-btn-sm form-btn-submit link-save-btn">Ekle</button>
-                    </div>
-                `;
-
-                scrollWrap.insertBefore(form, scrollWrap.firstChild);
-
-                form.querySelector('.link-cancel-btn').onclick = () => form.remove();
-                form.querySelector('.link-save-btn').onclick = () => {
-                    const baslik = form.querySelector('.link-title-input').value.trim();
-                    const url = form.querySelector('.link-url-input').value.trim();
-                    if (!baslik || !url) {
-                        alert("Lütfen başlık ve URL girin!");
-                        return;
-                    }
-
-                    if (!Array.isArray(kartVerisi.links)) kartVerisi.links = [];
-                    kartVerisi.links.push({
-                        baslik,
-                        url,
-                        renk: '#3b5bdb',
-                        ikon: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>'
-                    });
-
-                    RenderEngine.menuCiz(kartVerisi);
-                    RenderEngine.altEkranlariCiz(kartVerisi);
-                    EditManager.BackViews.init();
-                    EditManager.Global.degisiklikYapildi();
-                };
+                this.acLinkFormu();
             });
 
             if (header) header.after(addBtn);
@@ -774,10 +834,19 @@ EditManager.BackViews = {
                     e.preventDefault();
                     e.stopPropagation();
                     kartVerisi.links.splice(idx, 1);
-                    RenderEngine.menuCiz(kartVerisi);
-                    RenderEngine.altEkranlariCiz(kartVerisi);
-                    EditManager.BackViews.init();
-                    EditManager.Global.degisiklikYapildi();
+                    if (kartVerisi.links.length === 0) {
+                        delete kartVerisi.links;
+                        RenderEngine.menuCiz(kartVerisi);
+                        RenderEngine.altEkranlariCiz(kartVerisi);
+                        EditManager.BackViews.init();
+                        EditManager.Global.degisiklikYapildi();
+                        if (typeof Router !== 'undefined') Router.resetToMainMenu();
+                    } else {
+                        RenderEngine.menuCiz(kartVerisi);
+                        RenderEngine.altEkranlariCiz(kartVerisi);
+                        EditManager.BackViews.init();
+                        EditManager.Global.degisiklikYapildi();
+                    }
                 });
                 row.appendChild(delBtn);
             }
@@ -834,6 +903,73 @@ EditManager.BackViews = {
         }
     },
 
+    // --- Tops ---
+    acTopFormu() {
+        const panel = document.getElementById('view-tops');
+        if (!panel) return;
+        const scrollWrap = panel.querySelector('.scrollable-fade');
+        if (!scrollWrap) return;
+
+        let form = scrollWrap.querySelector('.top-add-form');
+        if (form) {
+            form.querySelector('.top-title-input')?.focus();
+            return;
+        }
+
+        form = document.createElement('div');
+        form.className = 'inline-form-card top-add-form';
+        form.innerHTML = `
+            <h4 class="inline-form-title">Yeni Vitrin Öğesi</h4>
+            <input type="text" class="inline-form-input top-title-input" placeholder="Başlık (Örn: Interstellar, Radiohead)">
+            <input type="text" class="inline-form-input top-desc-input" placeholder="Açıklama / Yıl (Örn: 2014, Christopher Nolan)">
+            <input type="url" class="inline-form-input top-img-input" placeholder="Afiş Görsel URL'si (İsteğe bağlı)">
+            <div class="inline-form-actions">
+                <button type="button" class="form-btn-sm form-btn-cancel top-cancel-btn">İptal</button>
+                <button type="button" class="form-btn-sm form-btn-submit top-save-btn">Ekle</button>
+            </div>
+        `;
+
+        scrollWrap.insertBefore(form, scrollWrap.firstChild);
+        const titleInput = form.querySelector('.top-title-input');
+        if (titleInput) setTimeout(() => titleInput.focus(), 50);
+
+        form.querySelector('.top-cancel-btn').onclick = () => {
+            form.remove();
+            const ogeler = Array.isArray(kartVerisi.tops?.ogeler) ? kartVerisi.tops.ogeler : [];
+            if (ogeler.length === 0) {
+                if (typeof Router !== 'undefined') Router.resetToMainMenu();
+            }
+        };
+
+        form.querySelector('.top-save-btn').onclick = () => {
+            const baslik = form.querySelector('.top-title-input').value.trim();
+            const aciklama = form.querySelector('.top-desc-input').value.trim();
+            const afis_url = form.querySelector('.top-img-input').value.trim();
+            if (!baslik) {
+                alert("Lütfen bir başlık girin!");
+                return;
+            }
+
+            if (!kartVerisi.tops || Array.isArray(kartVerisi.tops)) {
+                kartVerisi.tops = { kategori: kartVerisi.tops?.kategori || 'Tops', ogeler: [] };
+            }
+            if (!Array.isArray(kartVerisi.tops.ogeler)) {
+                kartVerisi.tops.ogeler = [];
+            }
+
+            kartVerisi.tops.ogeler.push({
+                baslik,
+                aciklama,
+                afis_url: afis_url || null
+            });
+
+            RenderEngine.menuCiz(kartVerisi);
+            RenderEngine.altEkranlariCiz(kartVerisi);
+            EditManager.BackViews.init();
+            EditManager.Global.degisiklikYapildi();
+        };
+    },
+
     topsDuzenlemeKur() {
         const panel = document.getElementById('view-tops');
         if (!panel) return;
@@ -870,55 +1006,7 @@ EditManager.BackViews = {
             `;
 
             addBtn.addEventListener('click', () => {
-                let form = scrollWrap.querySelector('.top-add-form');
-                if (form) {
-                    form.remove();
-                    return;
-                }
-
-                form = document.createElement('div');
-                form.className = 'inline-form-card top-add-form';
-                form.innerHTML = `
-                    <h4 class="inline-form-title">Yeni Vitrin Öğesi</h4>
-                    <input type="text" class="inline-form-input top-title-input" placeholder="Başlık (Örn: Interstellar, Radiohead)">
-                    <input type="text" class="inline-form-input top-desc-input" placeholder="Açıklama / Yıl (Örn: 2014, Christopher Nolan)">
-                    <input type="url" class="inline-form-input top-img-input" placeholder="Afiş Görsel URL'si (İsteğe bağlı)">
-                    <div class="inline-form-actions">
-                        <button type="button" class="form-btn-sm form-btn-cancel top-cancel-btn">İptal</button>
-                        <button type="button" class="form-btn-sm form-btn-submit top-save-btn">Ekle</button>
-                    </div>
-                `;
-
-                scrollWrap.insertBefore(form, scrollWrap.firstChild);
-
-                form.querySelector('.top-cancel-btn').onclick = () => form.remove();
-                form.querySelector('.top-save-btn').onclick = () => {
-                    const baslik = form.querySelector('.top-title-input').value.trim();
-                    const aciklama = form.querySelector('.top-desc-input').value.trim();
-                    const afis_url = form.querySelector('.top-img-input').value.trim();
-                    if (!baslik) {
-                        alert("Lütfen bir başlık girin!");
-                        return;
-                    }
-
-                    if (!kartVerisi.tops || Array.isArray(kartVerisi.tops)) {
-                        kartVerisi.tops = { kategori: kartVerisi.tops?.kategori || 'Tops', ogeler: [] };
-                    }
-                    if (!Array.isArray(kartVerisi.tops.ogeler)) {
-                        kartVerisi.tops.ogeler = [];
-                    }
-
-                    kartVerisi.tops.ogeler.push({
-                        baslik,
-                        aciklama,
-                        afis_url: afis_url || null
-                    });
-
-                    RenderEngine.menuCiz(kartVerisi);
-                    RenderEngine.altEkranlariCiz(kartVerisi);
-                    EditManager.BackViews.init();
-                    EditManager.Global.degisiklikYapildi();
-                };
+                this.acTopFormu();
             });
 
             if (header) header.after(addBtn);
@@ -945,10 +1033,19 @@ EditManager.BackViews = {
                         e.stopPropagation();
                         if (kartVerisi.tops?.ogeler) {
                             kartVerisi.tops.ogeler.splice(idx, 1);
-                            RenderEngine.menuCiz(kartVerisi);
-                            RenderEngine.altEkranlariCiz(kartVerisi);
-                            EditManager.BackViews.init();
-                            EditManager.Global.degisiklikYapildi();
+                            if (kartVerisi.tops.ogeler.length === 0) {
+                                delete kartVerisi.tops;
+                                RenderEngine.menuCiz(kartVerisi);
+                                RenderEngine.altEkranlariCiz(kartVerisi);
+                                EditManager.BackViews.init();
+                                EditManager.Global.degisiklikYapildi();
+                                if (typeof Router !== 'undefined') Router.resetToMainMenu();
+                            } else {
+                                RenderEngine.menuCiz(kartVerisi);
+                                RenderEngine.altEkranlariCiz(kartVerisi);
+                                EditManager.BackViews.init();
+                                EditManager.Global.degisiklikYapildi();
+                            }
                         }
                     });
                     card.appendChild(delBtn);
@@ -1007,34 +1104,213 @@ EditManager.BackViews = {
         }
     },
 
+    // --- Working On ---
+    acWorkingFormu() {
+        const panel = document.getElementById('view-working-on');
+        if (!panel) return;
+        const scrollWrap = panel.querySelector('.scrollable-fade');
+        if (!scrollWrap) return;
+
+        let form = scrollWrap.querySelector('.working-edit-form');
+        if (form) {
+            form.querySelector('.working-text-input')?.focus();
+            return;
+        }
+
+        const statusCard = scrollWrap.querySelector('.status-card');
+        if (statusCard) statusCard.style.display = 'none';
+
+        const placeholder = scrollWrap.querySelector('.placeholder-text');
+        if (placeholder) placeholder.style.display = 'none';
+
+        const addBtn = scrollWrap.querySelector('.working-add-btn');
+        if (addBtn) addBtn.style.display = 'none';
+
+        const mevcutMetin = kartVerisi.working_on?.metin || '';
+
+        form = document.createElement('div');
+        form.className = 'inline-form-card working-edit-form';
+        form.innerHTML = `
+            <h4 class="inline-form-title">Şu Anda Ne Yapıyorum?</h4>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 8px 0;">
+                Üzerinde çalıştığın proje veya anlık durumunu güncelle.
+            </p>
+            <textarea class="inline-form-input working-text-input" rows="3" placeholder="Örn: Building next-gen UI components on Nook...">${EditManager.escapeHtml(mevcutMetin)}</textarea>
+            <div class="inline-form-actions">
+                <button type="button" class="form-btn-sm form-btn-cancel working-cancel-btn">İptal</button>
+                <button type="button" class="form-btn-sm form-btn-submit working-save-btn">Kaydet</button>
+            </div>
+        `;
+
+        scrollWrap.insertBefore(form, scrollWrap.firstChild);
+        const textarea = form.querySelector('.working-text-input');
+        if (textarea) {
+            setTimeout(() => {
+                textarea.focus();
+                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+            }, 50);
+        }
+
+        form.querySelector('.working-cancel-btn').onclick = () => {
+            form.remove();
+            if (!kartVerisi.working_on || !kartVerisi.working_on.metin || kartVerisi.working_on.metin.trim() === '') {
+                if (typeof Router !== 'undefined') Router.resetToMainMenu();
+            } else {
+                if (statusCard) statusCard.style.display = '';
+                if (placeholder) placeholder.style.display = '';
+                if (addBtn) addBtn.style.display = '';
+            }
+        };
+
+        form.querySelector('.working-save-btn').onclick = () => {
+            const metin = form.querySelector('.working-text-input').value.trim();
+            if (!metin) {
+                alert("Lütfen durum metni girin!");
+                return;
+            }
+
+            if (!kartVerisi.working_on) kartVerisi.working_on = {};
+            kartVerisi.working_on.metin = metin;
+
+            RenderEngine.menuCiz(kartVerisi);
+            RenderEngine.altEkranlariCiz(kartVerisi);
+            EditManager.BackViews.init();
+            EditManager.Global.degisiklikYapildi();
+        };
+    },
+
     workingOnDuzenlemeKur() {
         const panel = document.getElementById('view-working-on');
         if (!panel) return;
+        const scrollWrap = panel.querySelector('.scrollable-fade');
+        if (!scrollWrap) return;
 
-        const textEl = panel.querySelector('.status-text');
-        if (textEl && !textEl.classList.contains('editable-hover')) {
-            textEl.classList.add('editable-hover');
-            textEl.title = "Durumunuzu güncellemek için tıklayın";
-            textEl.onclick = () => {
-                const mevcutMetin = kartVerisi.working_on?.metin || textEl.textContent.trim();
-                const yeniMetin = prompt("Şu anda ne üzerinde çalışıyorsunuz?", mevcutMetin);
-                if (yeniMetin !== null) {
-                    const temiz = yeniMetin.trim() || 'Building on Nook.';
-                    if (temiz !== mevcutMetin) {
-                        if (!kartVerisi.working_on) kartVerisi.working_on = {};
-                        kartVerisi.working_on.metin = temiz;
-                        textEl.textContent = temiz;
-                        RenderEngine.menuCiz(kartVerisi);
-                        EditManager.Global.degisiklikYapildi();
-                    }
-                }
+        const card = scrollWrap.querySelector('.status-card');
+        if (card && !card.querySelector('.working-owner-actions')) {
+            card.classList.add('editable-hover');
+            card.title = "Durumunuzu güncellemek için tıklayın";
+            card.onclick = (e) => {
+                if (e.target.closest('button')) return;
+                this.acWorkingFormu();
             };
+
+            const actionsWrap = document.createElement('div');
+            actionsWrap.className = 'working-owner-actions';
+            actionsWrap.style.display = 'flex';
+            actionsWrap.style.justifyContent = 'flex-end';
+            actionsWrap.style.gap = '8px';
+            actionsWrap.style.marginTop = '8px';
+
+            actionsWrap.innerHTML = `
+                <button type="button" class="form-btn-sm form-btn-cancel working-edit-btn" style="font-size: 0.75rem;">Düzenle</button>
+                <button type="button" class="form-btn-sm form-btn-cancel working-remove-btn" style="color: #ef4444; font-size: 0.75rem;">Kaldır</button>
+            `;
+
+            actionsWrap.querySelector('.working-edit-btn').onclick = (e) => {
+                e.stopPropagation();
+                this.acWorkingFormu();
+            };
+
+            actionsWrap.querySelector('.working-remove-btn').onclick = (e) => {
+                e.stopPropagation();
+                delete kartVerisi.working_on;
+                RenderEngine.menuCiz(kartVerisi);
+                RenderEngine.altEkranlariCiz(kartVerisi);
+                EditManager.BackViews.init();
+                EditManager.Global.degisiklikYapildi();
+                if (typeof Router !== 'undefined') Router.resetToMainMenu();
+            };
+
+            card.appendChild(actionsWrap);
+        } else if (!card && !panel.querySelector('.working-add-btn') && !scrollWrap.querySelector('.working-edit-form')) {
+            const addBtn = document.createElement('button');
+            addBtn.className = 'view-add-btn working-add-btn';
+            addBtn.innerHTML = `<span>+ Durum Bildirimi Ekle</span>`;
+            addBtn.onclick = () => {
+                this.acWorkingFormu();
+            };
+            scrollWrap.appendChild(addBtn);
         }
+    },
+
+    // --- Widgets ---
+    acWidgetFormu(mevcutUser = '') {
+        const panel = document.getElementById('view-widgets');
+        if (!panel) return;
+        const scrollWrap = panel.querySelector('.scrollable-fade');
+        if (!scrollWrap) return;
+
+        let form = scrollWrap.querySelector('.widget-add-form');
+        if (form) {
+            form.querySelector('.widget-user-input')?.focus();
+            return;
+        }
+
+        form = document.createElement('div');
+        form.className = 'inline-form-card widget-add-form';
+        form.innerHTML = `
+            <h4 class="inline-form-title">${mevcutUser ? 'Monkeytype Kullanıcısını Değiştir' : 'Monkeytype Widget\'ı Ekle'}</h4>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0 0 8px 0;">
+                ${mevcutUser ? 'Yeni Monkeytype kullanıcı adını gir:' : 'Monkeytype kullanıcı adını girerek canlı klavye yazma skorlarını kartına ekle:'}
+            </p>
+            <input type="text" class="inline-form-input widget-user-input" placeholder="Kullanıcı Adı (Örn: miodec)" value="${EditManager.escapeHtml(mevcutUser)}">
+            <div class="inline-form-actions">
+                <button type="button" class="form-btn-sm form-btn-cancel widget-cancel-btn">İptal</button>
+                <button type="button" class="form-btn-sm form-btn-submit widget-save-btn">${mevcutUser ? 'Güncelle' : 'Ekle'}</button>
+            </div>
+        `;
+
+        scrollWrap.insertBefore(form, scrollWrap.firstChild);
+        const userInput = form.querySelector('.widget-user-input');
+        if (userInput) setTimeout(() => userInput.focus(), 50);
+
+        form.querySelector('.widget-cancel-btn').onclick = () => {
+            form.remove();
+            if (!kartVerisi.widgets || kartVerisi.widgets.length === 0) {
+                if (typeof Router !== 'undefined') Router.resetToMainMenu();
+            }
+        };
+
+        form.querySelector('.widget-save-btn').onclick = () => {
+            const yeniUser = form.querySelector('.widget-user-input').value.trim();
+            if (!yeniUser) {
+                alert("Lütfen Monkeytype kullanıcı adınızı girin!");
+                return;
+            }
+
+            if (!Array.isArray(kartVerisi.widgets)) kartVerisi.widgets = [];
+            let w = kartVerisi.widgets.find(item => item.tur === 'monkeytype');
+            if (w) {
+                if (!w.ayarlar) w.ayarlar = {};
+                w.ayarlar.kullanici = yeniUser;
+            } else {
+                kartVerisi.widgets.push({
+                    tur: 'monkeytype',
+                    ayarlar: { kullanici: yeniUser }
+                });
+            }
+
+            RenderEngine.menuCiz(kartVerisi);
+            RenderEngine.altEkranlariCiz(kartVerisi);
+            EditManager.BackViews.init();
+
+            if (typeof canliMonkeytypeVerisiCek === 'function') {
+                canliMonkeytypeVerisiCek(yeniUser).then(skorlar => {
+                    if (skorlar) {
+                        kartVerisi.canli_monkeytype = skorlar;
+                        RenderEngine.monkeytypeGuncelle(skorlar);
+                    }
+                });
+            }
+            EditManager.Global.degisiklikYapildi();
+        };
     },
 
     widgetsDuzenlemeKur() {
         const panel = document.getElementById('view-widgets');
         if (!panel) return;
+        const scrollWrap = panel.querySelector('.scrollable-fade');
+        if (!scrollWrap) return;
 
         // Monkeytype kartı varsa kullanıcı adını güncelleme ve widget'ı kaldırma butonu koy
         const mtCard = panel.querySelector('.monkeytype-card');
@@ -1053,62 +1329,36 @@ EditManager.BackViews = {
 
             actionsWrap.querySelector('.mt-edit-user-btn').onclick = () => {
                 const mevcutUser = mtCard.dataset.username || '';
-                const yeniKullanici = prompt("Yeni Monkeytype kullanıcı adı:", mevcutUser);
-                if (yeniKullanici !== null && yeniKullanici.trim() && yeniKullanici.trim() !== mevcutUser) {
-                    const temiz = yeniKullanici.trim();
-                    const w = (kartVerisi.widgets || []).find(item => item.tur === 'monkeytype');
-                    if (w) {
-                        if (!w.ayarlar) w.ayarlar = {};
-                        w.ayarlar.kullanici = temiz;
-                    }
-                    RenderEngine.altEkranlariCiz(kartVerisi);
-                    EditManager.BackViews.init();
-                    if (typeof canliMonkeytypeVerisiCek === 'function') {
-                        canliMonkeytypeVerisiCek(temiz).then(skorlar => {
-                            kartVerisi.canli_monkeytype = skorlar;
-                            RenderEngine.monkeytypeGuncelle(skorlar);
-                        });
-                    }
-                    EditManager.Global.degisiklikYapildi();
-                }
+                this.acWidgetFormu(mevcutUser);
             };
 
             actionsWrap.querySelector('.mt-remove-btn').onclick = () => {
                 kartVerisi.widgets = (kartVerisi.widgets || []).filter(item => item.tur !== 'monkeytype');
-                RenderEngine.menuCiz(kartVerisi);
-                RenderEngine.altEkranlariCiz(kartVerisi);
-                EditManager.BackViews.init();
-                EditManager.Global.degisiklikYapildi();
+                if (kartVerisi.widgets.length === 0) {
+                    delete kartVerisi.widgets;
+                    RenderEngine.menuCiz(kartVerisi);
+                    RenderEngine.altEkranlariCiz(kartVerisi);
+                    EditManager.BackViews.init();
+                    EditManager.Global.degisiklikYapildi();
+                    if (typeof Router !== 'undefined') Router.resetToMainMenu();
+                } else {
+                    RenderEngine.menuCiz(kartVerisi);
+                    RenderEngine.altEkranlariCiz(kartVerisi);
+                    EditManager.BackViews.init();
+                    EditManager.Global.degisiklikYapildi();
+                }
             };
 
             mtCard.appendChild(actionsWrap);
-        } else if (!mtCard && !panel.querySelector('.widget-add-btn')) {
+        } else if (!mtCard && !panel.querySelector('.widget-add-btn') && !scrollWrap.querySelector('.widget-add-form')) {
             // Widget yoksa "+ Monkeytype Widget'ı Ekle" butonu koy
             const addBtn = document.createElement('button');
             addBtn.className = 'view-add-btn widget-add-btn';
             addBtn.innerHTML = `<span>+ Monkeytype Widget'ı Ekle</span>`;
             addBtn.onclick = () => {
-                const mtKullanici = prompt("Monkeytype kullanıcı adınızı girin:");
-                if (mtKullanici && mtKullanici.trim()) {
-                    if (!Array.isArray(kartVerisi.widgets)) kartVerisi.widgets = [];
-                    kartVerisi.widgets.push({
-                        tur: 'monkeytype',
-                        ayarlar: { kullanici: mtKullanici.trim() }
-                    });
-                    RenderEngine.menuCiz(kartVerisi);
-                    RenderEngine.altEkranlariCiz(kartVerisi);
-                    EditManager.BackViews.init();
-                    if (typeof canliMonkeytypeVerisiCek === 'function') {
-                        canliMonkeytypeVerisiCek(mtKullanici.trim()).then(skorlar => {
-                            kartVerisi.canli_monkeytype = skorlar;
-                            RenderEngine.monkeytypeGuncelle(skorlar);
-                        });
-                    }
-                    EditManager.Global.degisiklikYapildi();
-                }
+                this.acWidgetFormu();
             };
-            const scrollWrap = panel.querySelector('.scrollable-fade');
-            if (scrollWrap) scrollWrap.appendChild(addBtn);
+            scrollWrap.appendChild(addBtn);
         }
     }
 };
@@ -1212,58 +1462,16 @@ EditManager.SectionPicker = {
         this.kapat();
 
         if (catId === 'links') {
-            if (!Array.isArray(kartVerisi.links) || kartVerisi.links.length === 0) {
-                kartVerisi.links = [
-                    {
-                        baslik: 'GitHub',
-                        url: 'https://github.com',
-                        renk: '#24292e',
-                        ikon: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>'
-                    }
-                ];
-                EditManager.Global.degisiklikYapildi();
-            }
+            if (!Array.isArray(kartVerisi.links)) kartVerisi.links = [];
         } else if (catId === 'tops') {
-            if (!kartVerisi.tops || !Array.isArray(kartVerisi.tops.ogeler) || kartVerisi.tops.ogeler.length === 0) {
-                kartVerisi.tops = {
-                    kategori: kartVerisi.tops?.kategori || 'Favorite Movies',
-                    harici_link: { baslik: 'Letterboxd →', url: 'https://letterboxd.com' },
-                    ogeler: [
-                        {
-                            baslik: 'Örnek Başlık',
-                            aciklama: 'Kısa not veya açıklama',
-                            afis_url: ''
-                        }
-                    ]
-                };
-                EditManager.Global.degisiklikYapildi();
+            if (!kartVerisi.tops || Array.isArray(kartVerisi.tops)) {
+                kartVerisi.tops = { kategori: kartVerisi.tops?.kategori || 'Tops', ogeler: [] };
             }
+            if (!Array.isArray(kartVerisi.tops.ogeler)) kartVerisi.tops.ogeler = [];
         } else if (catId === 'widgets') {
-            if (!Array.isArray(kartVerisi.widgets) || kartVerisi.widgets.length === 0) {
-                const defaultUser = kartVerisi.kullanici_adi || '';
-                kartVerisi.widgets = [
-                    {
-                        tur: 'monkeytype',
-                        ayarlar: { kullanici: defaultUser }
-                    }
-                ];
-                if (defaultUser && typeof canliMonkeytypeVerisiCek === 'function') {
-                    canliMonkeytypeVerisiCek(defaultUser).then(skorlar => {
-                        if (skorlar) {
-                            kartVerisi.canli_monkeytype = skorlar;
-                            RenderEngine.monkeytypeGuncelle(skorlar);
-                        }
-                    });
-                }
-                EditManager.Global.degisiklikYapildi();
-            }
+            if (!Array.isArray(kartVerisi.widgets)) kartVerisi.widgets = [];
         } else if (catId === 'working-on') {
-            if (!kartVerisi.working_on || !kartVerisi.working_on.metin) {
-                kartVerisi.working_on = {
-                    metin: 'Building on Nook.'
-                };
-                EditManager.Global.degisiklikYapildi();
-            }
+            if (!kartVerisi.working_on) kartVerisi.working_on = { metin: '' };
         }
 
         // Arayüzü yeniden çiz
@@ -1275,6 +1483,17 @@ EditManager.SectionPicker = {
         // Doğrudan oluşturulan kategorinin detay ekranına git
         if (typeof Router !== 'undefined') {
             Router.openDetailView(catId);
+        }
+
+        // Kullanıcının doğrudan düzenleyebilmesi için ilgili ekleme formunu otomatik aç
+        if (catId === 'links') {
+            EditManager.BackViews.acLinkFormu();
+        } else if (catId === 'tops') {
+            EditManager.BackViews.acTopFormu();
+        } else if (catId === 'widgets') {
+            EditManager.BackViews.acWidgetFormu();
+        } else if (catId === 'working-on') {
+            EditManager.BackViews.acWorkingFormu();
         }
     }
 };

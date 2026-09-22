@@ -33,6 +33,8 @@ body.is-owner .banner-box .image-edit-overlay {
 
 body.is-owner .avatar-box .image-edit-overlay {
     z-index: 11;
+    border-radius: var(--radius-circle);
+    overflow: hidden;
 }
 
 body.is-owner .banner-box:hover .image-edit-overlay,
@@ -157,10 +159,7 @@ body.is-owner .editable-hover:hover {
 /* #region 3: TAG YÖNETİMİ VE ETİKET EKLEME */
 .tag-pill {
     position: relative;
-}
-
-body.is-owner .tag-pill {
-    padding-right: 2.4cqw;
+    overflow: visible;
 }
 
 body.is-owner .tag-pill:not(.tag-add-pill) {
@@ -188,20 +187,25 @@ body.is-owner .tag-pill:not(.tag-add-pill):active {
 
 .tag-remove-btn {
     position: absolute;
-    right: 1.2cqw;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    color: var(--text-tertiary);
-    font-size: 2.8cqw;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-circle);
+    background: #161926;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
     line-height: 1;
     display: none;
     align-items: center;
     justify-content: center;
     padding: 0;
-    transition: color 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+    z-index: 10;
 }
 
 body.is-owner .tag-pill:hover .tag-remove-btn {
@@ -209,11 +213,14 @@ body.is-owner .tag-pill:hover .tag-remove-btn {
 }
 
 .tag-remove-btn:hover {
-    color: #ef4444;
+    background: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
+    transform: scale(1.2);
 }
 
 .tag-add-pill {
-    padding: 1.6cqw 0;
+    padding: 1.2cqw 3.5cqw;
     background: transparent;
     border: 1px dashed var(--border-highlight);
     border-radius: var(--radius-pill);
@@ -222,6 +229,8 @@ body.is-owner .tag-pill:hover .tag-remove-btn {
     color: var(--text-tertiary);
     text-align: center;
     cursor: pointer;
+    white-space: nowrap;
+    width: auto;
     transition: all 0.2s ease;
 }
 
@@ -376,6 +385,12 @@ body.is-owner .top-item-card:hover .item-delete-btn {
 
 .inline-form-input:focus {
     border-color: var(--accent-color);
+}
+
+textarea.inline-form-input {
+    resize: vertical;
+    min-height: 65px;
+    line-height: 1.4;
 }
 
 .inline-form-actions {
