@@ -52,6 +52,14 @@ const Router = {
             });
         }
 
+        // Ön yüzde aktif düzenleme açıkken dışarıya tıklandığını en erken fazda (capture) yakala
+        document.addEventListener('pointerdown', (e) => {
+            const activeEdit = document.querySelector('.editable-hover.is-input-active');
+            if (activeEdit && !e.target.closest('.editable-hover.is-input-active')) {
+                window._frontEditJustClosed = Date.now();
+            }
+        }, true);
+
         // Kartın boş alanlarına tıklandığında çevirme (Sadece ön yüz ve ana arka menüde aktif)
         if (this.cardContainer) {
             this.cardContainer.addEventListener('click', (e) => {
@@ -88,7 +96,18 @@ const Router = {
                     '.view-add-btn'
                 ].join(', ');
 
+                // 1. İnteraktif öğelere veya düzenlenebilir alanlara tıklandıysa kartı çevirme ve işlemi kesme
                 if (e.target.closest(interactiveSelector)) return;
+
+                // 2. Ön yüzde düzenleme modu açıkken dışarıdaki boş alana tıklandıysa:
+                // İlk vuruşta sadece düzenlemeyi kapat, kartı ÇEVİRME
+                if (window._frontEditingActive || (window._frontEditJustClosed && Date.now() - window._frontEditJustClosed < 450)) {
+                    window._frontEditingActive = false;
+                    window._frontEditJustClosed = 0;
+                    const activeInput = document.querySelector('.editable-hover.is-input-active input, .editable-hover.is-input-active textarea');
+                    if (activeInput) activeInput.blur();
+                    return;
+                }
 
                 const selection = window.getSelection();
                 if (selection && selection.toString().trim().length > 0) return;

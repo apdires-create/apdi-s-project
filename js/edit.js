@@ -519,15 +519,21 @@ EditManager.Vitrin = {
         el.classList.add('editable-hover');
         el.title = "Düzenlemek için tıkla";
 
+        if (el._duzenlemeBagli) return;
+        el._duzenlemeBagli = true;
+
         el.addEventListener('click', (e) => {
             if (el.querySelector('input, textarea') || e.target.closest('a') || e.target.closest('button')) return;
+            e.stopPropagation();
 
             const front = kartVerisi.front_data || {};
             const guncelDeger = (fieldName === 'gorunen_isim')
                 ? (front.gorunen_isim || kartVerisi.kullanici_adi || '')
                 : (front[fieldName] || '');
 
+            const mevcutYukseklik = el.offsetHeight;
             el.classList.add('is-input-active');
+            window._frontEditingActive = true;
 
             let inputHtml = '';
             if (isTextarea) {
@@ -548,11 +554,10 @@ EditManager.Vitrin = {
             if (!inputEl) return;
 
             if (isTextarea) {
-                inputEl.style.height = 'auto';
-                inputEl.style.height = (inputEl.scrollHeight) + 'px';
+                if (mevcutYukseklik > 0) {
+                    inputEl.style.height = `${mevcutYukseklik + 4}px`;
+                }
                 inputEl.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = (this.scrollHeight) + 'px';
                     const counter = el.querySelector('.bio-counter');
                     if (counter) counter.textContent = `${this.value.length}/${maxLen}`;
                 });
@@ -570,6 +575,9 @@ EditManager.Vitrin = {
             const kaydetVeKapat = () => {
                 const yeniDeger = inputEl.value.trim();
                 const eskiDeger = guncelDeger.trim();
+
+                window._frontEditingActive = false;
+                window._frontEditJustClosed = Date.now();
 
                 if (!kartVerisi.front_data) kartVerisi.front_data = {};
 
@@ -597,6 +605,8 @@ EditManager.Vitrin = {
                     kaydetVeKapat();
                 } else if (evt.key === 'Escape') {
                     evt.preventDefault();
+                    window._frontEditingActive = false;
+                    window._frontEditJustClosed = Date.now();
                     el.classList.remove('is-input-active');
                     if (typeof RenderEngine !== 'undefined') {
                         RenderEngine.vitrinCiz(kartVerisi);

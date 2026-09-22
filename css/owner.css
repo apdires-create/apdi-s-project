@@ -151,26 +151,40 @@ body.is-owner .editable-hover:not(.is-input-active):hover {
     box-shadow: 0 0 12px var(--accent-glow);
 }
 
+#profileBio.is-input-active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    overflow: visible;
+}
+
 .edit-inline-textarea-wrap {
     position: relative;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .auto-expand-textarea {
     width: 100%;
-    min-height: 70px;
-    max-height: 180px;
+    min-height: unset;
+    max-height: 100%;
     text-align: center;
     resize: none;
-    line-height: 1.5;
-    padding: 8px 10px 24px 10px;
-    overflow-y: auto;
+    line-height: 1.6;
+    font-size: 4.1cqw;
+    font-weight: 450;
+    padding: 3px 8px;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .bio-counter {
     position: absolute;
-    bottom: 6px;
-    right: 10px;
+    bottom: -18px;
+    right: 4px;
     font-size: var(--cq-fs-mono);
     color: var(--text-tertiary);
     font-family: var(--font-mono);
