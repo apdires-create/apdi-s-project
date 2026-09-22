@@ -193,6 +193,227 @@
 /* #endregion */
 
 /* #region 4: LİNK SATIRLARI (LINKS) */
+.links-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2cqw;
+    width: 100%;
+}
+
+.nook-link-row {
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-item);
+    background: var(--bg-card-subtle);
+    overflow: hidden;
+    transition: border-color 150ms ease, opacity 250ms ease, transform 250ms ease, margin-top 250ms ease;
+    transform-origin: top center;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    position: relative;
+}
+
+.nook-link-row:hover {
+    border-color: var(--border-highlight);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nook-link-row.is-expanded {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.nook-link-main {
+    display: flex;
+    align-items: center;
+    gap: 3cqw;
+    padding: 2.2cqw 2.8cqw;
+    min-width: 0;
+}
+
+/* İkon Alanı */
+.nook-link-icon {
+    width: 8.5cqw;
+    height: 8.5cqw;
+    border-radius: 2cqw;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.nook-link-icon img {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    border-radius: 2px;
+}
+
+.nook-link-icon svg {
+    width: 50%;
+    height: 50%;
+    color: var(--text-secondary);
+}
+
+/* Metin Bilgi Alanı */
+.nook-link-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    gap: 0.4cqw;
+}
+
+.nook-link-name {
+    font-size: var(--cq-fs-item-title);
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.nook-link-domain {
+    font-size: var(--cq-fs-mono);
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+/* Düzenleme Kalem/Sil İkonu */
+.nook-link-toggle {
+    width: 7.5cqw;
+    height: 7.5cqw;
+    border-radius: var(--radius-circle);
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.nook-link-toggle svg {
+    width: 4.2cqw;
+    height: 4.2cqw;
+}
+
+.nook-link-row:not(.is-expanded) .nook-link-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+/* Akordeon Açıkken Sil Butonuna Dönüşüm */
+.nook-link-row.is-expanded .nook-link-toggle {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}
+
+.nook-link-row.is-expanded .nook-link-toggle:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Akordeon İç Formu (Collapse) */
+.nook-link-collapse {
+    height: 0;
+    overflow: hidden;
+    transition: height 220ms var(--ease-smooth);
+}
+
+.nook-link-form {
+    padding: 0 2.8cqw 2.8cqw 2.8cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 2cqw;
+    border-top: 1px solid var(--border-soft);
+    margin-top: 1cqw;
+    padding-top: 2.2cqw;
+}
+
+/* Input Tasarımı */
+.nook-link-input {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-soft);
+    border-radius: 1.8cqw;
+    padding: 1.8cqw 2.5cqw;
+    color: var(--text-primary);
+    font-size: var(--cq-fs-pill);
+    outline: none;
+    transition: border-color 150ms ease;
+    font-family: var(--font-sans);
+    width: 100%;
+}
+
+.nook-link-input:focus {
+    border-color: var(--accent-color);
+}
+
+/* Akordeon Açıkken İsim Inputunu Göster, Başlığı Gizle */
+.nook-link-row .edit-isim-input {
+    display: none;
+}
+
+.nook-link-row.is-expanded .nook-link-name,
+.nook-link-row.is-expanded .nook-link-domain {
+    display: none !important;
+}
+
+.nook-link-row.is-expanded .edit-isim-input {
+    display: block;
+}
+
+/* Hata mesajı */
+.inline-url-error {
+    color: #f87171;
+    font-size: var(--cq-fs-mono);
+    margin-top: 0.5cqw;
+}
+
+/* Sürükle Bırak Stilleri */
+.nook-link-row[draggable="true"] {
+    cursor: grab;
+}
+
+.nook-link-row[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+.nook-link-row.is-dragging {
+    opacity: 0.5;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-color);
+    transform: scale(0.98);
+    transition: none !important;
+}
+
+#links-wrapper:has(.is-dragging) .nook-link-row {
+    transition: none !important;
+}
+
+.nook-link-row.is-dragging * {
+    pointer-events: none;
+}
+
+/* Silinme Animasyonu */
+.nook-link-row.is-deleting {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+    pointer-events: none;
+}
+
+/* Eski/Genel uyumluluk sınıfları */
 .link-item-row {
     display: flex;
     align-items: center;

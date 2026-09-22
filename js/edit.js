@@ -813,70 +813,6 @@ EditManager.BackViews = {
     },
 
     // --- Links ---
-    acLinkFormu() {
-        const panel = document.getElementById('view-links');
-        if (!panel) return;
-        const scrollWrap = panel.querySelector('.scrollable-fade');
-        if (!scrollWrap) return;
-
-        let form = scrollWrap.querySelector('.link-add-form');
-        if (form) {
-            form.querySelector('.link-title-input')?.focus();
-            return;
-        }
-
-        form = document.createElement('div');
-        form.className = 'inline-form-card link-add-form';
-        form.innerHTML = `
-            <h4 class="inline-form-title">Yeni Bağlantı</h4>
-            <input type="text" class="inline-form-input link-title-input" placeholder="Başlık (Örn: GitHub, Spotify)">
-            <input type="url" class="inline-form-input link-url-input" placeholder="https://...">
-            <div class="inline-form-actions">
-                <button type="button" class="form-btn-sm form-btn-cancel link-cancel-btn">İptal</button>
-                <button type="button" class="form-btn-sm form-btn-submit link-save-btn">Ekle</button>
-            </div>
-        `;
-
-        const addBtn = scrollWrap.querySelector('.links-add-btn');
-        if (addBtn) {
-            scrollWrap.insertBefore(form, addBtn);
-        } else {
-            scrollWrap.appendChild(form);
-        }
-
-        const titleInput = form.querySelector('.link-title-input');
-        if (titleInput) setTimeout(() => titleInput.focus(), 50);
-
-        form.querySelector('.link-cancel-btn').onclick = () => {
-            form.remove();
-            if (!kartVerisi.links || kartVerisi.links.length === 0) {
-                if (typeof Router !== 'undefined') Router.resetToMainMenu();
-            }
-        };
-
-        form.querySelector('.link-save-btn').onclick = () => {
-            const baslik = form.querySelector('.link-title-input').value.trim();
-            const url = form.querySelector('.link-url-input').value.trim();
-            if (!baslik || !url) {
-                alert("Lütfen başlık ve URL girin!");
-                return;
-            }
-
-            if (!Array.isArray(kartVerisi.links)) kartVerisi.links = [];
-            kartVerisi.links.push({
-                baslik,
-                url,
-                renk: '#3b5bdb',
-                ikon: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="12" r="8"/></svg>'
-            });
-
-            RenderEngine.menuCiz(kartVerisi);
-            RenderEngine.altEkranlariCiz(kartVerisi);
-            EditManager.BackViews.init();
-            EditManager.Global.degisiklikYapildi();
-        };
-    },
-
     linksDuzenlemeKur() {
         const panel = document.getElementById('view-links');
         if (!panel) return;
@@ -884,9 +820,243 @@ EditManager.BackViews = {
         const scrollWrap = panel.querySelector('.scrollable-fade');
         if (!scrollWrap) return;
 
-        // Sahip modunda boş bildirim metnini kaldır ki ekleme butonu en yukarıda dursun
+        // Sahip modunda boş bildirim metnini kaldır
         const placeholder = scrollWrap.querySelector('.placeholder-text');
         if (placeholder) placeholder.remove();
+
+        let wrapper = scrollWrap.querySelector('#links-wrapper');
+        if (!wrapper) {
+            wrapper = document.createElement('div');
+            wrapper.id = 'links-wrapper';
+            wrapper.className = 'links-wrapper';
+            scrollWrap.prepend(wrapper);
+        }
+
+        const KALEM_IKONU = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+        const SIL_IKONU = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+
+        const urlGecerliMi = (string) => {
+            if (!string) return false;
+            const res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+            return (res !== null);
+        };
+
+        const renderLinks = () => {
+            wrapper.innerHTML = '';
+            if (!Array.isArray(kartVerisi.links)) kartVerisi.links = [];
+
+            const closeAccordion = (rowEl, collapseEl, urlInput) => {
+                const currentUrl = urlInput.value.trim();
+                const errorEl = rowEl.querySelector('.inline-url-error');
+
+                if (currentUrl && !urlGecerliMi(currentUrl)) {
+                    urlInput.style.borderColor = "#ef4444";
+                    if (errorEl) errorEl.style.display = "block";
+                    return false;
+                }
+
+                if (!rowEl.classList.contains('is-expanded')) return true;
+
+                collapseEl.style.height = collapseEl.scrollHeight + 'px';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => { collapseEl.style.height = '0px'; });
+                });
+
+                rowEl.classList.remove('is-expanded');
+                rowEl.setAttribute('draggable', 'true');
+
+                const toggleBtn = rowEl.querySelector('.nook-link-toggle');
+                if (toggleBtn) {
+                    toggleBtn.innerHTML = KALEM_IKONU;
+                    toggleBtn.title = 'Düzenle';
+                }
+
+                const nameInput = rowEl.querySelector('.edit-isim-input');
+                const nameDisplay = rowEl.querySelector('.nook-link-name');
+                if (nameDisplay && nameInput) {
+                    nameDisplay.textContent = nameInput.value.trim() || 'Yeni bağlantı';
+                }
+
+                const domainDisplay = rowEl.querySelector('.nook-link-domain');
+                if (domainDisplay) {
+                    let d = 'Bağlantı';
+                    try {
+                        let parsed = currentUrl;
+                        if (parsed && !parsed.startsWith('http')) parsed = 'https://' + parsed;
+                        if (parsed) d = new URL(parsed).hostname.replace(/^www\./, '');
+                    } catch(e) {}
+                    domainDisplay.textContent = d;
+                }
+
+                return true;
+            };
+
+            const openAccordion = (rowEl, collapseEl) => {
+                if (rowEl.classList.contains('is-expanded')) return;
+
+                let canOpen = true;
+                wrapper.querySelectorAll('.nook-link-row.is-expanded').forEach(openRow => {
+                    const otherUrlInput = openRow.querySelector('.edit-url-input');
+                    const isClosed = closeAccordion(openRow, openRow.querySelector('.nook-link-collapse'), otherUrlInput);
+                    if (!isClosed) canOpen = false;
+                });
+
+                if (!canOpen) return;
+
+                rowEl.classList.add('is-expanded');
+                rowEl.removeAttribute('draggable');
+
+                const toggleBtn = rowEl.querySelector('.nook-link-toggle');
+                if (toggleBtn) {
+                    toggleBtn.innerHTML = SIL_IKONU;
+                    toggleBtn.title = 'Sil';
+                }
+
+                collapseEl.style.height = collapseEl.scrollHeight + 'px';
+                setTimeout(() => {
+                    if (rowEl.classList.contains('is-expanded')) collapseEl.style.height = 'auto';
+                }, 220);
+            };
+
+            const deleteRowWithAnim = (rowEl, index) => {
+                rowEl.classList.add('is-deleting');
+                const saveBtn = document.getElementById('edit-save-btn');
+                if (saveBtn) saveBtn.classList.remove('is-locked');
+
+                setTimeout(() => {
+                    kartVerisi.links.splice(index, 1);
+                    EditManager.Global.degisiklikYapildi();
+                    renderLinks();
+                }, 250);
+            };
+
+            kartVerisi.links.forEach((link, index) => {
+                let domain = 'Bağlantı';
+                try {
+                    let pUrl = link.url;
+                    if (pUrl && !pUrl.startsWith('http')) pUrl = 'https://' + pUrl;
+                    if (pUrl) domain = new URL(pUrl).hostname.replace(/^www\./, '');
+                } catch(e) {}
+
+                const row = document.createElement('div');
+                row.className = 'nook-link-row';
+                row.setAttribute('draggable', 'true');
+                row.dataset.index = index;
+
+                const baslik = link.baslik || link.isim || '';
+
+                row.innerHTML = `
+                    <div class="nook-link-main">
+                        <div class="nook-link-icon">${RenderEngine.getLinkIcon(link.url)}</div>
+                        <div class="nook-link-info">
+                            <span class="nook-link-name">${RenderEngine.escapeHtml(baslik) || 'Yeni bağlantı'}</span>
+                            <input type="text" class="nook-link-input edit-isim-input" placeholder="Görünen İsim (Örn: GitHub)" value="${RenderEngine.escapeHtml(baslik)}" autocomplete="off" spellcheck="false">
+                            <span class="nook-link-domain">${RenderEngine.escapeHtml(domain)}</span>
+                        </div>
+                        <button type="button" class="nook-link-toggle" title="Düzenle">${KALEM_IKONU}</button>
+                    </div>
+                    <div class="nook-link-collapse" style="height: 0px;">
+                        <div class="nook-link-form">
+                            <input type="url" class="nook-link-input edit-url-input" placeholder="https://..." value="${RenderEngine.escapeHtml(link.url || '')}" autocomplete="off" spellcheck="false">
+                            <span class="inline-url-error" style="display: none; color: #ef4444; font-size: var(--cq-fs-mono); margin-top: 0.5cqw;">Lütfen geçerli bir internet adresi girin.</span>
+                        </div>
+                    </div>
+                `;
+
+                const toggleBtn = row.querySelector('.nook-link-toggle');
+                const collapseEl = row.querySelector('.nook-link-collapse');
+                const nameInput = row.querySelector('.edit-isim-input');
+                const urlInput = row.querySelector('.edit-url-input');
+                const errorEl = row.querySelector('.inline-url-error');
+
+                const autoSave = () => {
+                    let val = urlInput.value.trim();
+                    const saveBtn = document.getElementById('edit-save-btn');
+
+                    if (val && !urlGecerliMi(val)) {
+                        urlInput.style.borderColor = "#ef4444";
+                        if (errorEl) errorEl.style.display = "block";
+                        if (saveBtn) saveBtn.classList.add('is-locked');
+                        return;
+                    }
+
+                    urlInput.style.borderColor = "";
+                    if (errorEl) errorEl.style.display = "none";
+                    if (saveBtn) {
+                        const anyError = wrapper.querySelector('.inline-url-error[style*="display: block"]');
+                        if (!anyError) saveBtn.classList.remove('is-locked');
+                    }
+
+                    if (val && !val.startsWith('http://') && !val.startsWith('https://')) val = 'https://' + val;
+
+                    kartVerisi.links[index] = {
+                        baslik: nameInput.value.trim(),
+                        isim: nameInput.value.trim(),
+                        url: val
+                    };
+                    EditManager.Global.degisiklikYapildi();
+                };
+
+                let iconDebounceTimer = null;
+                const updateLinkIconAndDomain = (forceImmediate = false) => {
+                    let val = urlInput.value.trim();
+                    if (!val) return;
+                    if (!val.startsWith('http://') && !val.startsWith('https://')) val = 'https://' + val;
+
+                    const doUpdate = () => {
+                        const iconEl = row.querySelector('.nook-link-icon');
+                        const domainEl = row.querySelector('.nook-link-domain');
+
+                        if (urlGecerliMi(val)) {
+                            let d = 'Bağlantı';
+                            try {
+                                d = new URL(val).hostname.replace(/^www\./, '');
+                            } catch(e) {}
+
+                            if (domainEl) domainEl.textContent = d;
+                            if (iconEl) iconEl.innerHTML = RenderEngine.getLinkIcon(val);
+                        }
+                    };
+
+                    clearTimeout(iconDebounceTimer);
+                    if (forceImmediate) {
+                        doUpdate();
+                    } else {
+                        iconDebounceTimer = setTimeout(doUpdate, 300);
+                    }
+                };
+
+                nameInput.addEventListener('input', autoSave);
+                urlInput.addEventListener('input', () => {
+                    autoSave();
+                    updateLinkIconAndDomain(false);
+                });
+                urlInput.addEventListener('blur', () => {
+                    updateLinkIconAndDomain(true);
+                });
+
+                row.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (window._suruklemeBitti && Date.now() - window._suruklemeBitti < 250) return;
+
+                    if (row.classList.contains('is-expanded')) {
+                        deleteRowWithAnim(row, index);
+                    } else {
+                        openAccordion(row, collapseEl);
+                        setTimeout(() => nameInput.focus(), 60);
+                    }
+                });
+
+                wrapper.appendChild(row);
+            });
+        };
+
+        // Mevcut linkleri çiz
+        renderLinks();
 
         // En alta "+ Yeni Bağlantı Ekle" butonu koy
         let addBtn = scrollWrap.querySelector('.links-add-btn');
@@ -900,72 +1070,114 @@ EditManager.BackViews = {
                 </svg>
                 <span>Yeni Bağlantı Ekle</span>
             `;
-
-            addBtn.addEventListener('click', () => {
-                this.acLinkFormu();
-            });
-
             scrollWrap.appendChild(addBtn);
         } else {
             scrollWrap.appendChild(addBtn);
         }
 
-        // Mevcut link satırlarına silme butonu koy ve sürüklenebilir yap
-        scrollWrap.querySelectorAll('.link-item-row').forEach((row, idx) => {
-            row.setAttribute('draggable', 'true');
-            row.dataset.index = idx;
-            if (!row.querySelector('.item-delete-btn')) {
-                const delBtn = document.createElement('button');
-                delBtn.className = 'item-delete-btn';
-                delBtn.innerHTML = `
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                `;
-                delBtn.title = "Bağlantıyı Sil";
-                delBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    kartVerisi.links.splice(idx, 1);
-                    if (kartVerisi.links.length === 0) {
-                        delete kartVerisi.links;
-                        RenderEngine.menuCiz(kartVerisi);
-                        RenderEngine.altEkranlariCiz(kartVerisi);
-                        EditManager.BackViews.init();
-                        EditManager.Global.degisiklikYapildi();
-                        if (typeof Router !== 'undefined') Router.resetToMainMenu();
-                    } else {
-                        RenderEngine.menuCiz(kartVerisi);
-                        RenderEngine.altEkranlariCiz(kartVerisi);
-                        EditManager.BackViews.init();
-                        EditManager.Global.degisiklikYapildi();
-                    }
-                });
-                row.appendChild(delBtn);
+        addBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (!Array.isArray(kartVerisi.links)) kartVerisi.links = [];
+            if (kartVerisi.links.length >= 15) {
+                alert("Maksimum bağlantı sayısına ulaşıldı.");
+                return;
             }
-        });
+
+            const hasEmpty = kartVerisi.links.some(l => !(l.baslik || l.isim || '').trim() && !(l.url || '').trim());
+            if (hasEmpty) {
+                const expandedInput = wrapper.querySelector('.nook-link-row.is-expanded .edit-isim-input');
+                if (expandedInput) expandedInput.focus();
+                return;
+            }
+
+            kartVerisi.links.push({ baslik: '', isim: '', url: '' });
+            EditManager.Global.degisiklikYapildi();
+            renderLinks();
+
+            const lastItem = wrapper.lastElementChild;
+            if (lastItem) {
+                const toggleBtn = lastItem.querySelector('.nook-link-toggle');
+                if (toggleBtn) toggleBtn.click();
+            }
+        };
+
+        // Tıklama dışı akordeon kapatma (Click outside)
+        if (!wrapper._clickOutsideBound) {
+            wrapper._clickOutsideBound = true;
+            document.addEventListener('mousedown', (e) => {
+                if (e.target.closest('#view-links')) {
+                    const row = e.target.closest('.nook-link-row');
+                    if (!row) {
+                        wrapper.querySelectorAll('.nook-link-row.is-expanded').forEach(openRow => {
+                            const idx = parseInt(openRow.dataset.index, 10);
+                            const linkData = kartVerisi.links[idx];
+                            const urlInput = openRow.querySelector('.edit-url-input');
+                            if (urlInput && urlInput.value.trim() && !urlGecerliMi(urlInput.value.trim())) return;
+
+                            if (linkData && !(linkData.baslik || linkData.isim || '').trim() && !(linkData.url || '').trim()) {
+                                openRow.classList.add('is-deleting');
+                                setTimeout(() => {
+                                    kartVerisi.links.splice(idx, 1);
+                                    renderLinks();
+                                }, 250);
+                            } else {
+                                const collapseEl = openRow.querySelector('.nook-link-collapse');
+                                if (collapseEl) {
+                                    collapseEl.style.height = collapseEl.scrollHeight + 'px';
+                                    requestAnimationFrame(() => {
+                                        requestAnimationFrame(() => { collapseEl.style.height = '0px'; });
+                                    });
+                                }
+                                openRow.classList.remove('is-expanded');
+                                openRow.setAttribute('draggable', 'true');
+                                const toggleBtn = openRow.querySelector('.nook-link-toggle');
+                                if (toggleBtn) {
+                                    toggleBtn.innerHTML = KALEM_IKONU;
+                                    toggleBtn.title = 'Düzenle';
+                                }
+                                const nameInput = openRow.querySelector('.edit-isim-input');
+                                const nameDisplay = openRow.querySelector('.nook-link-name');
+                                if (nameDisplay && nameInput) nameDisplay.textContent = nameInput.value.trim() || 'Yeni bağlantı';
+                                const domainDisplay = openRow.querySelector('.nook-link-domain');
+                                if (domainDisplay && urlInput) {
+                                    let d = 'Bağlantı';
+                                    try {
+                                        let p = urlInput.value.trim();
+                                        if (p && !p.startsWith('http')) p = 'https://' + p;
+                                        if (p) d = new URL(p).hostname.replace(/^www\./, '');
+                                    } catch(err) {}
+                                    domainDisplay.textContent = d;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
 
         // Link Satırları Sürükle-Bırak Sistemi
-        if (!scrollWrap._linksDragBound) {
-            scrollWrap._linksDragBound = true;
+        if (!wrapper._linksDragBound) {
+            wrapper._linksDragBound = true;
             let linkHareketEtti = false;
 
-            scrollWrap.addEventListener('dragstart', (e) => {
-                const row = e.target.closest('.link-item-row');
-                if (!row) return;
+            wrapper.addEventListener('dragstart', (e) => {
+                const row = e.target.closest('.nook-link-row');
+                if (!row || row.classList.contains('is-expanded')) {
+                    e.preventDefault();
+                    return;
+                }
                 linkHareketEtti = false;
                 row.classList.add('is-dragging');
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', row.dataset.index || '');
             });
 
-            scrollWrap.addEventListener('dragover', (e) => {
+            wrapper.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                const draggingRow = scrollWrap.querySelector('.link-item-row.is-dragging');
+                const draggingRow = wrapper.querySelector('.nook-link-row.is-dragging');
                 if (!draggingRow) return;
 
-                const targetRow = e.target.closest('.link-item-row:not(.is-dragging)');
+                const targetRow = e.target.closest('.nook-link-row:not(.is-dragging)');
                 if (targetRow) {
                     linkHareketEtti = true;
                     const box = targetRow.getBoundingClientRect();
@@ -978,25 +1190,20 @@ EditManager.BackViews = {
                 }
             });
 
-            scrollWrap.addEventListener('dragend', () => {
-                const draggingRow = scrollWrap.querySelector('.link-item-row.is-dragging');
+            wrapper.addEventListener('dragend', () => {
+                const draggingRow = wrapper.querySelector('.nook-link-row.is-dragging');
                 if (draggingRow) draggingRow.classList.remove('is-dragging');
 
-                // addBtn ve açık form her zaman en altta kalmalı
-                const currentAddBtn = scrollWrap.querySelector('.links-add-btn');
-                const currentForm = scrollWrap.querySelector('.link-add-form');
-                if (currentForm) scrollWrap.appendChild(currentForm);
-                if (currentAddBtn) scrollWrap.appendChild(currentAddBtn);
+                window._suruklemeBitti = Date.now();
 
                 if (linkHareketEtti && Array.isArray(kartVerisi.links)) {
-                    const yeniSiraIndices = [...scrollWrap.querySelectorAll('.link-item-row')].map(r => parseInt(r.dataset.index, 10));
+                    const yeniSiraIndices = [...wrapper.querySelectorAll('.nook-link-row')].map(r => parseInt(r.dataset.index, 10));
                     const yeniLinks = yeniSiraIndices.map(i => kartVerisi.links[i]).filter(Boolean);
 
                     if (JSON.stringify(yeniLinks) !== JSON.stringify(kartVerisi.links)) {
                         kartVerisi.links = yeniLinks;
                         EditManager.Global.degisiklikYapildi();
-                        RenderEngine.altEkranlariCiz(kartVerisi);
-                        EditManager.BackViews.init();
+                        renderLinks();
                     }
                 }
             });

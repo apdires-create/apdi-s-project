@@ -577,6 +577,13 @@ body.has-unsaved-changes .edit-action-bar {
     cursor: not-allowed;
     transform: none;
 }
+
+.edit-bar-btn.save-btn.is-locked {
+    opacity: 0.5;
+    pointer-events: none;
+    background: #ef4444 !important;
+    box-shadow: none !important;
+}
 /* #endregion */
 
 /* #region 6: CROPPER.JS MODALI VE TOAST BİLDİRİMİ */

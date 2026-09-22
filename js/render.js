@@ -156,6 +156,11 @@ const RenderEngine = {
         const viewsWrapper = document.getElementById('viewsWrapper');
         if (!viewsWrapper || !data) return;
 
+        // O anda açık olan bir alt detay ekranı varsa ID'sini kaydet
+        const activeDetailId = (typeof Router !== 'undefined' && Router.activeDetailView)
+            ? Router.activeDetailView.id
+            : null;
+
         // Kök menü haricindeki eski dinamik ekranları temizle
         const existingDetails = viewsWrapper.querySelectorAll('.view-detail');
         existingDetails.forEach(el => el.remove());
@@ -181,6 +186,19 @@ const RenderEngine = {
                 <p class="status-text">${this.escapeHtml(workingText)}</p>
             </div>
         ` : `<p class="placeholder-text">Henüz durum bilgisi eklenmemiş.</p>`));
+
+        // Eğer önceden aktif olan bir alt ekran varsa, yeniden üretilen DOM paneline .active sınıfını ve Router referansını aktar
+        if (activeDetailId) {
+            const restoredPanel = document.getElementById(activeDetailId);
+            if (restoredPanel) {
+                restoredPanel.classList.add('active');
+                if (typeof Router !== 'undefined') {
+                    Router.activeDetailView = restoredPanel;
+                }
+            } else if (typeof Router !== 'undefined') {
+                Router.resetToMainMenu();
+            }
+        }
 
         // Eğer sahip modundaysak ve EditManager yüklüyse arka ekran kontrollerini bağla
         if (typeof isOwner !== 'undefined' && isOwner && typeof EditManager !== 'undefined') {
@@ -213,19 +231,35 @@ const RenderEngine = {
     // 1.5: Alt İçerik Üreticileri
     linksIcerikHTML(links) {
         if (!Array.isArray(links) || links.length === 0) {
-            return `<p class="placeholder-text">Henüz bağlantı eklenmemiş.</p>`;
+            return `<div class="links-wrapper" id="links-wrapper"><p class="placeholder-text">Henüz bağlantı eklenmemiş.</p></div>`;
         }
-        return links.map(link => `
-            <a href="${this.safeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="link-item-row">
-                <div class="link-icon-box" style="background: ${this.escapeHtml(link.renk || '#3b5bdb')};">
-                    ${this.getSafeLinkIcon(link.ikon)}
-                </div>
-                <div class="link-info">
-                    <span class="link-label">${this.escapeHtml(link.baslik)}</span>
-                    <span class="link-url">${this.escapeHtml(link.url)}</span>
-                </div>
-            </a>
-        `).join('');
+        return `
+            <div class="links-wrapper" id="links-wrapper">
+                ${links.map(link => {
+                    const baslik = link.baslik || link.isim || 'Bağlantı';
+                    let domain = 'Bağlantı';
+                    try {
+                        let parsedUrl = link.url;
+                        if (parsedUrl && !parsedUrl.startsWith('http://') && !parsedUrl.startsWith('https://')) {
+                            parsedUrl = 'https://' + parsedUrl;
+                        }
+                        if (parsedUrl) domain = new URL(parsedUrl).hostname.replace(/^www\./, '');
+                    } catch(e) {}
+
+                    return `
+                        <a href="${this.safeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="nook-link-row">
+                            <div class="nook-link-main">
+                                <div class="nook-link-icon">${this.getLinkIcon(link.url)}</div>
+                                <div class="nook-link-info">
+                                    <span class="nook-link-name">${this.escapeHtml(baslik)}</span>
+                                    <span class="nook-link-domain">${this.escapeHtml(domain)}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }).join('')}
+            </div>
+        `;
     },
 
     topsIcerikHTML(tops) {
@@ -394,8 +428,27 @@ const RenderEngine = {
 
     safeUrl(url) {
         if (!url) return '#';
-        const temiz = String(url).trim();
+        let temiz = String(url).trim();
+        if (!temiz.startsWith('http://') && !temiz.startsWith('https://')) {
+            temiz = 'https://' + temiz;
+        }
         return /^https?:\/\/[^"'\s<>]+$/i.test(temiz) ? this.escapeHtml(temiz) : '#';
+    },
+
+    getLinkIcon(url) {
+        const fallbackSvg = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>';
+        if (!url) return fallbackSvg;
+        try {
+            let parsed = String(url).trim();
+            if (!parsed.startsWith('http://') && !parsed.startsWith('https://')) {
+                parsed = 'https://' + parsed;
+            }
+            const domain = new URL(parsed).hostname.replace(/^www\./, '');
+            if (!domain) return fallbackSvg;
+            return `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64" alt="Site İkonu" onerror="this.onerror=null; this.src=''; this.parentElement.innerHTML='${fallbackSvg}';">`;
+        } catch (e) {
+            return fallbackSvg;
+        }
     },
 
     getSafeLinkIcon(ikon) {
