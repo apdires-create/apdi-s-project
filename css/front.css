@@ -55,8 +55,8 @@
 .profile-name {
     margin-top: 2cqh;
     width: 90%;
-    font-size: var(--cq-fs-name);
-    font-weight: 700;
+    font-size: 6.8cqw;
+    font-weight: 750;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
@@ -65,9 +65,9 @@
 }
 
 .profile-title {
-    margin-top: 0.5cqh;
+    margin-top: 0.6cqh;
     width: 85%;
-    font-size: var(--cq-fs-subtitle);
+    font-size: 3.9cqw;
     font-weight: 500;
     color: var(--text-tertiary);
     font-style: italic;
@@ -83,22 +83,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2cqh 2cqw;
+    padding: 2cqh 3cqw;
     text-align: center;
 }
 
 .profile-bio {
-    font-size: var(--cq-fs-body);
-    line-height: 1.55;
+    font-size: 4.1cqw;
+    line-height: 1.6;
     color: var(--text-secondary);
-    font-weight: 400;
+    font-weight: 450;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 95%;
+    max-width: 96%;
 }
 /* #endregion */
 

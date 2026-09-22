@@ -25,15 +25,15 @@
 
 /* #region 2: CONTAINER QUERY TİPOGRAFİ SKALASI */
 :root {
-    --cq-fs-name: 5.6cqw;
+    --cq-fs-name: 6.6cqw;
     --cq-fs-title: 5cqw;
-    --cq-fs-subtitle: 3.4cqw;
+    --cq-fs-subtitle: 3.8cqw;
     --cq-fs-btn: 3.6cqw;
     --cq-fs-item-title: 3.4cqw;
-    --cq-fs-body: 3.1cqw;
-    --cq-fs-pill: 2.8cqw;
-    --cq-fs-desc: 2.6cqw;
-    --cq-fs-mono: 2.4cqw;
+    --cq-fs-body: 3.6cqw;
+    --cq-fs-pill: 3.2cqw;
+    --cq-fs-desc: 2.7cqw;
+    --cq-fs-mono: 2.5cqw;
 }
 /* #endregion */
 

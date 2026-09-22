@@ -74,7 +74,8 @@ const Router = {
                     '.item-delete-btn',
                     '.nav-item-btn',
                     '.add-section-nav-btn',
-                    '.add-section-big-btn'
+                    '.add-section-big-btn',
+                    '.view-add-btn'
                 ].join(', ');
 
                 if (e.target.closest(interactiveSelector)) return;

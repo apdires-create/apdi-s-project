@@ -85,6 +85,14 @@ html, body {
     display: flex;
     flex-direction: column;
 }
+
+.card-container:not(.is-flipped) .card-back {
+    pointer-events: none;
+}
+
+.card-container.is-flipped .card-front {
+    pointer-events: none;
+}
 /* #endregion */
 
 /* #region 3: PAYLAŞILAN BUTON VE ETKİLEŞİM SINIFLARI */

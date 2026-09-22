@@ -310,11 +310,12 @@ body.is-owner .top-item-card:active {
     color: var(--text-secondary);
     font-size: var(--cq-fs-desc);
     font-weight: 600;
-    padding: 2cqw 3cqw;
+    padding: 2.5cqw 3cqw;
     cursor: pointer;
     width: 100%;
     justify-content: center;
-    transition: all 0.2s ease;
+    flex-shrink: 0;
+    transition: all 0.2s ease, transform 0.2s ease;
 }
 
 .view-add-btn:hover {
@@ -355,6 +356,17 @@ body.is-owner .top-item-card:hover .item-delete-btn {
     position: relative;
 }
 
+@keyframes inlineFormSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .inline-form-card {
     background: var(--bg-card-subtle);
     border: 1px solid var(--border-highlight);
@@ -363,7 +375,8 @@ body.is-owner .top-item-card:hover .item-delete-btn {
     display: flex;
     flex-direction: column;
     gap: 2cqw;
-    margin-bottom: 2.5cqw;
+    flex-shrink: 0;
+    animation: inlineFormSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .inline-form-title {

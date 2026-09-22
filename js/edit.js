@@ -10,6 +10,9 @@ const EditManager = {
     init() {
         if (typeof isOwner === 'undefined' || !isOwner) return;
 
+        // Kart verisindeki boş kategorileri sessizce temizle ki orijinalVeri ile birebir aynı tabandan başlansın
+        this.temizleBosKategorileri(true);
+
         // Orijinal verinin yedeğini al (İptal edilebilmesi için)
         this.state.orijinalVeri = JSON.parse(JSON.stringify(kartVerisi));
 
@@ -24,7 +27,7 @@ const EditManager = {
         document.body.classList.add('global-edit-mode');
     },
 
-    temizleBosKategorileri() {
+    temizleBosKategorileri(sessiz = false) {
         if (!kartVerisi) return;
         let degisiklik = false;
 
@@ -62,7 +65,7 @@ const EditManager = {
             }
             if (this.BackViews) this.BackViews.init();
             if (this.SectionPicker) this.SectionPicker.bagla();
-            if (this.Global) this.Global.degisiklikYapildi();
+            if (!sessiz && this.Global) this.Global.degisiklikYapildi();
         }
     },
 
@@ -209,14 +212,34 @@ EditManager.Global = {
 
     getTemizVeri(veri) {
         if (!veri) return null;
+        const front = veri.front_data || {};
+        const links = (Array.isArray(veri.links) && veri.links.length > 0) ? veri.links : null;
+        let tops = null;
+        if (veri.tops) {
+            const ogeler = Array.isArray(veri.tops.ogeler) ? veri.tops.ogeler : (Array.isArray(veri.tops) ? veri.tops : []);
+            if (ogeler.length > 0) {
+                tops = {
+                    kategori: veri.tops.kategori || 'Tops',
+                    harici_link: veri.tops.harici_link || null,
+                    ogeler: ogeler
+                };
+            }
+        }
+        const trophies = (Array.isArray(veri.trophies) && veri.trophies.length > 0) ? veri.trophies : null;
+        const widgets = (Array.isArray(veri.widgets) && veri.widgets.length > 0) ? veri.widgets : null;
+        let working_on = null;
+        if (veri.working_on && veri.working_on.metin && veri.working_on.metin.trim() !== '') {
+            working_on = { metin: veri.working_on.metin.trim() };
+        }
+        const theme_config = veri.theme_config || {};
         return {
-            front_data: veri.front_data || {},
-            links: veri.links || [],
-            tops: veri.tops || {},
-            trophies: veri.trophies || [],
-            widgets: veri.widgets || [],
-            working_on: veri.working_on || {},
-            theme_config: veri.theme_config || {}
+            front_data: front,
+            links,
+            tops,
+            trophies,
+            widgets,
+            working_on,
+            theme_config
         };
     },
 
@@ -755,7 +778,13 @@ EditManager.BackViews = {
             </div>
         `;
 
-        scrollWrap.insertBefore(form, scrollWrap.firstChild);
+        const addBtn = scrollWrap.querySelector('.links-add-btn');
+        if (addBtn) {
+            scrollWrap.insertBefore(form, addBtn);
+        } else {
+            scrollWrap.appendChild(form);
+        }
+
         const titleInput = form.querySelector('.link-title-input');
         if (titleInput) setTimeout(() => titleInput.focus(), 50);
 
@@ -796,10 +825,14 @@ EditManager.BackViews = {
         const scrollWrap = panel.querySelector('.scrollable-fade');
         if (!scrollWrap) return;
 
-        // En üste "+ Yeni Bağlantı Ekle" butonu koy
-        if (!panel.querySelector('.links-add-btn')) {
-            const header = panel.querySelector('.view-header');
-            const addBtn = document.createElement('button');
+        // Sahip modunda boş bildirim metnini kaldır ki ekleme butonu en yukarıda dursun
+        const placeholder = scrollWrap.querySelector('.placeholder-text');
+        if (placeholder) placeholder.remove();
+
+        // En alta "+ Yeni Bağlantı Ekle" butonu koy
+        let addBtn = scrollWrap.querySelector('.links-add-btn');
+        if (!addBtn) {
+            addBtn = document.createElement('button');
             addBtn.className = 'view-add-btn links-add-btn';
             addBtn.innerHTML = `
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -813,7 +846,9 @@ EditManager.BackViews = {
                 this.acLinkFormu();
             });
 
-            if (header) header.after(addBtn);
+            scrollWrap.appendChild(addBtn);
+        } else {
+            scrollWrap.appendChild(addBtn);
         }
 
         // Mevcut link satırlarına silme butonu koy ve sürüklenebilir yap
@@ -888,6 +923,12 @@ EditManager.BackViews = {
                 const draggingRow = scrollWrap.querySelector('.link-item-row.is-dragging');
                 if (draggingRow) draggingRow.classList.remove('is-dragging');
 
+                // addBtn ve açık form her zaman en altta kalmalı
+                const currentAddBtn = scrollWrap.querySelector('.links-add-btn');
+                const currentForm = scrollWrap.querySelector('.link-add-form');
+                if (currentForm) scrollWrap.appendChild(currentForm);
+                if (currentAddBtn) scrollWrap.appendChild(currentAddBtn);
+
                 if (linkHareketEtti && Array.isArray(kartVerisi.links)) {
                     const yeniSiraIndices = [...scrollWrap.querySelectorAll('.link-item-row')].map(r => parseInt(r.dataset.index, 10));
                     const yeniLinks = yeniSiraIndices.map(i => kartVerisi.links[i]).filter(Boolean);
@@ -929,7 +970,13 @@ EditManager.BackViews = {
             </div>
         `;
 
-        scrollWrap.insertBefore(form, scrollWrap.firstChild);
+        const addBtn = scrollWrap.querySelector('.tops-add-btn');
+        if (addBtn) {
+            scrollWrap.insertBefore(form, addBtn);
+        } else {
+            scrollWrap.appendChild(form);
+        }
+
         const titleInput = form.querySelector('.top-title-input');
         if (titleInput) setTimeout(() => titleInput.focus(), 50);
 
@@ -991,11 +1038,17 @@ EditManager.BackViews = {
             };
         }
 
-        // En üste "+ Yeni Öğe Ekle" butonu koy
         const scrollWrap = panel.querySelector('.scrollable-fade');
-        if (scrollWrap && !panel.querySelector('.tops-add-btn')) {
-            const header = panel.querySelector('.view-header');
-            const addBtn = document.createElement('button');
+        if (!scrollWrap) return;
+
+        // Sahip modunda boş bildirim metnini kaldır ki ekleme butonu en yukarıda dursun
+        const placeholder = scrollWrap.querySelector('.placeholder-text');
+        if (placeholder) placeholder.remove();
+
+        // En alta "+ Yeni Öğe Ekle" butonu koy
+        let addBtn = scrollWrap.querySelector('.tops-add-btn');
+        if (!addBtn) {
+            addBtn = document.createElement('button');
             addBtn.className = 'view-add-btn tops-add-btn';
             addBtn.innerHTML = `
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
@@ -1009,98 +1062,104 @@ EditManager.BackViews = {
                 this.acTopFormu();
             });
 
-            if (header) header.after(addBtn);
+            scrollWrap.appendChild(addBtn);
+        } else {
+            scrollWrap.appendChild(addBtn);
         }
 
         // Tops öğelerine silme butonu ekle ve sürüklenebilir yap
-        if (scrollWrap) {
-            scrollWrap.querySelectorAll('.top-item-card').forEach((card, idx) => {
-                card.setAttribute('draggable', 'true');
-                card.dataset.index = idx;
-                if (!card.querySelector('.item-delete-btn')) {
-                    const delBtn = document.createElement('button');
-                    delBtn.className = 'item-delete-btn';
-                    delBtn.style.position = 'absolute';
-                    delBtn.style.top = '8px';
-                    delBtn.style.right = '8px';
-                    delBtn.innerHTML = `
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                    `;
-                    delBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (kartVerisi.tops?.ogeler) {
-                            kartVerisi.tops.ogeler.splice(idx, 1);
-                            if (kartVerisi.tops.ogeler.length === 0) {
-                                delete kartVerisi.tops;
-                                RenderEngine.menuCiz(kartVerisi);
-                                RenderEngine.altEkranlariCiz(kartVerisi);
-                                EditManager.BackViews.init();
-                                EditManager.Global.degisiklikYapildi();
-                                if (typeof Router !== 'undefined') Router.resetToMainMenu();
-                            } else {
-                                RenderEngine.menuCiz(kartVerisi);
-                                RenderEngine.altEkranlariCiz(kartVerisi);
-                                EditManager.BackViews.init();
-                                EditManager.Global.degisiklikYapildi();
-                            }
+        scrollWrap.querySelectorAll('.top-item-card').forEach((card, idx) => {
+            card.setAttribute('draggable', 'true');
+            card.dataset.index = idx;
+            if (!card.querySelector('.item-delete-btn')) {
+                const delBtn = document.createElement('button');
+                delBtn.className = 'item-delete-btn';
+                delBtn.style.position = 'absolute';
+                delBtn.style.top = '8px';
+                delBtn.style.right = '8px';
+                delBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                `;
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (kartVerisi.tops?.ogeler) {
+                        kartVerisi.tops.ogeler.splice(idx, 1);
+                        if (kartVerisi.tops.ogeler.length === 0) {
+                            delete kartVerisi.tops;
+                            RenderEngine.menuCiz(kartVerisi);
+                            RenderEngine.altEkranlariCiz(kartVerisi);
+                            EditManager.BackViews.init();
+                            EditManager.Global.degisiklikYapildi();
+                            if (typeof Router !== 'undefined') Router.resetToMainMenu();
+                        } else {
+                            RenderEngine.menuCiz(kartVerisi);
+                            RenderEngine.altEkranlariCiz(kartVerisi);
+                            EditManager.BackViews.init();
+                            EditManager.Global.degisiklikYapildi();
                         }
-                    });
-                    card.appendChild(delBtn);
+                    }
+                });
+                card.appendChild(delBtn);
+            }
+        });
+
+        // Tops Kartları Sürükle-Bırak Sistemi
+        if (!scrollWrap._topsDragBound) {
+            scrollWrap._topsDragBound = true;
+            let topHareketEtti = false;
+
+            scrollWrap.addEventListener('dragstart', (e) => {
+                const card = e.target.closest('.top-item-card');
+                if (!card) return;
+                topHareketEtti = false;
+                card.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', card.dataset.index || '');
+            });
+
+            scrollWrap.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggingCard = scrollWrap.querySelector('.top-item-card.is-dragging');
+                if (!draggingCard) return;
+
+                const targetCard = e.target.closest('.top-item-card:not(.is-dragging)');
+                if (targetCard) {
+                    topHareketEtti = true;
+                    const box = targetCard.getBoundingClientRect();
+                    const offset = e.clientY - box.top;
+                    if (offset > box.height / 2) {
+                        targetCard.after(draggingCard);
+                    } else {
+                        targetCard.before(draggingCard);
+                    }
                 }
             });
 
-            // Tops Kartları Sürükle-Bırak Sistemi
-            if (!scrollWrap._topsDragBound) {
-                scrollWrap._topsDragBound = true;
-                let topHareketEtti = false;
+            scrollWrap.addEventListener('dragend', () => {
+                const draggingCard = scrollWrap.querySelector('.top-item-card.is-dragging');
+                if (draggingCard) draggingCard.classList.remove('is-dragging');
 
-                scrollWrap.addEventListener('dragstart', (e) => {
-                    const card = e.target.closest('.top-item-card');
-                    if (!card) return;
-                    topHareketEtti = false;
-                    card.classList.add('is-dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', card.dataset.index || '');
-                });
+                // addBtn ve açık form her zaman en altta kalmalı
+                const currentAddBtn = scrollWrap.querySelector('.tops-add-btn');
+                const currentForm = scrollWrap.querySelector('.top-add-form');
+                if (currentForm) scrollWrap.appendChild(currentForm);
+                if (currentAddBtn) scrollWrap.appendChild(currentAddBtn);
 
-                scrollWrap.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    const draggingCard = scrollWrap.querySelector('.top-item-card.is-dragging');
-                    if (!draggingCard) return;
+                if (topHareketEtti && kartVerisi.tops && Array.isArray(kartVerisi.tops.ogeler)) {
+                    const yeniSiraIndices = [...scrollWrap.querySelectorAll('.top-item-card')].map(c => parseInt(c.dataset.index, 10));
+                    const yeniOgeler = yeniSiraIndices.map(i => kartVerisi.tops.ogeler[i]).filter(Boolean);
 
-                    const targetCard = e.target.closest('.top-item-card:not(.is-dragging)');
-                    if (targetCard) {
-                        topHareketEtti = true;
-                        const box = targetCard.getBoundingClientRect();
-                        const offset = e.clientY - box.top;
-                        if (offset > box.height / 2) {
-                            targetCard.after(draggingCard);
-                        } else {
-                            targetCard.before(draggingCard);
-                        }
+                    if (JSON.stringify(yeniOgeler) !== JSON.stringify(kartVerisi.tops.ogeler)) {
+                        kartVerisi.tops.ogeler = yeniOgeler;
+                        EditManager.Global.degisiklikYapildi();
+                        RenderEngine.altEkranlariCiz(kartVerisi);
+                        EditManager.BackViews.init();
                     }
-                });
-
-                scrollWrap.addEventListener('dragend', () => {
-                    const draggingCard = scrollWrap.querySelector('.top-item-card.is-dragging');
-                    if (draggingCard) draggingCard.classList.remove('is-dragging');
-
-                    if (topHareketEtti && kartVerisi.tops && Array.isArray(kartVerisi.tops.ogeler)) {
-                        const yeniSiraIndices = [...scrollWrap.querySelectorAll('.top-item-card')].map(c => parseInt(c.dataset.index, 10));
-                        const yeniOgeler = yeniSiraIndices.map(i => kartVerisi.tops.ogeler[i]).filter(Boolean);
-
-                        if (JSON.stringify(yeniOgeler) !== JSON.stringify(kartVerisi.tops.ogeler)) {
-                            kartVerisi.tops.ogeler = yeniOgeler;
-                            EditManager.Global.degisiklikYapildi();
-                            RenderEngine.altEkranlariCiz(kartVerisi);
-                            EditManager.BackViews.init();
-                        }
-                    }
-                });
-            }
+                }
+            });
         }
     },
 
@@ -1142,7 +1201,12 @@ EditManager.BackViews = {
             </div>
         `;
 
-        scrollWrap.insertBefore(form, scrollWrap.firstChild);
+        if (addBtn) {
+            scrollWrap.insertBefore(form, addBtn);
+        } else {
+            scrollWrap.appendChild(form);
+        }
+
         const textarea = form.querySelector('.working-text-input');
         if (textarea) {
             setTimeout(() => {
@@ -1223,9 +1287,18 @@ EditManager.BackViews = {
 
             card.appendChild(actionsWrap);
         } else if (!card && !panel.querySelector('.working-add-btn') && !scrollWrap.querySelector('.working-edit-form')) {
+            const placeholder = scrollWrap.querySelector('.placeholder-text');
+            if (placeholder) placeholder.remove();
+
             const addBtn = document.createElement('button');
             addBtn.className = 'view-add-btn working-add-btn';
-            addBtn.innerHTML = `<span>+ Durum Bildirimi Ekle</span>`;
+            addBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Durum Bildirimi Ekle</span>
+            `;
             addBtn.onclick = () => {
                 this.acWorkingFormu();
             };
@@ -1260,7 +1333,13 @@ EditManager.BackViews = {
             </div>
         `;
 
-        scrollWrap.insertBefore(form, scrollWrap.firstChild);
+        const addBtn = scrollWrap.querySelector('.widget-add-btn');
+        if (addBtn) {
+            scrollWrap.insertBefore(form, addBtn);
+        } else {
+            scrollWrap.appendChild(form);
+        }
+
         const userInput = form.querySelector('.widget-user-input');
         if (userInput) setTimeout(() => userInput.focus(), 50);
 
@@ -1312,6 +1391,10 @@ EditManager.BackViews = {
         const scrollWrap = panel.querySelector('.scrollable-fade');
         if (!scrollWrap) return;
 
+        // Sahip modunda boş bildirim metnini kaldır
+        const placeholder = scrollWrap.querySelector('.placeholder-text');
+        if (placeholder) placeholder.remove();
+
         // Monkeytype kartı varsa kullanıcı adını güncelleme ve widget'ı kaldırma butonu koy
         const mtCard = panel.querySelector('.monkeytype-card');
         if (mtCard && !mtCard.querySelector('.mt-owner-actions')) {
@@ -1354,7 +1437,13 @@ EditManager.BackViews = {
             // Widget yoksa "+ Monkeytype Widget'ı Ekle" butonu koy
             const addBtn = document.createElement('button');
             addBtn.className = 'view-add-btn widget-add-btn';
-            addBtn.innerHTML = `<span>+ Monkeytype Widget'ı Ekle</span>`;
+            addBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Monkeytype Widget'ı Ekle</span>
+            `;
             addBtn.onclick = () => {
                 this.acWidgetFormu();
             };
@@ -1483,17 +1572,6 @@ EditManager.SectionPicker = {
         // Doğrudan oluşturulan kategorinin detay ekranına git
         if (typeof Router !== 'undefined') {
             Router.openDetailView(catId);
-        }
-
-        // Kullanıcının doğrudan düzenleyebilmesi için ilgili ekleme formunu otomatik aç
-        if (catId === 'links') {
-            EditManager.BackViews.acLinkFormu();
-        } else if (catId === 'tops') {
-            EditManager.BackViews.acTopFormu();
-        } else if (catId === 'widgets') {
-            EditManager.BackViews.acWidgetFormu();
-        } else if (catId === 'working-on') {
-            EditManager.BackViews.acWorkingFormu();
         }
     }
 };
