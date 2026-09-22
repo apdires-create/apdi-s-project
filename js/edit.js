@@ -275,6 +275,11 @@ EditManager.Global = {
     async kaydet() {
         if (!EditManager.state.hasUnsavedChanges || !supabaseClient) return;
 
+        // Açık olan tüm link akordeonlarını kaydet ve kapat (küçült)
+        if (typeof EditManager.BackViews?.kapatTumLinkAkordeonlari === 'function') {
+            EditManager.BackViews.kapatTumLinkAkordeonlari();
+        }
+
         const saveBtn = document.getElementById('edit-save-btn');
         if (saveBtn) {
             saveBtn.disabled = true;
@@ -813,6 +818,80 @@ EditManager.BackViews = {
     },
 
     // --- Links ---
+    urlGecerliMi(string) {
+        if (!string) return false;
+        const res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+        return (res !== null);
+    },
+
+    kapatTumLinkAkordeonlari() {
+        const wrapper = document.getElementById('links-wrapper');
+        if (!wrapper) return;
+
+        const KALEM_IKONU = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+
+        wrapper.querySelectorAll('.nook-link-row.is-expanded').forEach(openRow => {
+            const idx = parseInt(openRow.dataset.index, 10);
+            const linkData = (typeof kartVerisi !== 'undefined' && Array.isArray(kartVerisi.links)) ? kartVerisi.links[idx] : null;
+            const urlInput = openRow.querySelector('.edit-url-input');
+
+            // Eğer geçersiz URL varsa açık bırak
+            if (urlInput && urlInput.value.trim() && !this.urlGecerliMi(urlInput.value.trim())) {
+                urlInput.style.borderColor = "#ef4444";
+                const errorEl = openRow.querySelector('.inline-url-error');
+                if (errorEl) errorEl.style.display = "block";
+                return;
+            }
+
+            // Eğer hem isim hem url boş ise sessizce temizle
+            if (linkData && !(linkData.baslik || linkData.isim || '').trim() && !(linkData.url || '').trim()) {
+                openRow.classList.add('is-deleting');
+                setTimeout(() => {
+                    if (Array.isArray(kartVerisi.links)) {
+                        kartVerisi.links.splice(idx, 1);
+                        EditManager.Global.degisiklikYapildi();
+                        EditManager.BackViews.linksDuzenlemeKur();
+                    }
+                }, 200);
+                return;
+            }
+
+            const collapseEl = openRow.querySelector('.nook-link-collapse');
+            if (collapseEl) {
+                collapseEl.style.height = collapseEl.scrollHeight + 'px';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => { collapseEl.style.height = '0px'; });
+                });
+            }
+            openRow.classList.remove('is-expanded');
+            openRow.setAttribute('draggable', 'true');
+            const toggleBtn = openRow.querySelector('.nook-link-toggle') || openRow.querySelector('.nook-edit-btn');
+            if (toggleBtn) {
+                toggleBtn.innerHTML = KALEM_IKONU;
+                toggleBtn.title = 'Düzenle';
+                toggleBtn.classList.remove('is-delete-mode', 'is-active');
+            }
+
+            const nameInput = openRow.querySelector('.edit-isim-input');
+            const nameDisplay = openRow.querySelector('.nook-link-name');
+            if (nameDisplay && nameInput) {
+                nameDisplay.textContent = nameInput.value.trim() || 'Yeni bağlantı';
+            }
+            const domainDisplay = openRow.querySelector('.nook-link-domain');
+            const testBtn = openRow.querySelector('.nook-link-test-btn');
+            if (urlInput) {
+                let d = 'Bağlantı';
+                let p = urlInput.value.trim();
+                try {
+                    if (p && !p.startsWith('http')) p = 'https://' + p;
+                    if (p) d = new URL(p).hostname.replace(/^www\./, '');
+                } catch(err) {}
+                if (domainDisplay) domainDisplay.textContent = d;
+                if (testBtn && p) testBtn.href = RenderEngine.safeUrl(p);
+            }
+        });
+    },
+
     linksDuzenlemeKur() {
         const panel = document.getElementById('view-links');
         if (!panel) return;
@@ -832,14 +911,8 @@ EditManager.BackViews = {
             scrollWrap.prepend(wrapper);
         }
 
-        const KALEM_IKONU = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-        const SIL_IKONU = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-
-        const urlGecerliMi = (string) => {
-            if (!string) return false;
-            const res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
-            return (res !== null);
-        };
+        const KALEM_IKONU = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+        const COP_IKONU = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
         const renderLinks = () => {
             wrapper.innerHTML = '';
@@ -849,7 +922,7 @@ EditManager.BackViews = {
                 const currentUrl = urlInput.value.trim();
                 const errorEl = rowEl.querySelector('.inline-url-error');
 
-                if (currentUrl && !urlGecerliMi(currentUrl)) {
+                if (currentUrl && !this.urlGecerliMi(currentUrl)) {
                     urlInput.style.borderColor = "#ef4444";
                     if (errorEl) errorEl.style.display = "block";
                     return false;
@@ -869,6 +942,7 @@ EditManager.BackViews = {
                 if (toggleBtn) {
                     toggleBtn.innerHTML = KALEM_IKONU;
                     toggleBtn.title = 'Düzenle';
+                    toggleBtn.classList.remove('is-delete-mode');
                 }
 
                 const nameInput = rowEl.querySelector('.edit-isim-input');
@@ -878,14 +952,16 @@ EditManager.BackViews = {
                 }
 
                 const domainDisplay = rowEl.querySelector('.nook-link-domain');
-                if (domainDisplay) {
+                const testBtn = rowEl.querySelector('.nook-link-test-btn');
+                if (currentUrl) {
                     let d = 'Bağlantı';
+                    let p = currentUrl;
                     try {
-                        let parsed = currentUrl;
-                        if (parsed && !parsed.startsWith('http')) parsed = 'https://' + parsed;
-                        if (parsed) d = new URL(parsed).hostname.replace(/^www\./, '');
+                        if (p && !p.startsWith('http')) p = 'https://' + p;
+                        if (p) d = new URL(p).hostname.replace(/^www\./, '');
                     } catch(e) {}
-                    domainDisplay.textContent = d;
+                    if (domainDisplay) domainDisplay.textContent = d;
+                    if (testBtn && p) testBtn.href = RenderEngine.safeUrl(p);
                 }
 
                 return true;
@@ -908,8 +984,9 @@ EditManager.BackViews = {
 
                 const toggleBtn = rowEl.querySelector('.nook-link-toggle');
                 if (toggleBtn) {
-                    toggleBtn.innerHTML = SIL_IKONU;
+                    toggleBtn.innerHTML = COP_IKONU;
                     toggleBtn.title = 'Sil';
+                    toggleBtn.classList.add('is-delete-mode');
                 }
 
                 collapseEl.style.height = collapseEl.scrollHeight + 'px';
@@ -946,18 +1023,33 @@ EditManager.BackViews = {
                 const baslik = link.baslik || link.isim || '';
 
                 row.innerHTML = `
+                    <div class="nook-link-actions" draggable="false">
+                        <button type="button" class="nook-action-btn nook-link-toggle" title="Düzenle">
+                            ${KALEM_IKONU}
+                        </button>
+                    </div>
                     <div class="nook-link-main">
                         <div class="nook-link-icon">${RenderEngine.getLinkIcon(link.url)}</div>
                         <div class="nook-link-info">
-                            <span class="nook-link-name">${RenderEngine.escapeHtml(baslik) || 'Yeni bağlantı'}</span>
-                            <input type="text" class="nook-link-input edit-isim-input" placeholder="Görünen İsim (Örn: GitHub)" value="${RenderEngine.escapeHtml(baslik)}" autocomplete="off" spellcheck="false">
-                            <span class="nook-link-domain">${RenderEngine.escapeHtml(domain)}</span>
+                            <div class="nook-link-texts">
+                                <span class="nook-link-name">${RenderEngine.escapeHtml(baslik) || 'Yeni bağlantı'}</span>
+                                <span class="nook-link-domain">${RenderEngine.escapeHtml(domain)}</span>
+                            </div>
+                            <input type="text" class="nook-link-input edit-isim-input" placeholder="Görünen İsim (Örn: GitHub)" value="${RenderEngine.escapeHtml(baslik)}" autocomplete="off" spellcheck="false" draggable="false">
                         </div>
-                        <button type="button" class="nook-link-toggle" title="Düzenle">${KALEM_IKONU}</button>
                     </div>
                     <div class="nook-link-collapse" style="height: 0px;">
                         <div class="nook-link-form">
-                            <input type="url" class="nook-link-input edit-url-input" placeholder="https://..." value="${RenderEngine.escapeHtml(link.url || '')}" autocomplete="off" spellcheck="false">
+                            <div class="nook-url-input-wrap">
+                                <input type="url" class="nook-link-input edit-url-input" placeholder="https://..." value="${RenderEngine.escapeHtml(link.url || '')}" autocomplete="off" spellcheck="false" draggable="false">
+                                <a href="${RenderEngine.safeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="nook-action-btn nook-link-test-btn" title="Bağlantıyı Aç" draggable="false">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                        <polyline points="15 3 21 3 21 9"></polyline>
+                                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                                    </svg>
+                                </a>
+                            </div>
                             <span class="inline-url-error" style="display: none; color: #ef4444; font-size: var(--cq-fs-mono); margin-top: 0.5cqw;">Lütfen geçerli bir internet adresi girin.</span>
                         </div>
                     </div>
@@ -967,13 +1059,21 @@ EditManager.BackViews = {
                 const collapseEl = row.querySelector('.nook-link-collapse');
                 const nameInput = row.querySelector('.edit-isim-input');
                 const urlInput = row.querySelector('.edit-url-input');
+                const testBtn = row.querySelector('.nook-link-test-btn');
                 const errorEl = row.querySelector('.inline-url-error');
+
+                // Tıklanabilir iç kontrollerin mousedown olayını durdur ki kart sürüklenmeye başlamasın
+                [toggleBtn, testBtn, nameInput, urlInput].forEach(el => {
+                    if (!el) return;
+                    el.addEventListener('mousedown', (e) => e.stopPropagation());
+                    el.addEventListener('dragstart', (e) => { e.preventDefault(); e.stopPropagation(); });
+                });
 
                 const autoSave = () => {
                     let val = urlInput.value.trim();
                     const saveBtn = document.getElementById('edit-save-btn');
 
-                    if (val && !urlGecerliMi(val)) {
+                    if (val && !this.urlGecerliMi(val)) {
                         urlInput.style.borderColor = "#ef4444";
                         if (errorEl) errorEl.style.display = "block";
                         if (saveBtn) saveBtn.classList.add('is-locked');
@@ -1006,8 +1106,9 @@ EditManager.BackViews = {
                     const doUpdate = () => {
                         const iconEl = row.querySelector('.nook-link-icon');
                         const domainEl = row.querySelector('.nook-link-domain');
+                        const testBtn = row.querySelector('.nook-link-test-btn');
 
-                        if (urlGecerliMi(val)) {
+                        if (this.urlGecerliMi(val)) {
                             let d = 'Bağlantı';
                             try {
                                 d = new URL(val).hostname.replace(/^www\./, '');
@@ -1015,6 +1116,7 @@ EditManager.BackViews = {
 
                             if (domainEl) domainEl.textContent = d;
                             if (iconEl) iconEl.innerHTML = RenderEngine.getLinkIcon(val);
+                            if (testBtn) testBtn.href = RenderEngine.safeUrl(val);
                         }
                     };
 
@@ -1035,21 +1137,31 @@ EditManager.BackViews = {
                     updateLinkIconAndDomain(true);
                 });
 
-                row.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
-
-                toggleBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (window._suruklemeBitti && Date.now() - window._suruklemeBitti < 250) return;
-
-                    if (row.classList.contains('is-expanded')) {
-                        deleteRowWithAnim(row, index);
-                    } else {
-                        openAccordion(row, collapseEl);
-                        setTimeout(() => nameInput.focus(), 60);
+                // Enter tuşuna basıldığında akordeonu kapat (küçült)
+                const handleEnter = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        autoSave();
+                        closeAccordion(row, collapseEl, urlInput);
                     }
-                });
+                };
+                nameInput.addEventListener('keydown', handleEnter);
+                urlInput.addEventListener('keydown', handleEnter);
+
+                // Düzenle / Sil butonu (Açıkken tıklandığında siler, kapalıyken akordeonu açar)
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (window._suruklemeBitti && Date.now() - window._suruklemeBitti < 250) return;
+
+                        if (row.classList.contains('is-expanded')) {
+                            deleteRowWithAnim(row, index);
+                        } else {
+                            openAccordion(row, collapseEl);
+                            setTimeout(() => nameInput.focus(), 60);
+                        }
+                    });
+                }
 
                 wrapper.appendChild(row);
             });
@@ -1102,55 +1214,11 @@ EditManager.BackViews = {
         };
 
         // Tıklama dışı akordeon kapatma (Click outside)
-        if (!wrapper._clickOutsideBound) {
-            wrapper._clickOutsideBound = true;
+        if (!window._linksClickOutsideBound) {
+            window._linksClickOutsideBound = true;
             document.addEventListener('mousedown', (e) => {
-                if (e.target.closest('#view-links')) {
-                    const row = e.target.closest('.nook-link-row');
-                    if (!row) {
-                        wrapper.querySelectorAll('.nook-link-row.is-expanded').forEach(openRow => {
-                            const idx = parseInt(openRow.dataset.index, 10);
-                            const linkData = kartVerisi.links[idx];
-                            const urlInput = openRow.querySelector('.edit-url-input');
-                            if (urlInput && urlInput.value.trim() && !urlGecerliMi(urlInput.value.trim())) return;
-
-                            if (linkData && !(linkData.baslik || linkData.isim || '').trim() && !(linkData.url || '').trim()) {
-                                openRow.classList.add('is-deleting');
-                                setTimeout(() => {
-                                    kartVerisi.links.splice(idx, 1);
-                                    renderLinks();
-                                }, 250);
-                            } else {
-                                const collapseEl = openRow.querySelector('.nook-link-collapse');
-                                if (collapseEl) {
-                                    collapseEl.style.height = collapseEl.scrollHeight + 'px';
-                                    requestAnimationFrame(() => {
-                                        requestAnimationFrame(() => { collapseEl.style.height = '0px'; });
-                                    });
-                                }
-                                openRow.classList.remove('is-expanded');
-                                openRow.setAttribute('draggable', 'true');
-                                const toggleBtn = openRow.querySelector('.nook-link-toggle');
-                                if (toggleBtn) {
-                                    toggleBtn.innerHTML = KALEM_IKONU;
-                                    toggleBtn.title = 'Düzenle';
-                                }
-                                const nameInput = openRow.querySelector('.edit-isim-input');
-                                const nameDisplay = openRow.querySelector('.nook-link-name');
-                                if (nameDisplay && nameInput) nameDisplay.textContent = nameInput.value.trim() || 'Yeni bağlantı';
-                                const domainDisplay = openRow.querySelector('.nook-link-domain');
-                                if (domainDisplay && urlInput) {
-                                    let d = 'Bağlantı';
-                                    try {
-                                        let p = urlInput.value.trim();
-                                        if (p && !p.startsWith('http')) p = 'https://' + p;
-                                        if (p) d = new URL(p).hostname.replace(/^www\./, '');
-                                    } catch(err) {}
-                                    domainDisplay.textContent = d;
-                                }
-                            }
-                        });
-                    }
+                if (!e.target.closest('.nook-link-row.is-expanded') && !e.target.closest('.links-add-btn') && !e.target.closest('#edit-action-bar')) {
+                    EditManager.BackViews.kapatTumLinkAkordeonlari();
                 }
             });
         }

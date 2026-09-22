@@ -211,6 +211,8 @@
     color: inherit;
     display: block;
     position: relative;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .nook-link-row:hover {
@@ -231,6 +233,10 @@
     min-width: 0;
 }
 
+body.is-owner .nook-link-main {
+    padding-right: 18cqw;
+}
+
 /* İkon Alanı */
 .nook-link-icon {
     width: 8.5cqw;
@@ -249,12 +255,16 @@
     height: 60%;
     object-fit: contain;
     border-radius: 2px;
+    pointer-events: none;
+    user-select: none;
 }
 
 .nook-link-icon svg {
     width: 50%;
     height: 50%;
     color: var(--text-secondary);
+    pointer-events: none;
+    user-select: none;
 }
 
 /* Metin Bilgi Alanı */
@@ -287,42 +297,68 @@
     line-height: 1.2;
 }
 
-/* Düzenleme Kalem/Sil İkonu */
-.nook-link-toggle {
-    width: 7.5cqw;
-    height: 7.5cqw;
-    border-radius: var(--radius-circle);
-    border: none;
-    background: transparent;
+/* Düzenleme ve Silme Butonları (Üst Sağ / Ayrılmış Alan) */
+.nook-link-actions {
+    position: absolute;
+    top: 2cqw;
+    right: 2.2cqw;
+    display: flex;
+    align-items: center;
+    gap: 1.2cqw;
+    z-index: 10;
+}
+
+.nook-action-btn {
+    width: 6.5cqw;
+    height: 6.5cqw;
+    min-width: 22px;
+    min-height: 22px;
+    border-radius: 1.5cqw;
+    border: 1px solid var(--border-soft);
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
     color: var(--text-tertiary);
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: background 150ms ease, color 150ms ease;
-    flex-shrink: 0;
-    margin-left: auto;
+    cursor: pointer !important;
+    transition: all 120ms ease;
+    padding: 0;
 }
 
-.nook-link-toggle svg {
-    width: 4.2cqw;
-    height: 4.2cqw;
+.nook-action-btn svg {
+    width: 3.5cqw;
+    height: 3.5cqw;
+    min-width: 12px;
+    min-height: 12px;
+    pointer-events: none;
 }
 
-.nook-link-row:not(.is-expanded) .nook-link-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+.nook-action-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--border-highlight);
+    transform: scale(1.08);
 }
 
-/* Akordeon Açıkken Sil Butonuna Dönüşüm */
-.nook-link-row.is-expanded .nook-link-toggle {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
+.nook-action-btn.is-delete-mode {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.35);
 }
 
-.nook-link-row.is-expanded .nook-link-toggle:hover {
+.nook-action-btn.is-delete-mode:hover {
+    color: #ffffff;
     background: #ef4444;
-    color: #fff;
+    border-color: #ef4444;
+    transform: scale(1.08);
+}
+
+/* Metin Alanı ve Link Başlıkları */
+.nook-link-texts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4cqw;
+    min-width: 0;
 }
 
 /* Akordeon İç Formu (Collapse) */
@@ -340,6 +376,22 @@
     border-top: 1px solid var(--border-soft);
     margin-top: 1cqw;
     padding-top: 2.2cqw;
+}
+
+.nook-url-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1.5cqw;
+}
+
+.nook-url-input-wrap .edit-url-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.nook-link-test-btn {
+    flex-shrink: 0;
+    text-decoration: none;
 }
 
 /* Input Tasarımı */
@@ -365,8 +417,8 @@
     display: none;
 }
 
-.nook-link-row.is-expanded .nook-link-name,
-.nook-link-row.is-expanded .nook-link-domain {
+.nook-link-row.is-expanded .nook-link-texts,
+.nook-link-row.is-expanded .nook-link-text-anchor {
     display: none !important;
 }
 
@@ -381,13 +433,47 @@
     margin-top: 0.5cqw;
 }
 
-/* Sürükle Bırak Stilleri */
-.nook-link-row[draggable="true"] {
+/* Ziyaretçi Modunda Tıklanabilir Link ve Kararlı İmleç */
+body:not(.is-owner) .nook-link-row {
+    cursor: pointer;
+}
+
+body:not(.is-owner) .nook-link-row * {
+    pointer-events: none;
+}
+
+/* Sahip Modunda Kararlı Sürükleme ve İmleç Düzeni (Flicker Önleyici) */
+body.is-owner .nook-link-row[draggable="true"] {
     cursor: grab;
 }
 
-.nook-link-row[draggable="true"]:active {
+body.is-owner .nook-link-row[draggable="true"]:active {
     cursor: grabbing;
+}
+
+body.is-owner .nook-link-row[draggable="true"] .nook-link-main,
+body.is-owner .nook-link-row[draggable="true"] .nook-link-icon,
+body.is-owner .nook-link-row[draggable="true"] .nook-link-info,
+body.is-owner .nook-link-row[draggable="true"] .nook-link-texts,
+body.is-owner .nook-link-row[draggable="true"] .nook-link-name,
+body.is-owner .nook-link-row[draggable="true"] .nook-link-domain {
+    cursor: grab;
+    user-select: none;
+}
+
+/* Tıklanabilir butonlar */
+body.is-owner .nook-action-btn {
+    cursor: pointer !important;
+}
+
+body.is-owner .nook-link-row.is-expanded,
+body.is-owner .nook-link-row.is-expanded .nook-link-main,
+body.is-owner .nook-link-row.is-expanded .nook-link-info {
+    cursor: default;
+}
+
+body.is-owner .nook-link-row.is-expanded input {
+    cursor: text;
 }
 
 .nook-link-row.is-dragging {
