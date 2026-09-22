@@ -1,0 +1,387 @@
+/* #region 1: RESET VE GLOBAL SAYFA */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Global Estetik Scrollbar (Modern Glass / Minimal Nook Teması) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-stage);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+}
+
+.ambient-background {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(35, 45, 75, 0.4) 0%, rgba(12, 14, 20, 1) 75%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1200px;
+    z-index: 1;
+    padding: 20px;
+}
+/* #endregion */
+
+/* #region 2: 5:7 SABİT ORANLI KART GÖVDESİ */
+.card-container {
+    position: relative;
+    aspect-ratio: 5 / 7;
+    height: min(85vh, 660px);
+    width: auto;
+    max-width: 92vw;
+    container-type: size;
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out;
+}
+
+@media (max-aspect-ratio: 5/7) {
+    .card-container {
+        width: min(90vw, 420px);
+        height: auto;
+    }
+}
+
+.nook-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-card);
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-card);
+    transform-style: preserve-3d;
+    transition: transform 0.6s var(--ease-spring), box-shadow 0.3s ease;
+}
+
+.card-container.is-flipped .nook-card {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-card);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-container:not(.is-flipped) .card-back {
+    pointer-events: none;
+}
+
+.card-container.is-flipped .card-front {
+    pointer-events: none;
+}
+/* #endregion */
+
+/* #region 3: PAYLAŞILAN BUTON VE ETKİLEŞİM SINIFLARI */
+.flip-trigger-btn {
+    position: absolute;
+    top: 3.5cqw;
+    right: 3.5cqw;
+    width: var(--btn-icon-size);
+    height: var(--btn-icon-size);
+    border-radius: var(--radius-circle);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-highlight);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.flip-trigger-btn svg {
+    width: var(--btn-icon-svg);
+    height: var(--btn-icon-svg);
+}
+
+.flip-trigger-btn:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.nook-icon-btn {
+    width: var(--btn-icon-size);
+    height: var(--btn-icon-size);
+    border-radius: var(--radius-circle);
+    background: var(--bg-pill);
+    border: 1px solid var(--border-soft);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.nook-icon-btn:hover {
+    background: var(--bg-pill-hover);
+    transform: translateX(-2px);
+}
+/* #endregion */
+
+/* #region 4: PAYLAŞILAN SCROLL VE DEGRADE FADE SINIFLARI */
+.scrollable-fade {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 1.5cqh;
+    padding-bottom: 2cqh;
+    padding-right: 1cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5cqw;
+    mask-image: linear-gradient(to bottom, black 0%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 95%, transparent 100%);
+}
+
+.scrollable-fade::-webkit-scrollbar {
+    width: 4px;
+}
+
+.scrollable-fade::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollable-fade::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+/* #endregion */
+
+/* #region 5: YÜKLEME PERDESİ VE AÇILIŞ DURUMLARI (LOADING SCREENS) */
+.app-loading-screen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000000;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.app-loading-screen.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+html.is-profile-loading #app-loading-screen {
+    display: flex;
+}
+
+html.is-profile-loading .stage {
+    display: none;
+}
+
+html.is-profile-loading #landing-screen {
+    display: none;
+}
+
+.app-loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    user-select: none;
+}
+
+.app-loading-brand {
+    width: clamp(48px, 6vh, 60px);
+    height: clamp(48px, 6vh, 60px);
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-sans);
+    font-size: clamp(1.3rem, 2.8vh, 1.7rem);
+    font-weight: 700;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 91, 219, 0.25);
+    animation: appLoadingBrandPulse 2s ease-in-out infinite;
+    transition: transform 0.2s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+    pointer-events: none;
+    cursor: default;
+}
+
+@keyframes appLoadingBrandPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(59, 91, 219, 0.2);
+    }
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 28px rgba(59, 91, 219, 0.45);
+    }
+}
+
+.app-loading-user-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+}
+
+.app-loading-user {
+    font-family: var(--font-sans);
+    font-size: clamp(0.9rem, 2vh, 1.15rem);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.65);
+    transition: opacity 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+
+.app-loading-user.is-loaded {
+    background: linear-gradient(135deg, #ffffff 20%, #748ffc 60%, var(--accent-color) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    filter: drop-shadow(0 0 12px rgba(59, 91, 219, 0.4));
+}
+
+.app-loading-bar {
+    width: 64px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 2px;
+}
+
+.app-loading-bar-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 45%;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    border-radius: 999px;
+    animation: appLoadingBarSweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes appLoadingBarSweep {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+}
+
+.app-loading-error-hint {
+    display: none;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.45);
+    letter-spacing: 0.04em;
+    margin-top: -4px;
+    transition: opacity 0.2s ease;
+}
+
+.app-loading-screen.is-error .app-loading-bar {
+    display: none !important;
+}
+
+.app-loading-screen.is-error .app-loading-brand {
+    pointer-events: auto;
+    cursor: pointer;
+    border-color: rgba(245, 158, 11, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(245, 158, 11, 0.35);
+    animation: appLoadingErrorPulse 2.4s ease-in-out infinite;
+}
+
+.app-loading-screen.is-error .app-loading-brand:hover {
+    transform: scale(1.08);
+    border-color: rgba(245, 158, 11, 0.9);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.6);
+}
+
+.app-loading-screen.is-error .app-loading-brand:active {
+    transform: scale(0.96);
+}
+
+@keyframes appLoadingErrorPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(245, 158, 11, 0.25);
+    }
+    50% {
+        transform: scale(1.04);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.55);
+    }
+}
+
+.app-loading-screen.is-error .app-loading-user {
+    font-size: clamp(0.95rem, 2vh, 1.15rem);
+    font-weight: 500;
+    color: #f59e0b;
+}
+
+.app-loading-screen.is-error .app-loading-error-hint {
+    display: block;
+}
+/* #endregion */

@@ -1,0 +1,383 @@
+/* #region 1: ÜST MENÜ BAR (TOP NAV) */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    padding: 0 clamp(16px, 3vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: var(--z-nav);
+    pointer-events: none;
+}
+
+.top-nav-brand {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.top-nav-brand:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}
+
+.nav-logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--border-highlight);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.nav-brand-text {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.top-nav-actions {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.top-nav-btn {
+    height: 38px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: var(--radius-pill);
+    background: rgba(21, 24, 36, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-soft);
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.top-nav-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-highlight);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.user-dropdown-wrapper {
+    position: relative;
+}
+
+.user-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 170px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-highlight);
+    border-radius: var(--radius-input);
+    box-shadow: var(--shadow-card);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: var(--z-nav);
+    backdrop-filter: blur(16px);
+}
+
+.user-dropdown-item {
+    width: 100%;
+    padding: 9px 14px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.user-dropdown-item:hover {
+    background: var(--bg-pill-hover);
+    color: var(--text-primary);
+}
+
+.user-dropdown-item.text-danger {
+    color: #ff6b6b;
+}
+
+.user-dropdown-item.text-danger:hover {
+    background: rgba(229, 9, 20, 0.15);
+    color: #ff8787;
+}
+/* #endregion */
+
+
+/* #region 2: AUTH MODAL KAPSAYICI VE BACKDROP */
+.auth-modal {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.auth-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.auth-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+/* #endregion */
+
+/* #region 3: AUTH MODAL KUTUSU (BOX) */
+.auth-modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-highlight);
+    border-radius: var(--radius-modal);
+    box-shadow: var(--shadow-card);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.25s var(--ease-spring);
+    z-index: 1;
+}
+
+.auth-modal.is-open .auth-modal-box {
+    transform: scale(1) translateY(0);
+}
+
+.auth-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.auth-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.auth-modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-pill);
+    border: 1px solid var(--border-soft);
+    color: var(--text-secondary);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.auth-modal-close:hover {
+    background: var(--bg-pill-hover);
+    color: var(--text-primary);
+}
+/* #endregion */
+
+/* #region 4: FORM VE INPUT ALANLARI */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.auth-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-input {
+    width: 100%;
+    height: 46px;
+    padding: 0 16px;
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-input);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.auth-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.auth-error-box {
+    padding: 10px 14px;
+    background: rgba(229, 9, 20, 0.15);
+    border: 1px solid rgba(229, 9, 20, 0.3);
+    border-radius: var(--radius-input);
+    color: #ff6b6b;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.auth-submit-btn {
+    height: 46px;
+    margin-top: 6px;
+    background: var(--accent-color);
+    border: none;
+    border-radius: var(--radius-input);
+    color: #ffffff;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px var(--accent-glow);
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-submit-btn:hover {
+    background: #4c6ef5;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.auth-submit-btn:active {
+    transform: translateY(0);
+}
+
+.auth-switch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.auth-switch-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.auth-switch-btn:hover {
+    color: var(--accent-color);
+}
+/* #endregion */
+
+/* #region 5: GİRİŞ YAPILMIŞ GÖRÜNÜM VE ANİMASYONLAR */
+.auth-logged-in-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 10px 0;
+}
+
+.auth-status-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    text-align: center;
+}
+
+.auth-status-text strong {
+    color: var(--text-primary);
+}
+
+.auth-logged-in-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.logout-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.danger-action {
+    background: rgba(229, 9, 20, 0.15);
+    border: 1px solid rgba(229, 9, 20, 0.4);
+    color: #ff6b6b;
+    box-shadow: none;
+}
+
+.danger-action:hover {
+    background: rgba(229, 9, 20, 0.25);
+    color: #ff8787;
+    box-shadow: 0 4px 12px rgba(229, 9, 20, 0.2);
+}
+
+.shake-box-animation {
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-3px); }
+    40%, 60% { transform: translateX(3px); }
+}
+/* #endregion */
+
