@@ -1,0 +1,708 @@
+/* #region 1: GÖRSEL DÜZENLEME OVERLAY'LERİ (AVATAR & BANNER) */
+.banner-box,
+.avatar-box {
+    position: relative;
+}
+
+body.is-owner .image-edit-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1cqw;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    z-index: 5;
+    color: #ffffff;
+}
+
+body.is-owner .banner-box:hover .image-edit-overlay,
+body.is-owner .avatar-box:hover .image-edit-overlay {
+    opacity: 1;
+}
+
+.image-edit-overlay svg {
+    width: 5cqw;
+    height: 5cqw;
+    stroke: #ffffff;
+}
+
+.image-edit-overlay span {
+    font-size: var(--cq-fs-desc);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+/* #endregion */
+
+/* #region 2: INLINE METİN DÜZENLEME VE HOVER EFEKTLERİ */
+body.is-owner .editable-hover {
+    position: relative;
+    cursor: text;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, outline 0.2s ease;
+    padding: 0 4px;
+}
+
+body.is-owner .editable-hover:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    outline: 1px dashed rgba(255, 255, 255, 0.25);
+}
+
+.edit-inline-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--border-highlight);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    font-style: inherit;
+    letter-spacing: inherit;
+    text-align: inherit;
+    padding: 2px 8px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.edit-inline-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.edit-inline-textarea-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.edit-inline-textarea {
+    width: 100%;
+    min-height: 8cqh;
+    max-height: 14cqh;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--border-highlight);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: var(--cq-fs-body);
+    line-height: 1.5;
+    padding: 8px 10px 24px 10px;
+    outline: none;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.edit-inline-textarea:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.bio-counter {
+    position: absolute;
+    bottom: 6px;
+    right: 10px;
+    font-size: var(--cq-fs-mono);
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+    pointer-events: none;
+}
+/* #endregion */
+
+/* #region 3: TAG YÖNETİMİ VE ETİKET EKLEME */
+.tag-pill {
+    position: relative;
+}
+
+body.is-owner .tag-pill {
+    padding-right: 2.4cqw;
+}
+
+.tag-remove-btn {
+    position: absolute;
+    right: 1.2cqw;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    font-size: 2.8cqw;
+    cursor: pointer;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: color 0.15s ease;
+}
+
+body.is-owner .tag-pill:hover .tag-remove-btn {
+    display: flex;
+}
+
+.tag-remove-btn:hover {
+    color: #ef4444;
+}
+
+.tag-add-pill {
+    padding: 1.6cqw 0;
+    background: transparent;
+    border: 1px dashed var(--border-highlight);
+    border-radius: var(--radius-pill);
+    font-size: var(--cq-fs-pill);
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tag-add-pill:hover {
+    border-color: var(--accent-color);
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+/* #endregion */
+
+/* #region 4: ARKA YÜZ (DRILL-DOWN) DÜZENLEME KONTROLLERİ */
+.nav-item-btn.is-empty-module {
+    border-style: dashed;
+    opacity: 0.75;
+}
+
+.nav-item-btn.is-empty-module:hover {
+    opacity: 1;
+    border-color: var(--accent-color);
+}
+
+.empty-module-pill {
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    background: rgba(59, 91, 219, 0.2);
+    color: var(--accent-light);
+    border: 1px solid var(--accent-glow);
+    margin-left: 6px;
+    font-weight: 600;
+}
+
+.view-owner-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2cqw;
+}
+
+.view-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5cqw;
+    background: var(--bg-card-subtle);
+    border: 1px dashed var(--border-highlight);
+    border-radius: var(--radius-btn);
+    color: var(--text-secondary);
+    font-size: var(--cq-fs-desc);
+    font-weight: 600;
+    padding: 2cqw 3cqw;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.view-add-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-color);
+    color: var(--text-primary);
+}
+
+.link-item-row {
+    position: relative;
+}
+
+.item-delete-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    padding: 1cqw;
+    border-radius: var(--radius-circle);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+body.is-owner .link-item-row:hover .item-delete-btn,
+body.is-owner .top-item-card:hover .item-delete-btn {
+    display: flex;
+}
+
+.item-delete-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.top-item-card {
+    position: relative;
+}
+
+.inline-form-card {
+    background: var(--bg-card-subtle);
+    border: 1px solid var(--border-highlight);
+    border-radius: var(--radius-card);
+    padding: 3cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 2cqw;
+    margin-bottom: 2.5cqw;
+}
+
+.inline-form-title {
+    font-size: var(--cq-fs-subtitle);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.inline-form-input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-btn);
+    padding: 2cqw 2.5cqw;
+    color: var(--text-primary);
+    font-size: var(--cq-fs-desc);
+    font-family: inherit;
+    outline: none;
+}
+
+.inline-form-input:focus {
+    border-color: var(--accent-color);
+}
+
+.inline-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2cqw;
+    margin-top: 1cqw;
+}
+
+.form-btn-sm {
+    padding: 1.5cqw 3cqw;
+    border-radius: var(--radius-pill);
+    font-size: var(--cq-fs-desc);
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.form-btn-cancel {
+    background: transparent;
+    color: var(--text-tertiary);
+}
+
+.form-btn-cancel:hover {
+    color: var(--text-primary);
+}
+
+.form-btn-submit {
+    background: var(--accent-color);
+    color: #ffffff;
+}
+
+.form-btn-submit:hover {
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+/* #endregion */
+
+/* #region 5: KÜRESEL İŞLEM ÇUBUĞU (#edit-action-bar) */
+.edit-action-bar {
+    position: fixed;
+    bottom: -90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(18, 20, 29, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-pill);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 91, 219, 0.2);
+    transition: bottom 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    max-width: 90vw;
+    user-select: none;
+}
+
+body.has-unsaved-changes .edit-action-bar {
+    bottom: 24px;
+}
+
+.edit-action-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.edit-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+    animation: editDotPulse 1.5s infinite;
+}
+
+@keyframes editDotPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.edit-status-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+}
+
+.edit-action-btns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.edit-bar-btn {
+    padding: 7px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.edit-bar-btn.cancel-btn {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.edit-bar-btn.cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+}
+
+.edit-bar-btn.save-btn {
+    background: var(--accent-color);
+    color: #ffffff;
+    box-shadow: 0 2px 10px var(--accent-glow);
+}
+
+.edit-bar-btn.save-btn:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+.edit-bar-btn.save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+/* #endregion */
+
+/* #region 6: CROPPER.JS MODALI VE TOAST BİLDİRİMİ */
+.cropper-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.cropper-modal.is-open {
+    display: flex;
+    opacity: 1;
+}
+
+.cropper-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.cropper-box {
+    position: relative;
+    z-index: 2;
+    width: min(520px, 92vw);
+    background: #141724;
+    border: 1px solid var(--border-highlight);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+}
+
+.cropper-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cropper-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.cropper-close-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+.cropper-close-btn:hover {
+    color: #ffffff;
+}
+
+.cropper-image-wrapper {
+    width: 100%;
+    height: 320px;
+    background: #090a10;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cropper-image-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+.cropper-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+/* Toast Bildirimi */
+.nook-toast {
+    position: fixed;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    z-index: 10001;
+    transition: top 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+}
+
+.nook-toast.is-visible {
+    top: 24px;
+}
+
+/* Bölüm Ekleme Pop-up Modalı (Section Picker Modal) */
+.add-section-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.add-section-modal.is-open {
+    display: flex;
+    opacity: 1;
+}
+
+.add-section-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.section-picker-panel {
+    position: relative;
+    z-index: 2;
+    width: min(480px, 92vw);
+    background: #141724;
+    border: 1px solid var(--border-highlight);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+    from {
+        transform: scale(0.94);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.section-picker-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.section-picker-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.section-picker-desc {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.4;
+}
+
+.section-picker-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.15s ease;
+}
+
+.section-picker-close:hover {
+    color: #ffffff;
+}
+
+.section-picker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.section-picker-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.section-picker-item:hover {
+    background: rgba(59, 91, 219, 0.12);
+    border-color: var(--accent-color);
+    transform: translateX(4px);
+}
+
+.picker-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-light);
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+}
+
+.section-picker-item:hover .picker-item-icon {
+    background: var(--accent-color);
+    color: #ffffff;
+}
+
+.picker-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.picker-item-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.picker-item-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.picker-added-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.picker-item-desc {
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.48);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.picker-item-action {
+    color: rgba(255, 255, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+.section-picker-item:hover .picker-item-action {
+    color: var(--accent-light);
+    transform: translateX(2px);
+}
+/* #endregion */

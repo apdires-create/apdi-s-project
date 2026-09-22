@@ -1,28 +1,38 @@
-// #region 1: SUPABASE KONFİGÜRASYONU VE URL PARAMETRELERİ
+// #region 1: SUPABASE KONFİGÜRASYONU VE GLOBAL DURUM
 const SUPABASE_URL = 'https://acvpjytvkfxbsuiivqir.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_t5LYrH03nWrL1-tzhhXV4g_UF77mEAy';
+const supabaseClient = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
 const urlParams = new URLSearchParams(window.location.search);
 const KULLANICI_ADI = urlParams.get('user')?.trim() || null;
+
+let aktifKullaniciOturumu = null;
+let aktifKullaniciAdi = null;
+let isOwner = false;
 // #endregion
 
-// #region 2: KART VERİSİ VE GLOBAL DURUM (STATE)
+// #region 2: SABİT NAVİGASYON MENÜLERİ
+const SABIT_MENULER = [
+    { id: "links", baslik: "Links" },
+    { id: "tops", baslik: "Tops" },
+    { id: "trophies", baslik: "Trophies" },
+    { id: "widgets", baslik: "Widgets" },
+    { id: "working-on", baslik: "Working on" }
+];
+// #endregion
+
+// #region 3: KART VERİSİ ŞABLONU (POSTGRESQL PROFILES TABLO ŞEMASIYLA BİREBİR UYUMLU)
 let kartVerisi = {
-    profil: {
-        gorunen_isim: "Evangeline Cassandra",
+    auth_id: null,
+    kullanici_adi: "Evangeline Cassandra",
+    front_data: {
+        tags: ["Gamer", "Coder", "Stylist", "Music", "Sci-Fi", "Anime"],
         unvan: "Senior Software Engineer",
-        bio: "Building expressive web systems, collecting minimalist digital artifacts, and wandering through neon rainy nights.",
-        avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
-        banner_url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop",
-        taglar: ["Gamer", "Coder", "Stylist", "Music", "Sci-Fi", "Anime"]
+        aciklama: "Building expressive web systems, collecting minimalist digital artifacts, and wandering through neon rainy nights.",
+        pfp_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
+        banner_url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop"
     },
-    menuler: [
-        { id: "links", baslik: "Links" },
-        { id: "tops", baslik: "Tops" },
-        { id: "trophies", baslik: "Trophies" },
-        { id: "widgets", baslik: "Widgets" },
-        { id: "working-on", baslik: "Working on" }
-    ],
-    linkler: [
+    links: [
         {
             baslik: "YouTube",
             url: "https://youtube.com/@evangeline",
@@ -63,8 +73,15 @@ let kartVerisi = {
             }
         ]
     },
+    trophies: [],
+    widgets: [],
     working_on: {
         metin: "Architecting Nook v2 with fixed 5:7 aspect ratio and drill-down navigation."
+    },
+    theme_config: {
+        font: "inter",
+        preset: "default",
+        primary_color: "#3b5bdb"
     }
 };
 // #endregion

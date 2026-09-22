@@ -82,7 +82,61 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
+
+.user-dropdown-wrapper {
+    position: relative;
+}
+
+.user-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 170px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-highlight);
+    border-radius: var(--radius-input);
+    box-shadow: var(--shadow-card);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: var(--z-nav);
+    backdrop-filter: blur(16px);
+}
+
+.user-dropdown-item {
+    width: 100%;
+    padding: 9px 14px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.user-dropdown-item:hover {
+    background: var(--bg-pill-hover);
+    color: var(--text-primary);
+}
+
+.user-dropdown-item.text-danger {
+    color: #ff6b6b;
+}
+
+.user-dropdown-item.text-danger:hover {
+    background: rgba(229, 9, 20, 0.15);
+    color: #ff8787;
+}
 /* #endregion */
+
 
 /* #region 2: AUTH MODAL KAPSAYICI VE BACKDROP */
 .auth-modal {
@@ -264,3 +318,66 @@
     color: var(--accent-color);
 }
 /* #endregion */
+
+/* #region 5: GİRİŞ YAPILMIŞ GÖRÜNÜM VE ANİMASYONLAR */
+.auth-logged-in-view {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 10px 0;
+}
+
+.auth-status-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    text-align: center;
+}
+
+.auth-status-text strong {
+    color: var(--text-primary);
+}
+
+.auth-logged-in-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.logout-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.danger-action {
+    background: rgba(229, 9, 20, 0.15);
+    border: 1px solid rgba(229, 9, 20, 0.4);
+    color: #ff6b6b;
+    box-shadow: none;
+}
+
+.danger-action:hover {
+    background: rgba(229, 9, 20, 0.25);
+    color: #ff8787;
+    box-shadow: 0 4px 12px rgba(229, 9, 20, 0.2);
+}
+
+.shake-box-animation {
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-3px); }
+    40%, 60% { transform: translateX(3px); }
+}
+/* #endregion */
+

@@ -11,34 +11,153 @@
     <!-- Modüler CSS Katmanları (Cascade Sırası) -->
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/landing.css">
     <link rel="stylesheet" href="css/front.css">
     <link rel="stylesheet" href="css/back.css">
     <link rel="stylesheet" href="css/auth.css">
+
+    <script>
+        // Profil açılıyorsa ilk frame'den itibaren siyah yükleme ekranını hazırla
+        const initialUserParam = new URLSearchParams(window.location.search).get('user')?.trim();
+        if (initialUserParam) {
+            document.documentElement.classList.add('is-profile-loading');
+        }
+    </script>
 </head>
 <body>
 
-    <!-- Üst Menü Barı (Top Nav) -->
-    <header class="top-nav">
+    <!-- 1. PROFİL YÜKLEME EKRANI (FOUC Önleyici & Hata Durumu) -->
+    <div id="app-loading-screen" class="app-loading-screen">
+        <div class="app-loading-content">
+            <div class="app-loading-brand" id="app-loading-brand">N</div>
+            <div class="app-loading-user-wrap">
+                <span id="app-loading-user" class="app-loading-user"></span>
+            </div>
+            <div class="app-loading-bar" id="app-loading-bar">
+                <div class="app-loading-bar-inner"></div>
+            </div>
+            <div class="app-loading-error-hint" id="app-loading-error-hint"></div>
+        </div>
+    </div>
+    <script>
+        if (initialUserParam) {
+            const initialUserEl = document.getElementById('app-loading-user');
+            if (initialUserEl) initialUserEl.textContent = `@${initialUserParam}`;
+        }
+    </script>
+
+    <!-- 2. İZOLE LANDING PAGE (Karşılama Ekranı) -->
+    <div id="landing-screen" class="landing-screen" style="display: none;">
+        <div class="landing-starfield"></div>
+        
+        <!-- 2.1: Sabit Üst Menü -->
+        <nav class="landing-navbar">
+            <a href="/" class="landing-nav-brand">
+                <div class="landing-nav-logo-box">N</div>
+                <span class="landing-nav-brand-text">Nook</span>
+            </a>
+            
+            <div class="landing-nav-links">
+                <a href="#">About</a>
+                <a href="#">Explore</a>
+                <a href="#">Features</a>
+            </div>
+            
+            <div class="landing-nav-actions">
+                <button id="hero-login-btn" class="landing-nav-login-btn">Log in</button>
+                
+                <div id="landing-user-menu" class="landing-nav-user-menu" style="display: none;">
+                    <button class="landing-nav-user-trigger" id="landing-user-trigger">
+                        <span id="landing-user-name" class="landing-nav-user-name">Kullanıcı</span>
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="landing-nav-dropdown" id="landing-nav-dropdown">
+                        <a href="#" id="landing-go-profile" class="landing-nav-dropdown-item">Sayfam</a>
+                        <button id="landing-logout-btn" class="landing-nav-dropdown-item text-danger">Çıkış Yap</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 2.2: Hero Bölümü -->
+        <div class="landing-hero">
+            <div class="landing-hero-left">
+                <h1 class="landing-hero-title">Nook</h1>
+                <p class="landing-hero-subtitle">
+                    Your very own corner on the internet — rank the shows you love, pin the games you're grinding, and hand people a page that's actually <strong>you</strong>.
+                </p>
+                <button class="landing-hero-cta-btn" id="hero-start-btn">
+                    Get your Nook 
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="landing-hero-right">
+                <div class="tilted-visual-wrapper">
+                    <div class="flip-card-inner" id="hero-flip-card">
+                        <!-- Ön Yüz: Dinamik Demo Profil Kartı -->
+                        <div class="flip-card-front" id="flip-front-trigger" style="cursor: pointer;" title="Giriş yapmak için tıkla">
+                            <div class="nook-profile-card" data-nook-card data-nook-key="hero-card"></div>
+                        </div>
+
+                        <!-- Arka Yüz: Giriş ve Kayıt Formu -->
+                        <div class="flip-card-back">
+                            <div class="landing-box" id="main-landing-box">
+                                <button class="landing-box-close" id="flip-back-btn">&times;</button>
+                                <h2 id="landing-main-title" class="landing-title">Nook</h2>
+                                
+                                <div class="landing-form-container">
+                                    <div id="landing-username-group">
+                                        <input type="text" id="landing-username" class="landing-auth-input" placeholder="Kullanıcı Adı (Örn: apdi)" autocomplete="off">
+                                    </div>
+                                    <div>
+                                        <input type="email" id="landing-email" class="landing-auth-input" placeholder="E-posta" autocomplete="email">
+                                    </div>
+                                    <div>
+                                        <input type="password" id="landing-password" class="landing-auth-input" placeholder="Şifre">
+                                    </div>
+                                    <div class="auth-error-box" style="display: none;"></div>
+                                    
+                                    <button id="landing-submit-btn" class="landing-submit-btn">Giriş Yap</button>
+                                    
+                                    <div class="landing-auth-switch">
+                                        <span id="landing-switch-text">Hesabın yok mu?</span>
+                                        <button type="button" id="landing-switch-action" class="landing-auth-switch-btn">Kayıt Ol</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. PROFİL ÜST MENÜ BARI (Top Nav) -->
+    <header class="top-nav" id="profileTopNav" style="display: none;">
         <a href="/" class="top-nav-brand" id="topNavHome" title="Landing Page">
             <span class="nav-logo">N</span>
             <span class="nav-brand-text">Nook</span>
         </a>
         <div class="top-nav-actions">
-            <button class="top-nav-btn" id="authTriggerBtn" title="Hesabım">
+            <button class="top-nav-btn" id="auth-trigger-btn" title="Giriş / Ayarlar">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <span id="authBtnText">Giriş Yap</span>
+                <span class="login-text" id="auth-trigger-text">Giriş Yap</span>
             </button>
         </div>
     </header>
 
     <!-- Arka plan ortamı -->
-    <div class="ambient-background"></div>
+    <div class="ambient-background" id="ambientBackground" style="display: none;"></div>
 
     <!-- Sahne ve 5:7 Kart Kapsayıcısı -->
-    <main class="stage">
+    <main class="stage" id="profileStage" style="display: none;">
         <div class="card-container" id="cardContainer">
             <div class="nook-card" id="nookCard">
                 
@@ -101,43 +220,57 @@
     </main>
 
     <!-- AUTH MODAL (GİRİŞ & KAYIT) -->
-    <div id="authModal" class="auth-modal">
-        <div class="auth-modal-backdrop" id="authModalBackdrop"></div>
+    <div id="auth-modal" class="auth-modal">
+        <div class="auth-modal-backdrop" id="auth-modal-backdrop"></div>
         <div class="auth-modal-box">
             <div class="auth-modal-header">
-                <h3 class="auth-modal-title" id="authTitle">Giriş Yap</h3>
-                <button class="auth-modal-close" id="authModalClose" aria-label="Kapat">&times;</button>
+                <h3 class="auth-modal-title" id="auth-title">Giriş Yap</h3>
+                <button class="auth-modal-close" id="auth-modal-close" aria-label="Kapat">&times;</button>
             </div>
 
-            <form class="auth-form" id="authForm" onsubmit="return false;">
-                <div class="auth-input-group" id="authUsernameGroup" style="display: none;">
-                    <input type="text" id="authUsername" class="auth-input" placeholder="Kullanıcı Adı (Örn: apdi)" autocomplete="username">
+            <div id="auth-form-container" class="auth-form-container">
+                <div class="auth-input-group" id="auth-username-group" style="display: none;">
+                    <input type="text" id="auth-username" class="auth-input" placeholder="Kullanıcı Adı (Örn: apdi)">
                 </div>
                 <div class="auth-input-group">
-                    <input type="email" id="authEmail" class="auth-input" placeholder="E-posta" autocomplete="email">
+                    <input type="email" id="auth-email" class="auth-input" placeholder="E-posta">
                 </div>
                 <div class="auth-input-group">
-                    <input type="password" id="authPassword" class="auth-input" placeholder="Şifre" autocomplete="current-password">
+                    <input type="password" id="auth-password" class="auth-input" placeholder="Şifre">
                 </div>
                 
-                <div class="auth-error-box" id="authErrorBox" style="display: none;"></div>
+                <div id="auth-error-box" class="auth-error-box" style="display: none;"></div>
 
-                <button type="submit" id="authSubmitBtn" class="auth-submit-btn">Giriş Yap</button>
+                <button type="button" id="auth-submit-btn" class="auth-submit-btn">Giriş Yap</button>
 
                 <div class="auth-switch">
-                    <span id="authSwitchText">Hesabın yok mu?</span>
-                    <button type="button" id="authSwitchBtn" class="auth-switch-btn">Kayıt Ol</button>
+                    <span id="auth-switch-text">Hesabın yok mu?</span>
+                    <button type="button" id="auth-switch-action" class="auth-switch-btn">Kayıt Ol</button>
                 </div>
-            </form>
+            </div>
+
+            <div id="auth-logged-in-view" class="auth-logged-in-view" style="display: none;">
+                <p class="auth-status-text">Şu anda <strong><span id="auth-current-user"></span></strong> olarak giriş yapmış durumdasın.</p>
+                <div class="auth-logged-in-actions">
+                    <button id="auth-logout-btn" class="auth-submit-btn logout-btn">Güvenli Çıkış Yap</button>
+                    <button id="auth-delete-account-btn" class="auth-submit-btn danger-action">Hesabımı Kalıcı Olarak Sil</button>
+                </div>
+            </div>
         </div>
     </div>
 
+
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Modüler JS Katmanları -->
     <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
     <script src="js/render.js"></script>
     <script src="js/router.js"></script>
     <script src="js/tilt.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/landing.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
