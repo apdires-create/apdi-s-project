@@ -59,6 +59,9 @@
     flex-direction: column;
     gap: 2.2cqw;
     margin-top: 1cqh;
+    padding-top: 0.5cqh;
+    padding-bottom: 2cqh;
+    padding-inline: 1.2cqw;
 }
 
 .nav-item-btn {
@@ -180,6 +183,7 @@
     align-items: center;
     padding-top: 2cqh;
     padding-bottom: 2.5cqh;
+    padding-inline: 1.2cqw;
     gap: 2.5cqw;
     flex-shrink: 0;
 }

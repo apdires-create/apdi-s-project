@@ -182,9 +182,11 @@ html, body {
 .scrollable-fade {
     flex: 1;
     overflow-y: auto;
-    padding-top: 1.5cqh;
-    padding-bottom: 2cqh;
-    padding-right: 1cqw;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+    padding-top: 1cqh;
+    padding-bottom: 3.5cqh;
+    padding-inline: 1.2cqw;
     display: flex;
     flex-direction: column;
     gap: 2.5cqw;
