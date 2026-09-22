@@ -56,66 +56,99 @@ body.is-owner .avatar-box:hover .image-edit-overlay {
 /* #endregion */
 
 /* #region 2: INLINE METİN DÜZENLEME VE HOVER EFEKTLERİ */
-body.is-owner .profile-name,
-body.is-owner .profile-title {
+body.is-owner .profile-name:not(.is-input-active),
+body.is-owner .profile-title:not(.is-input-active) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: auto;
     max-width: 90%;
-    min-width: 140px;
-    min-height: 32px;
     box-sizing: border-box;
 }
 
-body.is-owner .profile-bio {
+body.is-owner .profile-bio:not(.is-input-active) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: auto;
-    max-width: 92%;
-    min-width: 180px;
-    min-height: 48px;
+    max-width: 96%;
     box-sizing: border-box;
 }
 
-body.is-owner .editable-hover {
+body.is-owner .editable-hover:not(.is-input-active) {
     position: relative;
     cursor: text;
-    border-radius: 8px;
-    padding: 3px 12px;
-    border: 1px solid transparent;
-    transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-body.is-owner .editable-hover:hover {
-    background-color: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-}
-
-.edit-inline-input {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.55);
-    border: 1px solid var(--border-highlight);
     border-radius: 6px;
-    color: var(--text-primary);
+    padding: 2px 8px;
+    border: 1px solid transparent;
+    transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.is-owner .editable-hover:not(.is-input-active):hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profile-name.is-input-active,
+.profile-title.is-input-active {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    overflow: visible !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    width: auto !important;
+    max-width: 90% !important;
+}
+
+.profile-bio.is-input-active {
+    display: block !important;
+    overflow: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    -webkit-line-clamp: unset !important;
+}
+
+.edit-name-input {
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    line-height: inherit;
+    text-align: center;
+    max-width: 85cqw;
+    min-width: 4ch;
+    box-sizing: border-box;
+}
+
+.edit-input-rect {
     font-family: inherit;
     font-size: inherit;
     font-weight: inherit;
-    font-style: inherit;
     letter-spacing: inherit;
-    text-align: inherit;
+    line-height: inherit;
+    color: var(--text-primary);
+    background-color: rgba(0, 0, 0, 0.65);
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+    border-radius: var(--radius-btn);
     padding: 2px 8px;
     outline: none;
     box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.edit-inline-input:focus {
+.edit-input-rect:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px var(--accent-glow);
+    box-shadow: 0 0 12px var(--accent-glow);
 }
 
 .edit-inline-textarea-wrap {
@@ -123,26 +156,15 @@ body.is-owner .editable-hover:hover {
     width: 100%;
 }
 
-.edit-inline-textarea {
+.auto-expand-textarea {
     width: 100%;
-    min-height: 8cqh;
-    max-height: 14cqh;
-    background: rgba(0, 0, 0, 0.55);
-    border: 1px solid var(--border-highlight);
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: var(--cq-fs-body);
+    min-height: 70px;
+    max-height: 180px;
+    text-align: center;
+    resize: none;
     line-height: 1.5;
     padding: 8px 10px 24px 10px;
-    outline: none;
-    resize: none;
-    box-sizing: border-box;
-}
-
-.edit-inline-textarea:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px var(--accent-glow);
+    overflow-y: auto;
 }
 
 .bio-counter {

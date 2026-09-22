@@ -4,6 +4,8 @@ const Router = {
     viewMenu: null,
     viewsWrapper: null,
     isFlipped: false,
+    isFlipping: false,
+    _flipTimeout: null,
     activeDetailView: null,
 
     init() {
@@ -53,6 +55,14 @@ const Router = {
         // Kartın boş alanlarına tıklandığında çevirme (Sadece ön yüz ve ana arka menüde aktif)
         if (this.cardContainer) {
             this.cardContainer.addEventListener('click', (e) => {
+                // Eğer kart dönüş animasyonu sürerken tekrar tıklanırsa işlemi anında iptal edip tersine çevir
+                if (this.isFlipping && !this.activeDetailView) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.setFlipped(!this.isFlipped);
+                    return;
+                }
+
                 const interactiveSelector = [
                     'button',
                     'a',
@@ -86,19 +96,13 @@ const Router = {
 
                 // 1. ÖN YÜZ: Ön yüze tıklandığında arkaya dön
                 if (!this.isFlipped) {
-                    const cardFront = document.getElementById('cardFront');
-                    if (cardFront && cardFront.contains(e.target)) {
-                        this.setFlipped(true);
-                    }
+                    this.setFlipped(true);
                     return;
                 }
 
                 // 2. ARKA YÜZ: SADECE kök içerik menüsündeyken ön yüze dön (detay ekranlarındayken değil!)
                 if (this.isFlipped && !this.activeDetailView) {
-                    const cardBack = document.getElementById('cardBack');
-                    if (cardBack && cardBack.contains(e.target)) {
-                        this.setFlipped(false);
-                    }
+                    this.setFlipped(false);
                 }
             });
         }
@@ -118,6 +122,12 @@ const Router = {
     setFlipped(flipped) {
         this.isFlipped = flipped;
         if (!this.cardContainer) return;
+
+        this.isFlipping = true;
+        clearTimeout(this._flipTimeout);
+        this._flipTimeout = setTimeout(() => {
+            this.isFlipping = false;
+        }, 550);
 
         if (this.isFlipped) {
             this.cardContainer.classList.add('is-flipped');

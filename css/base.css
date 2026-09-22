@@ -149,12 +149,14 @@ html, body {
 .scrollable-fade {
     flex: 1;
     overflow-y: auto;
+    padding-top: 1.5cqh;
+    padding-bottom: 2cqh;
     padding-right: 1cqw;
     display: flex;
     flex-direction: column;
     gap: 2.5cqw;
-    mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 95%, transparent 100%);
 }
 
 .scrollable-fade::-webkit-scrollbar {

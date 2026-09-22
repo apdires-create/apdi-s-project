@@ -262,6 +262,8 @@
     background: rgba(255, 255, 255, 0.1);
     background-size: cover;
     background-position: center;
+    object-fit: cover;
+    display: block;
     flex-shrink: 0;
 }
 

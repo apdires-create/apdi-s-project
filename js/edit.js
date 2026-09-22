@@ -270,7 +270,6 @@ EditManager.Global = {
 
         EditManager.Vitrin.init();
         EditManager.BackViews.init();
-        this.toastGoster("Değişiklikler geri alındı.");
     },
 
     async kaydet() {
@@ -520,37 +519,52 @@ EditManager.Vitrin = {
         el.classList.add('editable-hover');
         el.title = "Düzenlemek için tıkla";
 
-        el.onclick = (e) => {
-            if (el.querySelector('input, textarea')) return;
+        el.addEventListener('click', (e) => {
+            if (el.querySelector('input, textarea') || e.target.closest('a') || e.target.closest('button')) return;
 
             const front = kartVerisi.front_data || {};
             const guncelDeger = (fieldName === 'gorunen_isim')
                 ? (front.gorunen_isim || kartVerisi.kullanici_adi || '')
                 : (front[fieldName] || '');
 
+            el.classList.add('is-input-active');
+
             let inputHtml = '';
             if (isTextarea) {
                 inputHtml = `
                     <div class="edit-inline-textarea-wrap">
-                        <textarea class="edit-inline-textarea" maxlength="${maxLen}" placeholder="Bir bio yaz...">${EditManager.escapeHtml(guncelDeger)}</textarea>
+                        <textarea class="edit-input-rect auto-expand-textarea" maxlength="${maxLen}" placeholder="Kendinden bahset...">${EditManager.escapeHtml(guncelDeger)}</textarea>
                         <span class="bio-counter">${guncelDeger.length}/${maxLen}</span>
                     </div>
                 `;
             } else {
-                inputHtml = `<input type="text" class="edit-inline-input" maxlength="${maxLen}" value="${EditManager.escapeHtml(guncelDeger)}" placeholder="${elementId === 'profileTitle' ? 'Unvan ekle...' : 'İsim gir...'}">`;
+                const placeholder = (fieldName === 'gorunen_isim') ? 'İsim gir...' : 'Ünvan ekle...';
+                const charWidth = Math.max(guncelDeger.length, placeholder.length, 4);
+                inputHtml = `<input type="text" class="edit-input-rect edit-name-input" maxlength="${maxLen}" value="${EditManager.escapeHtml(guncelDeger)}" placeholder="${placeholder}" style="width: ${charWidth + 2}ch;">`;
             }
 
             el.innerHTML = inputHtml;
             const inputEl = el.querySelector('input, textarea');
             if (!inputEl) return;
 
-            inputEl.focus();
-
             if (isTextarea) {
-                inputEl.addEventListener('input', () => {
+                inputEl.style.height = 'auto';
+                inputEl.style.height = (inputEl.scrollHeight) + 'px';
+                inputEl.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
                     const counter = el.querySelector('.bio-counter');
-                    if (counter) counter.textContent = `${inputEl.value.length}/${maxLen}`;
+                    if (counter) counter.textContent = `${this.value.length}/${maxLen}`;
                 });
+            } else {
+                inputEl.addEventListener('input', function() {
+                    this.style.width = Math.max(this.value.length + 2, 4) + 'ch';
+                });
+            }
+
+            inputEl.focus();
+            if (inputEl.setSelectionRange) {
+                inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length);
             }
 
             const kaydetVeKapat = () => {
@@ -561,10 +575,14 @@ EditManager.Vitrin = {
 
                 if (fieldName === 'gorunen_isim') {
                     kartVerisi.front_data.gorunen_isim = yeniDeger;
-                    el.textContent = yeniDeger || kartVerisi.kullanici_adi || '';
                 } else {
                     kartVerisi.front_data[fieldName] = yeniDeger;
-                    el.textContent = yeniDeger || (fieldName === 'unvan' ? 'Nook Üyesi' : 'Kendi dijital köşesini inşa ediyor.');
+                }
+
+                el.classList.remove('is-input-active');
+
+                if (typeof RenderEngine !== 'undefined') {
+                    RenderEngine.vitrinCiz(kartVerisi);
                 }
 
                 if (yeniDeger !== eskiDeger) {
@@ -576,10 +594,16 @@ EditManager.Vitrin = {
             inputEl.addEventListener('keydown', (evt) => {
                 if (evt.key === 'Enter' && !isTextarea) {
                     evt.preventDefault();
-                    inputEl.blur();
+                    kaydetVeKapat();
+                } else if (evt.key === 'Escape') {
+                    evt.preventDefault();
+                    el.classList.remove('is-input-active');
+                    if (typeof RenderEngine !== 'undefined') {
+                        RenderEngine.vitrinCiz(kartVerisi);
+                    }
                 }
             });
-        };
+        });
     },
 
     tagYonetimiKur() {
