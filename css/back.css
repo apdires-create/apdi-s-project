@@ -87,6 +87,59 @@
     transform: translateX(3px);
 }
 
+.nav-btn-left {
+    display: flex;
+    align-items: center;
+    gap: 2.5cqw;
+    min-width: 0;
+    flex: 1;
+}
+
+.nav-item-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.view-header-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 2cqw;
+    flex: 1;
+    min-width: 0;
+}
+
+.category-icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.category-icon-badge.is-header-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.category-icon-badge .badge-icon-normal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.category-icon-badge .badge-icon-trash {
+    display: none;
+}
+
 .empty-menu-container {
     display: flex;
     flex-direction: column;

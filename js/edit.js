@@ -82,7 +82,7 @@ const EditManager = {
             canDrag = null,
             onMove = null,
             onDrop = null,
-            excludedDragSelectors = 'input, textarea, select, button, a, .item-delete-btn, .tag-remove-btn, .nook-action-btn, .nook-link-toggle, .nook-link-test-btn, .tops-add-btn, .top-add-form'
+            excludedDragSelectors = 'input, textarea, select, button, a, .item-delete-btn, .tag-remove-btn, .nook-action-btn, .nook-link-toggle, .nook-link-test-btn, .tops-add-btn, .top-add-form, .category-icon-badge, .add-section-nav-btn, .add-section-big-btn'
         } = options;
 
         let startX = 0;
@@ -188,7 +188,7 @@ const EditManager = {
 
             const targetItem = hit.closest(itemSelector);
             if (targetItem && targetItem !== draggedItem && container.contains(targetItem)) {
-                if (targetItem.closest('.tag-add-pill, .tops-add-btn, .top-add-form')) return;
+                if (targetItem.closest('.tag-add-pill, .tops-add-btn, .top-add-form, .add-section-nav-btn, .add-section-big-btn')) return;
 
                 const box = targetItem.getBoundingClientRect();
                 if (axis === 'x') {
@@ -382,6 +382,35 @@ const EditManager = {
                 </div>
             `;
             document.body.appendChild(tagModal);
+        }
+
+        // 7. Blok Silme Onay Modalı (Delete Block Modal)
+        if (!document.getElementById('block-delete-modal')) {
+            const blockModal = document.createElement('div');
+            blockModal.id = 'block-delete-modal';
+            blockModal.className = 'block-delete-modal';
+            blockModal.innerHTML = `
+                <div class="block-delete-backdrop" id="block-delete-backdrop"></div>
+                <div class="block-delete-panel">
+                    <div class="block-delete-icon-box">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                    </div>
+                    <div class="block-delete-content">
+                        <h3 class="block-delete-title" id="block-delete-title">Bloğu Sil</h3>
+                        <p class="block-delete-desc" id="block-delete-desc">Bu bloğu ve içindeki tüm içerikleri kaldırmak istediğinizden emin misiniz?</p>
+                    </div>
+                    <div class="block-delete-actions">
+                        <button type="button" class="block-delete-btn cancel" id="block-delete-cancel">İptal</button>
+                        <button type="button" class="block-delete-btn confirm" id="block-delete-confirm">Bloğu Sil</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(blockModal);
         }
     }
 };
@@ -911,6 +940,7 @@ EditManager.Vitrin = {
 EditManager.BackViews = {
     init() {
         this.menuSurukleBirakKur();
+        this.blokSilmeDinleyicileriniBagla();
         this.linksDuzenlemeKur();
         this.topsDuzenlemeKur();
         this.workingOnDuzenlemeKur();
@@ -924,7 +954,14 @@ EditManager.BackViews = {
         EditManager.initPointerSortable(menuNav, {
             itemSelector: '.nav-item-btn',
             axis: 'y',
+            onMove: () => {
+                const addSectionBtn = menuNav.querySelector('.add-section-nav-btn');
+                if (addSectionBtn) menuNav.appendChild(addSectionBtn);
+            },
             onDrop: () => {
+                const addSectionBtn = menuNav.querySelector('.add-section-nav-btn');
+                if (addSectionBtn) menuNav.appendChild(addSectionBtn);
+
                 const yeniSira = [...menuNav.querySelectorAll('.nav-item-btn')].map(b => b.dataset.target).filter(Boolean);
                 if (!kartVerisi.theme_config) kartVerisi.theme_config = {};
                 const eskiSira = kartVerisi.theme_config.menu_order || [];
@@ -936,6 +973,84 @@ EditManager.BackViews = {
                     EditManager.BackViews.init();
                 }
             }
+        });
+    },
+
+    blokSilmeModaliniKur() {
+        const modal = document.getElementById('block-delete-modal');
+        if (!modal || modal._bound) return;
+        modal._bound = true;
+
+        const backdrop = document.getElementById('block-delete-backdrop');
+        const cancelBtn = document.getElementById('block-delete-cancel');
+        const confirmBtn = document.getElementById('block-delete-confirm');
+
+        const kapat = () => {
+            modal.classList.remove('is-open');
+            modal._targetCat = null;
+        };
+
+        if (backdrop) backdrop.onclick = kapat;
+        if (cancelBtn) cancelBtn.onclick = kapat;
+
+        if (confirmBtn) {
+            confirmBtn.onclick = () => {
+                const catId = modal._targetCat;
+                kapat();
+                if (!catId) return;
+
+                if (catId === 'links') {
+                    delete kartVerisi.links;
+                } else if (catId === 'tops') {
+                    delete kartVerisi.tops;
+                } else if (catId === 'widgets') {
+                    delete kartVerisi.widgets;
+                } else if (catId === 'working-on') {
+                    kartVerisi.working_on = {};
+                    delete kartVerisi.working_on;
+                } else if (catId === 'trophies') {
+                    delete kartVerisi.trophies;
+                }
+
+                if (kartVerisi.theme_config && Array.isArray(kartVerisi.theme_config.menu_order)) {
+                    kartVerisi.theme_config.menu_order = kartVerisi.theme_config.menu_order.filter(id => id !== catId);
+                }
+
+                EditManager.Global.degisiklikYapildi();
+
+                if (typeof Router !== 'undefined' && Router.activeDetailView) {
+                    Router.resetToMainMenu();
+                }
+
+                RenderEngine.menuCiz(kartVerisi);
+                RenderEngine.altEkranlariCiz(kartVerisi);
+                EditManager.BackViews.init();
+                if (EditManager.SectionPicker) EditManager.SectionPicker.bagla();
+            };
+        }
+    },
+
+    blokSilmeDinleyicileriniBagla() {
+        this.blokSilmeModaliniKur();
+
+        const modal = document.getElementById('block-delete-modal');
+        const titleEl = document.getElementById('block-delete-title');
+        const descEl = document.getElementById('block-delete-desc');
+
+        document.querySelectorAll('.category-icon-badge.is-owner-badge').forEach(badge => {
+            badge.onclick = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                const catId = badge.dataset.cat;
+                const catTitle = badge.dataset.title || catId;
+                if (!catId || !modal) return;
+
+                modal._targetCat = catId;
+                if (titleEl) titleEl.textContent = `${catTitle} Bloğunu Sil`;
+                if (descEl) descEl.textContent = `"${catTitle}" bloğunu ve içindeki tüm içerikleri kalıcı olarak silmek istediğinizden emin misiniz?`;
+                modal.classList.add('is-open');
+            };
         });
     },
 
@@ -1897,28 +2012,28 @@ EditManager.SectionPicker = {
                 id: 'links',
                 baslik: 'Bağlantılar (Links)',
                 alt: 'Sosyal medya, GitHub ve web bağlantılarını listele',
-                ikon: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`,
+                ikon: RenderEngine.getCategoryIcon('links', 20),
                 varMi: hasLinks
             },
             {
                 id: 'tops',
                 baslik: 'Vitrin & Favoriler (Tops)',
                 alt: 'En sevdiğin film, dizi, oyun veya müzikleri sergile',
-                ikon: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+                ikon: RenderEngine.getCategoryIcon('tops', 20),
                 varMi: hasTops
             },
             {
                 id: 'widgets',
                 baslik: 'Monkeytype Skoru (Widgets)',
                 alt: 'Canlı klavye yazma hızı ve doğruluk widgetı',
-                ikon: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="6" y1="8" x2="6" y2="8.01"></line><line x1="10" y1="8" x2="10" y2="8.01"></line><line x1="14" y1="8" x2="14" y2="8.01"></line><line x1="18" y1="8" x2="18" y2="8.01"></line><line x1="6" y1="12" x2="6" y2="12.01"></line><line x1="10" y1="12" x2="10" y2="12.01"></line><line x1="14" y1="12" x2="14" y2="12.01"></line><line x1="18" y1="12" x2="18" y2="12.01"></line><line x1="7" y1="16" x2="17" y2="16"></line></svg>`,
+                ikon: RenderEngine.getCategoryIcon('widgets', 20),
                 varMi: hasWidgets
             },
             {
                 id: 'working-on',
                 baslik: 'Şu Anda Ne Yapıyorum (Working on)',
                 alt: 'Üzerinde çalıştığın proje veya anlık durum bildirimi',
-                ikon: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+                ikon: RenderEngine.getCategoryIcon('working-on', 20),
                 varMi: hasWorking
             }
         ];

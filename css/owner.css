@@ -319,7 +319,7 @@ body.is-owner .top-item-card:active {
     pointer-events: none !important;
     z-index: 100000 !important;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.18) !important;
-    transform: scale(1.03) rotate(-1.5deg);
+    transform: scale(1.03);
     transition: transform 0.12s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.12s ease;
     opacity: 0.96;
     backdrop-filter: blur(16px);
@@ -328,7 +328,7 @@ body.is-owner .top-item-card:active {
 }
 
 .tag-pill.is-drag-clone {
-    transform: scale(1.08) rotate(-2deg);
+    transform: scale(1.06);
 }
 
 .is-drag-clone .item-delete-btn,
@@ -348,6 +348,141 @@ body.is-owner .top-item-card:active {
     box-shadow: none !important;
     transform: none !important;
     transition: none !important;
+}
+/* #endregion */
+
+/* #region KATEGORİ İKON ROZETİ VE BLOK SİLME MODALI */
+.category-icon-badge.is-owner-badge {
+    cursor: pointer !important;
+    position: relative;
+    user-select: none;
+}
+
+.category-icon-badge.is-owner-badge:hover {
+    background: rgba(239, 68, 68, 0.18) !important;
+    border-color: rgba(239, 68, 68, 0.45) !important;
+    color: #ef4444 !important;
+    transform: scale(1.08);
+}
+
+.category-icon-badge.is-owner-badge:hover .badge-icon-normal {
+    display: none !important;
+}
+
+.category-icon-badge.is-owner-badge:hover .badge-icon-trash {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    animation: badgeShake 0.25s ease-in-out;
+}
+
+@keyframes badgeShake {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-8deg); }
+    75% { transform: rotate(8deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Blok Silme Modalı */
+.block-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100003;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.block-delete-modal.is-open {
+    display: flex;
+}
+
+.block-delete-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.block-delete-panel {
+    position: relative;
+    z-index: 1;
+    width: min(90vw, 360px);
+    background: var(--bg-card, #1e1f26);
+    border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.12));
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    text-align: center;
+    animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.block-delete-icon-box {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px auto;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.block-delete-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+    margin-bottom: 8px;
+}
+
+.block-delete-desc {
+    font-size: 0.88rem;
+    color: var(--text-secondary, #94a3b8);
+    line-height: 1.45;
+    margin-bottom: 22px;
+}
+
+.block-delete-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.block-delete-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.block-delete-btn.cancel {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.1));
+    color: var(--text-primary, #ffffff);
+}
+
+.block-delete-btn.cancel:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.block-delete-btn.confirm {
+    background: #ef4444;
+    border: 1px solid #dc2626;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+.block-delete-btn.confirm:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(239, 68, 68, 0.45);
 }
 /* #endregion */
 

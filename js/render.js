@@ -50,6 +50,33 @@ const RenderEngine = {
         }
     },
 
+    // #region KATEGORİ İKON VE ROZET MERKEZİ (SINGLE SOURCE OF TRUTH)
+    getCategoryIcon(catId, size = 18) {
+        const icons = {
+            'links': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`,
+            'tops': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+            'widgets': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="6" y1="8" x2="6" y2="8.01"></line><line x1="10" y1="8" x2="10" y2="8.01"></line><line x1="14" y1="8" x2="14" y2="8.01"></line><line x1="18" y1="8" x2="18" y2="8.01"></line><line x1="6" y1="12" x2="6" y2="12.01"></line><line x1="10" y1="12" x2="10" y2="12.01"></line><line x1="14" y1="12" x2="14" y2="12.01"></line><line x1="18" y1="12" x2="18" y2="12.01"></line><line x1="7" y1="16" x2="17" y2="16"></line></svg>`,
+            'working-on': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+            'trophies': `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>`
+        };
+        return icons[catId] || icons['links'];
+    },
+
+    getCategoryBadge(catId, baslik = '', isHeader = false) {
+        const isUserOwner = (typeof isOwner !== 'undefined' && isOwner);
+        const iconHtml = this.getCategoryIcon(catId, isHeader ? 18 : 16);
+        const titleAttr = isUserOwner ? `title="Bu bloğu silmek için tıkla"` : '';
+        const ownerClass = isUserOwner ? 'is-owner-badge' : '';
+        const headerClass = isHeader ? 'is-header-badge' : '';
+        return `
+            <span class="category-icon-badge ${ownerClass} ${headerClass}" data-cat="${catId}" data-title="${this.escapeHtml(baslik)}" ${titleAttr}>
+                <span class="badge-icon-normal">${iconHtml}</span>
+                ${isUserOwner ? `<span class="badge-icon-trash"><svg viewBox="0 0 24 24" width="${isHeader ? 16 : 14}" height="${isHeader ? 16 : 14}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></span>` : ''}
+            </span>
+        `;
+    },
+    // #endregion
+
     // 1.2: Arka Yüz (Kök Menü) Render Fonksiyonu
     menuCiz(data) {
         const menuNav = document.getElementById('menuNav');
@@ -122,7 +149,10 @@ const RenderEngine = {
             // İçeriği olan kategorilerin butonları
             const butonlarHtml = aktifMenuler.map(item => `
                 <button class="nav-item-btn" data-target="${item.id}">
-                    <span>${this.escapeHtml(item.baslik)}</span>
+                    <div class="nav-btn-left">
+                        ${this.getCategoryBadge(item.id, item.baslik, false)}
+                        <span class="nav-item-title">${this.escapeHtml(item.baslik)}</span>
+                    </div>
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
@@ -219,7 +249,10 @@ const RenderEngine = {
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
                 </button>
-                <h3 class="view-title">${this.escapeHtml(baslik)}</h3>
+                <div class="view-header-title-wrap">
+                    ${this.getCategoryBadge(id, baslik, true)}
+                    <h3 class="view-title">${this.escapeHtml(baslik)}</h3>
+                </div>
             </div>
             <div class="scrollable-fade">
                 ${icerikHtml}
