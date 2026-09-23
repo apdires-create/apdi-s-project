@@ -8,6 +8,17 @@ const Router = {
     _flipTimeout: null,
     activeDetailView: null,
 
+    // =========================================================================
+    // FLIP KALKANI AKTİF KALMA SÜRESİ (ms)
+    // Kart çevrilirken içerideki buton, link vb. öğeleri örten "Flip Kalkanı"nın
+    // aktif kalacağı süre. CSS animasyonu toplam 600ms sürer.
+    // Dönüş optik olarak yeterli açıya ulaştığında (örn. 300ms) kalkan kalkar ve
+    // altındaki elemanlar etkileşime açılır.
+    // Kalkan aktifken karta basılırsa kart anında ters yöne çevrilir (seri flip).
+    // İhtiyacınıza göre bu süreyi buradan doğrudan değiştirebilirsiniz (Örn: 250, 300, 350).
+    // =========================================================================
+    FLIP_SHIELD_LOCK_MS: 300,
+
     init() {
         this.cardContainer = document.getElementById('cardContainer');
         this.viewMenu = document.getElementById('viewMenu');
@@ -30,6 +41,16 @@ const Router = {
                 this.setFlipped(false);
             });
         }
+
+        // Flip Kalkanı (Dönüş sırasında tıklanırsa kartı anında tersine çevir - Seri Flip)
+        const shields = document.querySelectorAll('.flip-shield');
+        shields.forEach(shield => {
+            shield.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                this.setFlipped(!this.isFlipped);
+            });
+        });
 
         // Tıklama Olay Delegasyonu (Menü butonları ve Geri butonları için)
         if (this.viewsWrapper) {
@@ -60,11 +81,11 @@ const Router = {
             }
         }, true);
 
-        // Kartın boş alanlarına tıklandığında çevirme (Sadece ön yüz ve ana arka menüde aktif)
+        // Kartın boş alanlarına tıklandığında çevirme ve hiyerarşik geri dönme sistemi
         if (this.cardContainer) {
             this.cardContainer.addEventListener('click', (e) => {
-                // Eğer kart dönüş animasyonu sürerken tekrar tıklanırsa işlemi anında iptal edip tersine çevir
-                if (this.isFlipping && !this.activeDetailView) {
+                // Kart dönüş animasyonu sürerken tıklanırsa kartı anında tersine çevir (seri flip)
+                if (this.isFlipping) {
                     e.preventDefault();
                     e.stopPropagation();
                     this.setFlipped(!this.isFlipped);
@@ -76,6 +97,7 @@ const Router = {
                     'a',
                     'input',
                     'textarea',
+                    'select',
                     '.tag-pill',
                     '.tag-add-pill',
                     '.tag-remove-btn',
@@ -93,14 +115,19 @@ const Router = {
                     '.nav-item-btn',
                     '.add-section-nav-btn',
                     '.add-section-big-btn',
-                    '.view-add-btn'
+                    '.view-add-btn',
+                    '.nook-link-row',
+                    '.top-item-card',
+                    '.status-card',
+                    '.profile-edit-avatar-wrap',
+                    '.profile-edit-banner-wrap'
                 ].join(', ');
 
-                // 1. İnteraktif öğelere veya düzenlenebilir alanlara tıklandıysa kartı çevirme ve işlemi kesme
+                // 1. İnteraktif öğelere veya kart satırlarına tıklandıysa işlemi kesme
                 if (e.target.closest(interactiveSelector)) return;
 
                 // 2. Ön yüzde düzenleme modu açıkken dışarıdaki boş alana tıklandıysa:
-                // İlk vuruşta sadece düzenlemeyi kapat, kartı ÇEVİRME
+                // İlk vuruşta sadece düzenlemeyi kapat, kartı çevirme
                 if (window._frontEditingActive || (window._frontEditJustClosed && Date.now() - window._frontEditJustClosed < 450)) {
                     window._frontEditingActive = false;
                     window._frontEditJustClosed = 0;
@@ -109,20 +136,34 @@ const Router = {
                     return;
                 }
 
+                // 3. Arka yüzde akordeon düzenlemesi yeni kapandıysa ilk vuruşta geri dönme
+                if (window._linkAccordionJustClosed && Date.now() - window._linkAccordionJustClosed < 400) {
+                    window._linkAccordionJustClosed = 0;
+                    return;
+                }
+
                 const selection = window.getSelection();
                 if (selection && selection.toString().trim().length > 0) return;
                 if (window._suruklemeBitti && Date.now() - window._suruklemeBitti < 300) return;
 
-                // 1. ÖN YÜZ: Ön yüze tıklandığında arkaya dön
+                // 4. HİYERARŞİK GEZİNME (Boş alana tıklama):
+                // A. ÖN YÜZ: Ön yüzdeyken boş alana tıklandığında arka yüze git
                 if (!this.isFlipped) {
                     this.setFlipped(true);
                     return;
                 }
 
-                // 2. ARKA YÜZ: SADECE kök içerik menüsündeyken ön yüze dön (detay ekranlarındayken değil!)
-                if (this.isFlipped && !this.activeDetailView) {
-                    this.setFlipped(false);
+                // B. ARKA YÜZ:
+                // B.1. Eğer bir alt detay ekranındaysak (örn. linkler, profil vb.):
+                // Boş alana tıklamak bizi hep bir adım geriye (arka yüz ana menüsüne) atsın
+                if (this.activeDetailView) {
+                    this.resetToMainMenu();
+                    return;
                 }
+
+                // B.2. Eğer arka yüzün ana menüsündeysek:
+                // Boş alana tıklamak bizi bir adım daha geriye (kartın ön yüzüne) atsın
+                this.setFlipped(false);
             });
         }
 
@@ -142,11 +183,17 @@ const Router = {
         this.isFlipped = flipped;
         if (!this.cardContainer) return;
 
+        // Kartı etkileşime geçici olarak kilitle (animasyon sırasında)
         this.isFlipping = true;
+        this.cardContainer.classList.add('is-flipping');
+
         clearTimeout(this._flipTimeout);
         this._flipTimeout = setTimeout(() => {
             this.isFlipping = false;
-        }, 550);
+            if (this.cardContainer) {
+                this.cardContainer.classList.remove('is-flipping');
+            }
+        }, this.FLIP_SHIELD_LOCK_MS);
 
         if (this.isFlipped) {
             this.cardContainer.classList.add('is-flipped');

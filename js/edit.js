@@ -1231,6 +1231,10 @@ EditManager.BackViews = {
             window._linksClickOutsideBound = true;
             document.addEventListener('mousedown', (e) => {
                 if (!e.target.closest('.nook-link-row.is-expanded') && !e.target.closest('.links-add-btn') && !e.target.closest('#edit-action-bar')) {
+                    const expanded = wrapper.querySelectorAll('.nook-link-row.is-expanded');
+                    if (expanded.length > 0) {
+                        window._linkAccordionJustClosed = Date.now();
+                    }
                     EditManager.BackViews.kapatTumLinkAkordeonlari();
                 }
             });
