@@ -310,6 +310,47 @@ body.is-owner .top-item-card:active {
     pointer-events: none;
 }
 
+/* #region HAVADA SÜZÜLEN KLON & CANLI YER TUTUCU (FLOATING PREVIEW & PLACEHOLDER) */
+.drag-clone-portal {
+    pointer-events: none !important;
+}
+
+.is-drag-clone {
+    pointer-events: none !important;
+    z-index: 100000 !important;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.18) !important;
+    transform: scale(1.03) rotate(-1.5deg);
+    transition: transform 0.12s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.12s ease;
+    opacity: 0.96;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    will-change: left, top, transform;
+}
+
+.tag-pill.is-drag-clone {
+    transform: scale(1.08) rotate(-2deg);
+}
+
+.is-drag-clone .item-delete-btn,
+.is-drag-clone .tag-remove-btn,
+.is-drag-clone .nook-link-actions,
+.is-drag-clone .card-del-btn {
+    display: none !important;
+}
+
+/* Liste içindeki Yer Tutucu (Placeholder) */
+.is-drag-placeholder,
+.is-dragging.is-drag-placeholder {
+    opacity: 0.22 !important;
+    border-style: dashed !important;
+    border-color: var(--accent-color) !important;
+    background: rgba(59, 91, 219, 0.08) !important;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+}
+/* #endregion */
+
 .nav-item-btn.is-empty-module {
     border-style: dashed;
     opacity: 0.75;

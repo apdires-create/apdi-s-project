@@ -89,6 +89,12 @@ const EditManager = {
         let startY = 0;
         let isDragging = false;
         let draggedItem = null;
+        let dragClone = null;
+        let dragPortal = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let portalLeft = 0;
+        let portalTop = 0;
         let hasMoved = false;
 
         const onPointerDown = (e) => {
@@ -118,7 +124,50 @@ const EditManager = {
                 const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
                 if (dist > 4) {
                     isDragging = true;
-                    draggedItem.classList.add('is-dragging');
+
+                    // Container Query uyumluluğu için kart konteynerini baz alan portal oluştur
+                    const cardContainer = document.querySelector('.card-container');
+                    const cRect = cardContainer ? cardContainer.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+                    portalLeft = cRect.left;
+                    portalTop = cRect.top;
+
+                    dragPortal = document.createElement('div');
+                    dragPortal.className = 'drag-clone-portal';
+                    dragPortal.style.cssText = `
+                        position: fixed;
+                        left: ${cRect.left}px;
+                        top: ${cRect.top}px;
+                        width: ${cRect.width}px;
+                        height: ${cRect.height}px;
+                        container-type: size;
+                        pointer-events: none;
+                        z-index: 100000;
+                        overflow: visible;
+                    `;
+
+                    const itemRect = draggedItem.getBoundingClientRect();
+                    dragOffsetX = startX - itemRect.left;
+                    dragOffsetY = startY - itemRect.top;
+
+                    // Havada süzülen görsel klon oluştur
+                    dragClone = draggedItem.cloneNode(true);
+                    dragClone.classList.add('is-drag-clone');
+                    dragClone.classList.remove('is-dragging', 'is-drag-placeholder');
+                    dragClone.style.cssText = `
+                        position: absolute;
+                        left: ${e.clientX - dragOffsetX - portalLeft}px;
+                        top: ${e.clientY - dragOffsetY - portalTop}px;
+                        width: ${itemRect.width}px;
+                        height: ${itemRect.height}px;
+                        margin: 0;
+                        box-sizing: border-box;
+                    `;
+
+                    dragPortal.appendChild(dragClone);
+                    document.body.appendChild(dragPortal);
+
+                    // Listedeki asıl öğeyi yer tutucu (placeholder) yap
+                    draggedItem.classList.add('is-dragging', 'is-drag-placeholder');
                     draggedItem.style.pointerEvents = 'none';
                     document.body.classList.add('is-pointer-dragging');
                 } else {
@@ -127,6 +176,12 @@ const EditManager = {
             }
 
             if (e.cancelable) e.preventDefault();
+
+            // Havada süzülen klonun konumunu güncelle
+            if (dragClone) {
+                dragClone.style.left = (e.clientX - dragOffsetX - portalLeft) + 'px';
+                dragClone.style.top = (e.clientY - dragOffsetY - portalTop) + 'px';
+            }
 
             const hit = document.elementFromPoint(e.clientX, e.clientY);
             if (!hit) return;
@@ -169,9 +224,15 @@ const EditManager = {
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);
 
+            if (dragPortal) {
+                dragPortal.remove();
+                dragPortal = null;
+                dragClone = null;
+            }
+
             if (draggedItem) {
                 draggedItem.style.pointerEvents = '';
-                draggedItem.classList.remove('is-dragging');
+                draggedItem.classList.remove('is-dragging', 'is-drag-placeholder');
             }
             document.body.classList.remove('is-pointer-dragging');
 
@@ -193,6 +254,11 @@ const EditManager = {
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);
+            if (dragPortal) {
+                dragPortal.remove();
+                dragPortal = null;
+                dragClone = null;
+            }
         };
     },
     // #endregion
