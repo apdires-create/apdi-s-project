@@ -493,13 +493,13 @@ body:not(.is-owner) .nook-link-row * {
     pointer-events: none;
 }
 
-/* Sahip Modunda Kararlı Sürükleme ve İmleç Düzeni (Flicker Önleyici) */
-body.is-owner .nook-link-row[draggable="true"] {
-    cursor: grab;
+/* Sahip Modunda Kararlı Sürükleme ve İmleç Düzeni */
+body.is-owner .nook-link-row:not(.is-expanded) {
+    cursor: pointer;
 }
 
-body.is-owner .nook-link-row[draggable="true"]:active {
-    cursor: grabbing;
+body.is-owner .nook-link-row:not(.is-expanded):active {
+    cursor: grabbing !important;
 }
 
 /* Link alanı: Tıklanabilir ve kararlı pointer */
@@ -625,6 +625,15 @@ body.is-owner .nook-link-row.is-expanded input {
     object-fit: cover;
     display: block;
     flex-shrink: 0;
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+.top-item-thumb img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-select: none;
 }
 
 .top-item-content {
@@ -632,6 +641,8 @@ body.is-owner .nook-link-row.is-expanded input {
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
+    pointer-events: none;
+    user-select: none;
 }
 
 .top-item-title {

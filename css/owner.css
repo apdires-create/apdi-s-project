@@ -200,13 +200,13 @@ body.is-owner .editable-hover:not(.is-input-active):hover {
 }
 
 body.is-owner .tag-pill:not(.tag-add-pill) {
-    cursor: grab;
+    cursor: pointer;
     user-select: none;
     transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 body.is-owner .tag-pill:not(.tag-add-pill):active {
-    cursor: grabbing;
+    cursor: grabbing !important;
 }
 
 .tag-pill.is-dragging {
@@ -282,7 +282,7 @@ body.is-owner .tag-pill:hover .tag-remove-btn {
 body.is-owner .nav-item-btn,
 body.is-owner .link-item-row,
 body.is-owner .top-item-card {
-    cursor: grab;
+    cursor: pointer;
     user-select: none;
     transition: transform 0.15s ease, opacity 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -290,7 +290,7 @@ body.is-owner .top-item-card {
 body.is-owner .nav-item-btn:active,
 body.is-owner .link-item-row:active,
 body.is-owner .top-item-card:active {
-    cursor: grabbing;
+    cursor: grabbing !important;
 }
 
 .nav-item-btn.is-dragging,

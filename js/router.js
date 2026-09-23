@@ -17,7 +17,7 @@ const Router = {
     // Kalkan aktifken karta basılırsa kart anında ters yöne çevrilir (seri flip).
     // İhtiyacınıza göre bu süreyi buradan doğrudan değiştirebilirsiniz (Örn: 250, 300, 350).
     // =========================================================================
-    FLIP_SHIELD_LOCK_MS: 300,
+    FLIP_SHIELD_LOCK_MS: 70,
 
     init() {
         this.cardContainer = document.getElementById('cardContainer');

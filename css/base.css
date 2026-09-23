@@ -116,13 +116,21 @@ html, body {
     z-index: 500;
     background: transparent;
     pointer-events: none;
-    cursor: pointer;
+    cursor: default;
     user-select: none;
     -webkit-user-select: none;
 }
 
 .card-container.is-flipping .flip-shield {
     pointer-events: auto !important;
+}
+
+/* Evrensel Sıralanabilir Öğeler & Pointer Sürükleme İmleç Kuralı */
+body.is-pointer-dragging,
+body.is-pointer-dragging * {
+    cursor: grabbing !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
 }
 
 .card-face {

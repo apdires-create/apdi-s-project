@@ -69,6 +69,134 @@ const EditManager = {
         }
     },
 
+    // #region EVRENSEL POINTER REORDER MOTORU (SORTABLE)
+    initPointerSortable(container, options) {
+        if (!container) return;
+        if (container._pointerSortableCleanup) {
+            container._pointerSortableCleanup();
+        }
+
+        const {
+            itemSelector,
+            axis = 'y',
+            canDrag = null,
+            onMove = null,
+            onDrop = null,
+            excludedDragSelectors = 'input, textarea, select, button, a, .item-delete-btn, .tag-remove-btn, .nook-action-btn, .nook-link-toggle, .nook-link-test-btn, .tops-add-btn, .top-add-form'
+        } = options;
+
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
+        let draggedItem = null;
+        let hasMoved = false;
+
+        const onPointerDown = (e) => {
+            if (e.button !== 0) return;
+            if (e.target.closest(excludedDragSelectors)) return;
+
+            const item = e.target.closest(itemSelector);
+            if (!item || !container.contains(item)) return;
+
+            if (typeof canDrag === 'function' && !canDrag(item, e.target)) return;
+
+            startX = e.clientX;
+            startY = e.clientY;
+            isDragging = false;
+            hasMoved = false;
+            draggedItem = item;
+
+            window.addEventListener('pointermove', onPointerMove, { passive: false });
+            window.addEventListener('pointerup', onPointerUp);
+            window.addEventListener('pointercancel', onPointerUp);
+        };
+
+        const onPointerMove = (e) => {
+            if (!draggedItem) return;
+
+            if (!isDragging) {
+                const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
+                if (dist > 4) {
+                    isDragging = true;
+                    draggedItem.classList.add('is-dragging');
+                    draggedItem.style.pointerEvents = 'none';
+                    document.body.classList.add('is-pointer-dragging');
+                } else {
+                    return;
+                }
+            }
+
+            if (e.cancelable) e.preventDefault();
+
+            const hit = document.elementFromPoint(e.clientX, e.clientY);
+            if (!hit) return;
+
+            const targetItem = hit.closest(itemSelector);
+            if (targetItem && targetItem !== draggedItem && container.contains(targetItem)) {
+                if (targetItem.closest('.tag-add-pill, .tops-add-btn, .top-add-form')) return;
+
+                const box = targetItem.getBoundingClientRect();
+                if (axis === 'x') {
+                    const offset = e.clientX - box.left;
+                    if (offset > box.width / 2) {
+                        targetItem.after(draggedItem);
+                    } else {
+                        targetItem.before(draggedItem);
+                    }
+                } else if (axis === 'y') {
+                    const offset = e.clientY - box.top;
+                    if (offset > box.height / 2) {
+                        targetItem.after(draggedItem);
+                    } else {
+                        targetItem.before(draggedItem);
+                    }
+                } else {
+                    const midX = box.left + box.width / 2;
+                    const midY = box.top + box.height / 2;
+                    if (e.clientY > midY || (Math.abs(e.clientY - midY) < box.height / 3 && e.clientX > midX)) {
+                        targetItem.after(draggedItem);
+                    } else {
+                        targetItem.before(draggedItem);
+                    }
+                }
+                hasMoved = true;
+                if (typeof onMove === 'function') onMove(draggedItem, targetItem);
+            }
+        };
+
+        const onPointerUp = () => {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+            window.removeEventListener('pointercancel', onPointerUp);
+
+            if (draggedItem) {
+                draggedItem.style.pointerEvents = '';
+                draggedItem.classList.remove('is-dragging');
+            }
+            document.body.classList.remove('is-pointer-dragging');
+
+            if (isDragging) {
+                window._suruklemeBitti = Date.now();
+                if (hasMoved && typeof onDrop === 'function') {
+                    onDrop();
+                }
+            }
+
+            draggedItem = null;
+            isDragging = false;
+        };
+
+        container.addEventListener('pointerdown', onPointerDown);
+
+        container._pointerSortableCleanup = () => {
+            container.removeEventListener('pointerdown', onPointerDown);
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+            window.removeEventListener('pointercancel', onPointerUp);
+        };
+    },
+    // #endregion
+
     domElemanlariniOlustur() {
         // 1. Action Bar Enjeksiyonu
         if (!document.getElementById('edit-action-bar')) {
@@ -650,9 +778,8 @@ EditManager.Vitrin = {
         const tagsGrid = document.getElementById('tagsGrid');
         if (!tagsGrid) return;
 
-        // Tag silme butonlarını bağla ve sürüklenebilir yap
+        // Tag silme butonlarını bağla
         tagsGrid.querySelectorAll('.tag-pill:not(.tag-add-pill)').forEach((pill, idx) => {
-            pill.setAttribute('draggable', 'true');
             if (!pill.querySelector('.tag-remove-btn')) {
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'tag-remove-btn';
@@ -685,63 +812,31 @@ EditManager.Vitrin = {
             tagsGrid.appendChild(addPill);
         }
 
-        // Sürükle-Bırak Sistemi (Hover, Grab, Drop)
-        if (!tagsGrid._dragBound) {
-            tagsGrid._dragBound = true;
-            let tagHareketEtti = false;
+        // Sürükle-Bırak Sistemi (Pointer Reorder: Hover, Grab, Drop)
+        EditManager.initPointerSortable(tagsGrid, {
+            itemSelector: '.tag-pill:not(.tag-add-pill)',
+            axis: 'x',
+            excludedDragSelectors: '.tag-remove-btn, .tag-add-pill, input, button',
+            onDrop: () => {
+                const yeniTagler = [...tagsGrid.querySelectorAll('.tag-pill:not(.tag-add-pill)')]
+                    .map(p => {
+                        const clone = p.cloneNode(true);
+                        const rm = clone.querySelector('.tag-remove-btn');
+                        if (rm) rm.remove();
+                        return clone.textContent.trim();
+                    })
+                    .filter(Boolean);
 
-            tagsGrid.addEventListener('dragstart', (e) => {
-                const pill = e.target.closest('.tag-pill:not(.tag-add-pill)');
-                if (!pill) return;
-                tagHareketEtti = false;
-                pill.classList.add('is-dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', pill.textContent);
-            });
-
-            tagsGrid.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const draggingPill = tagsGrid.querySelector('.tag-pill.is-dragging');
-                if (!draggingPill) return;
-
-                const targetPill = e.target.closest('.tag-pill:not(.is-dragging):not(.tag-add-pill)');
-                if (targetPill) {
-                    tagHareketEtti = true;
-                    const box = targetPill.getBoundingClientRect();
-                    const offset = e.clientX - box.left;
-                    if (offset > box.width / 2) {
-                        targetPill.after(draggingPill);
-                    } else {
-                        targetPill.before(draggingPill);
-                    }
+                const eskiTagler = Array.isArray(kartVerisi.front_data?.tags) ? kartVerisi.front_data.tags : [];
+                if (JSON.stringify(yeniTagler) !== JSON.stringify(eskiTagler)) {
+                    if (!kartVerisi.front_data) kartVerisi.front_data = {};
+                    kartVerisi.front_data.tags = yeniTagler;
+                    EditManager.Global.degisiklikYapildi();
+                    RenderEngine.vitrinCiz(kartVerisi);
+                    EditManager.Vitrin.init();
                 }
-            });
-
-            tagsGrid.addEventListener('dragend', () => {
-                const draggingPill = tagsGrid.querySelector('.tag-pill.is-dragging');
-                if (draggingPill) draggingPill.classList.remove('is-dragging');
-
-                if (tagHareketEtti) {
-                    const yeniTagler = [...tagsGrid.querySelectorAll('.tag-pill:not(.tag-add-pill)')]
-                        .map(p => {
-                            const clone = p.cloneNode(true);
-                            const rm = clone.querySelector('.tag-remove-btn');
-                            if (rm) rm.remove();
-                            return clone.textContent.trim();
-                        })
-                        .filter(Boolean);
-
-                    const eskiTagler = Array.isArray(kartVerisi.front_data?.tags) ? kartVerisi.front_data.tags : [];
-                    if (JSON.stringify(yeniTagler) !== JSON.stringify(eskiTagler)) {
-                        if (!kartVerisi.front_data) kartVerisi.front_data = {};
-                        kartVerisi.front_data.tags = yeniTagler;
-                        EditManager.Global.degisiklikYapildi();
-                        RenderEngine.vitrinCiz(kartVerisi);
-                        EditManager.Vitrin.init();
-                    }
-                }
-            });
-        }
+            }
+        });
     }
 };
 // #endregion
@@ -760,61 +855,22 @@ EditManager.BackViews = {
         const menuNav = document.getElementById('menuNav');
         if (!menuNav) return;
 
-        menuNav.querySelectorAll('.nav-item-btn').forEach(btn => {
-            btn.setAttribute('draggable', 'true');
+        EditManager.initPointerSortable(menuNav, {
+            itemSelector: '.nav-item-btn',
+            axis: 'y',
+            onDrop: () => {
+                const yeniSira = [...menuNav.querySelectorAll('.nav-item-btn')].map(b => b.dataset.target).filter(Boolean);
+                if (!kartVerisi.theme_config) kartVerisi.theme_config = {};
+                const eskiSira = kartVerisi.theme_config.menu_order || [];
+
+                if (JSON.stringify(yeniSira) !== JSON.stringify(eskiSira)) {
+                    kartVerisi.theme_config.menu_order = yeniSira;
+                    EditManager.Global.degisiklikYapildi();
+                    RenderEngine.menuCiz(kartVerisi);
+                    EditManager.BackViews.init();
+                }
+            }
         });
-
-        if (!menuNav._dragBound) {
-            menuNav._dragBound = true;
-            let menuHareketEtti = false;
-
-            menuNav.addEventListener('dragstart', (e) => {
-                const btn = e.target.closest('.nav-item-btn');
-                if (!btn) return;
-                menuHareketEtti = false;
-                btn.classList.add('is-dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', btn.dataset.target || '');
-            });
-
-            menuNav.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const draggingBtn = menuNav.querySelector('.nav-item-btn.is-dragging');
-                if (!draggingBtn) return;
-
-                const targetBtn = e.target.closest('.nav-item-btn:not(.is-dragging)');
-                if (targetBtn) {
-                    menuHareketEtti = true;
-                    const box = targetBtn.getBoundingClientRect();
-                    const offset = e.clientY - box.top;
-                    if (offset > box.height / 2) {
-                        targetBtn.after(draggingBtn);
-                    } else {
-                        targetBtn.before(draggingBtn);
-                    }
-                }
-            });
-
-            menuNav.addEventListener('dragend', () => {
-                const draggingBtn = menuNav.querySelector('.nav-item-btn.is-dragging');
-                if (draggingBtn) draggingBtn.classList.remove('is-dragging');
-
-                window._suruklemeBitti = Date.now();
-
-                if (menuHareketEtti) {
-                    const yeniSira = [...menuNav.querySelectorAll('.nav-item-btn')].map(b => b.dataset.target).filter(Boolean);
-                    if (!kartVerisi.theme_config) kartVerisi.theme_config = {};
-                    const eskiSira = kartVerisi.theme_config.menu_order || [];
-
-                    if (JSON.stringify(yeniSira) !== JSON.stringify(eskiSira)) {
-                        kartVerisi.theme_config.menu_order = yeniSira;
-                        EditManager.Global.degisiklikYapildi();
-                        RenderEngine.menuCiz(kartVerisi);
-                        EditManager.BackViews.init();
-                    }
-                }
-            });
-        }
     },
 
     // --- Links ---
@@ -864,7 +920,6 @@ EditManager.BackViews = {
                 });
             }
             openRow.classList.remove('is-expanded');
-            openRow.setAttribute('draggable', 'true');
             const toggleBtn = openRow.querySelector('.nook-link-toggle') || openRow.querySelector('.nook-edit-btn');
             if (toggleBtn) {
                 toggleBtn.innerHTML = KALEM_IKONU;
@@ -936,7 +991,6 @@ EditManager.BackViews = {
                 });
 
                 rowEl.classList.remove('is-expanded');
-                rowEl.setAttribute('draggable', 'true');
 
                 const toggleBtn = rowEl.querySelector('.nook-link-toggle');
                 if (toggleBtn) {
@@ -982,7 +1036,6 @@ EditManager.BackViews = {
                 if (!canOpen) return;
 
                 rowEl.classList.add('is-expanded');
-                rowEl.removeAttribute('draggable');
 
                 const toggleBtn = rowEl.querySelector('.nook-link-toggle');
                 if (toggleBtn) {
@@ -1019,7 +1072,6 @@ EditManager.BackViews = {
 
                 const row = document.createElement('div');
                 row.className = 'nook-link-row';
-                row.setAttribute('draggable', 'true');
                 row.dataset.index = index;
 
                 const baslik = link.baslik || link.isim || '';
@@ -1240,52 +1292,14 @@ EditManager.BackViews = {
             });
         }
 
-        // Link Satırları Sürükle-Bırak Sistemi
-        if (!wrapper._linksDragBound) {
-            wrapper._linksDragBound = true;
-            let linkHareketEtti = false;
-
-            wrapper.addEventListener('dragstart', (e) => {
-                if (e.target.closest('.nook-link-anchor, .nook-link-actions, .nook-action-btn, input, button, a')) {
-                    e.preventDefault();
-                    return;
-                }
-                const row = e.target.closest('.nook-link-row');
-                if (!row || row.classList.contains('is-expanded')) {
-                    e.preventDefault();
-                    return;
-                }
-                linkHareketEtti = false;
-                row.classList.add('is-dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', row.dataset.index || '');
-            });
-
-            wrapper.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const draggingRow = wrapper.querySelector('.nook-link-row.is-dragging');
-                if (!draggingRow) return;
-
-                const targetRow = e.target.closest('.nook-link-row:not(.is-dragging)');
-                if (targetRow) {
-                    linkHareketEtti = true;
-                    const box = targetRow.getBoundingClientRect();
-                    const offset = e.clientY - box.top;
-                    if (offset > box.height / 2) {
-                        targetRow.after(draggingRow);
-                    } else {
-                        targetRow.before(draggingRow);
-                    }
-                }
-            });
-
-            wrapper.addEventListener('dragend', () => {
-                const draggingRow = wrapper.querySelector('.nook-link-row.is-dragging');
-                if (draggingRow) draggingRow.classList.remove('is-dragging');
-
-                window._suruklemeBitti = Date.now();
-
-                if (linkHareketEtti && Array.isArray(kartVerisi.links)) {
+        // Link Satırları Sürükle-Bırak Sistemi (Pointer Reorder)
+        EditManager.initPointerSortable(wrapper, {
+            itemSelector: '.nook-link-row',
+            axis: 'y',
+            canDrag: (row) => !row.classList.contains('is-expanded'),
+            excludedDragSelectors: '.nook-link-anchor, .nook-link-actions, .nook-action-btn, input, button, a',
+            onDrop: () => {
+                if (Array.isArray(kartVerisi.links)) {
                     const yeniSiraIndices = [...wrapper.querySelectorAll('.nook-link-row')].map(r => parseInt(r.dataset.index, 10));
                     const yeniLinks = yeniSiraIndices.map(i => kartVerisi.links[i]).filter(Boolean);
 
@@ -1295,8 +1309,8 @@ EditManager.BackViews = {
                         renderLinks();
                     }
                 }
-            });
-        }
+            }
+        });
     },
 
     // --- Tops ---
@@ -1422,9 +1436,8 @@ EditManager.BackViews = {
             scrollWrap.appendChild(addBtn);
         }
 
-        // Tops öğelerine silme butonu ekle ve sürüklenebilir yap
+        // Tops öğelerine silme butonu ekle
         scrollWrap.querySelectorAll('.top-item-card').forEach((card, idx) => {
-            card.setAttribute('draggable', 'true');
             card.dataset.index = idx;
             if (!card.querySelector('.item-delete-btn')) {
                 const delBtn = document.createElement('button');
@@ -1461,49 +1474,24 @@ EditManager.BackViews = {
             }
         });
 
-        // Tops Kartları Sürükle-Bırak Sistemi
-        if (!scrollWrap._topsDragBound) {
-            scrollWrap._topsDragBound = true;
-            let topHareketEtti = false;
-
-            scrollWrap.addEventListener('dragstart', (e) => {
-                const card = e.target.closest('.top-item-card');
-                if (!card) return;
-                topHareketEtti = false;
-                card.classList.add('is-dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', card.dataset.index || '');
-            });
-
-            scrollWrap.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                const draggingCard = scrollWrap.querySelector('.top-item-card.is-dragging');
-                if (!draggingCard) return;
-
-                const targetCard = e.target.closest('.top-item-card:not(.is-dragging)');
-                if (targetCard) {
-                    topHareketEtti = true;
-                    const box = targetCard.getBoundingClientRect();
-                    const offset = e.clientY - box.top;
-                    if (offset > box.height / 2) {
-                        targetCard.after(draggingCard);
-                    } else {
-                        targetCard.before(draggingCard);
-                    }
-                }
-            });
-
-            scrollWrap.addEventListener('dragend', () => {
-                const draggingCard = scrollWrap.querySelector('.top-item-card.is-dragging');
-                if (draggingCard) draggingCard.classList.remove('is-dragging');
-
-                // addBtn ve açık form her zaman en altta kalmalı
+        // Tops Kartları Sürükle-Bırak Sistemi (Pointer Reorder)
+        EditManager.initPointerSortable(scrollWrap, {
+            itemSelector: '.top-item-card',
+            axis: 'y',
+            excludedDragSelectors: '.item-delete-btn, .tops-add-btn, .top-add-form, input, button, a',
+            onMove: () => {
+                const currentAddBtn = scrollWrap.querySelector('.tops-add-btn');
+                const currentForm = scrollWrap.querySelector('.top-add-form');
+                if (currentForm) scrollWrap.appendChild(currentForm);
+                if (currentAddBtn) scrollWrap.appendChild(currentAddBtn);
+            },
+            onDrop: () => {
                 const currentAddBtn = scrollWrap.querySelector('.tops-add-btn');
                 const currentForm = scrollWrap.querySelector('.top-add-form');
                 if (currentForm) scrollWrap.appendChild(currentForm);
                 if (currentAddBtn) scrollWrap.appendChild(currentAddBtn);
 
-                if (topHareketEtti && kartVerisi.tops && Array.isArray(kartVerisi.tops.ogeler)) {
+                if (kartVerisi.tops && Array.isArray(kartVerisi.tops.ogeler)) {
                     const yeniSiraIndices = [...scrollWrap.querySelectorAll('.top-item-card')].map(c => parseInt(c.dataset.index, 10));
                     const yeniOgeler = yeniSiraIndices.map(i => kartVerisi.tops.ogeler[i]).filter(Boolean);
 
@@ -1514,8 +1502,8 @@ EditManager.BackViews = {
                         EditManager.BackViews.init();
                     }
                 }
-            });
-        }
+            }
+        });
     },
 
     // --- Working On ---

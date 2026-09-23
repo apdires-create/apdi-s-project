@@ -274,7 +274,7 @@ const RenderEngine = {
         const kartlarHtml = ogeler.map(item => {
             const safeAfis = this.safeUrl(item.afis_url);
             const thumbHtml = (safeAfis && safeAfis !== '#')
-                ? `<img class="top-item-thumb" src="${safeAfis}" alt="${this.escapeHtml(item.baslik || '')}" loading="lazy" onerror="this.style.display='none'">`
+                ? `<img class="top-item-thumb" src="${safeAfis}" alt="${this.escapeHtml(item.baslik || '')}" loading="lazy" draggable="false" onerror="this.style.display='none'">`
                 : `<div class="top-item-thumb"></div>`;
 
             return `
