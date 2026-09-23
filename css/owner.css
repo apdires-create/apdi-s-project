@@ -351,36 +351,25 @@ body.is-owner .top-item-card:active {
 }
 /* #endregion */
 
-/* #region KATEGORİ İKON ROZETİ VE BLOK SİLME MODALI */
-.category-icon-badge.is-owner-badge {
-    cursor: pointer !important;
-    position: relative;
-    user-select: none;
-}
-
-.category-icon-badge.is-owner-badge:hover {
-    background: rgba(239, 68, 68, 0.18) !important;
-    border-color: rgba(239, 68, 68, 0.45) !important;
-    color: #ef4444 !important;
-    transform: scale(1.08);
-}
-
-.category-icon-badge.is-owner-badge:hover .badge-icon-normal {
+/* #region BLOK SİLME BUTONU VE MODALI */
+.delete-section-btn {
     display: none !important;
 }
 
-.category-icon-badge.is-owner-badge:hover .badge-icon-trash {
+body.is-owner .delete-section-btn {
     display: flex !important;
     align-items: center;
     justify-content: center;
-    animation: badgeShake 0.25s ease-in-out;
+    margin-left: auto;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
 }
 
-@keyframes badgeShake {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(-8deg); }
-    75% { transform: rotate(8deg); }
-    100% { transform: rotate(0deg); }
+body.is-owner .delete-section-btn:hover {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-color: rgba(239, 68, 68, 0.45) !important;
+    color: #ef4444 !important;
+    transform: scale(1.08);
 }
 
 /* Blok Silme Modalı */

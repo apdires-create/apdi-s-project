@@ -1037,13 +1037,13 @@ EditManager.BackViews = {
         const titleEl = document.getElementById('block-delete-title');
         const descEl = document.getElementById('block-delete-desc');
 
-        document.querySelectorAll('.category-icon-badge.is-owner-badge').forEach(badge => {
-            badge.onclick = (e) => {
+        document.querySelectorAll('.delete-section-btn').forEach(btn => {
+            btn.onclick = (e) => {
                 e.stopPropagation();
                 e.preventDefault();
 
-                const catId = badge.dataset.cat;
-                const catTitle = badge.dataset.title || catId;
+                const catId = btn.dataset.sectionId;
+                const catTitle = btn.dataset.sectionTitle || catId;
                 if (!catId || !modal) return;
 
                 modal._targetCat = catId;

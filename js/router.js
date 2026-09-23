@@ -70,6 +70,13 @@ const Router = {
                     this.resetToMainMenu();
                     return;
                 }
+
+                // Ön yüze dön butonuna tıklandıysa (Kök menü geri butonu)
+                const flipBtn = e.target.closest('[data-action="flip-to-front"]');
+                if (flipBtn) {
+                    this.setFlipped(false);
+                    return;
+                }
             });
         }
 

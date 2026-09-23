@@ -62,16 +62,12 @@ const RenderEngine = {
         return icons[catId] || icons['links'];
     },
 
-    getCategoryBadge(catId, baslik = '', isHeader = false) {
-        const isUserOwner = (typeof isOwner !== 'undefined' && isOwner);
+    getCategoryBadge(catId, isHeader = false) {
         const iconHtml = this.getCategoryIcon(catId, isHeader ? 18 : 16);
-        const titleAttr = isUserOwner ? `title="Bu bloğu silmek için tıkla"` : '';
-        const ownerClass = isUserOwner ? 'is-owner-badge' : '';
         const headerClass = isHeader ? 'is-header-badge' : '';
         return `
-            <span class="category-icon-badge ${ownerClass} ${headerClass}" data-cat="${catId}" data-title="${this.escapeHtml(baslik)}" ${titleAttr}>
+            <span class="category-icon-badge ${headerClass}" data-cat="${catId}">
                 <span class="badge-icon-normal">${iconHtml}</span>
-                ${isUserOwner ? `<span class="badge-icon-trash"><svg viewBox="0 0 24 24" width="${isHeader ? 16 : 14}" height="${isHeader ? 16 : 14}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></span>` : ''}
             </span>
         `;
     },
@@ -150,7 +146,7 @@ const RenderEngine = {
             const butonlarHtml = aktifMenuler.map(item => `
                 <button class="nav-item-btn" data-target="${item.id}">
                     <div class="nav-btn-left">
-                        ${this.getCategoryBadge(item.id, item.baslik, false)}
+                        ${this.getCategoryBadge(item.id, false)}
                         <span class="nav-item-title">${this.escapeHtml(item.baslik)}</span>
                     </div>
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -250,9 +246,17 @@ const RenderEngine = {
                     </svg>
                 </button>
                 <div class="view-header-title-wrap">
-                    ${this.getCategoryBadge(id, baslik, true)}
+                    ${this.getCategoryBadge(id, true)}
                     <h3 class="view-title">${this.escapeHtml(baslik)}</h3>
                 </div>
+                <button class="nook-icon-btn delete-section-btn" data-section-id="${id}" data-section-title="${this.escapeHtml(baslik)}" title="Bloğu Sil">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                </button>
             </div>
             <div class="scrollable-fade">
                 ${icerikHtml}
