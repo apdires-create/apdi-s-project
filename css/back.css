@@ -315,9 +315,9 @@ body.is-owner .nook-link-main {
 .nook-action-btn {
     width: 6.5cqw;
     height: 6.5cqw;
-    min-width: 22px;
-    min-height: 22px;
-    border-radius: 1.5cqw;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 1.6cqw;
     border: 1px solid var(--border-soft);
     background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(4px);
@@ -326,8 +326,10 @@ body.is-owner .nook-link-main {
     align-items: center;
     justify-content: center;
     cursor: pointer !important;
-    transition: all 120ms ease;
+    transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
     padding: 0;
+    -webkit-user-drag: none;
+    user-select: none;
 }
 
 .nook-action-btn svg {
@@ -335,26 +337,81 @@ body.is-owner .nook-link-main {
     height: 3.5cqw;
     min-width: 12px;
     min-height: 12px;
-    pointer-events: none;
+    pointer-events: none !important;
+    user-select: none !important;
 }
 
 .nook-action-btn:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--border-highlight);
-    transform: scale(1.08);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
 }
 
 .nook-action-btn.is-delete-mode {
     color: #ef4444;
-    border-color: rgba(239, 68, 68, 0.35);
+    border-color: rgba(239, 68, 68, 0.4);
 }
 
 .nook-action-btn.is-delete-mode:hover {
     color: #ffffff;
     background: #ef4444;
     border-color: #ef4444;
-    transform: scale(1.08);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+/* Sahip Modunda Tıklanabilir Link Alanı (İkon + Metin) */
+.nook-link-anchor {
+    display: flex;
+    align-items: center;
+    gap: 3cqw;
+    min-width: 0;
+    max-width: 100%;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer !important;
+    padding: 0.6cqw 1cqw;
+    margin: -0.6cqw -1cqw;
+    border-radius: 2.2cqw;
+    transition: background-color 150ms ease, color 150ms ease;
+    -webkit-user-drag: none;
+    user-select: none;
+    position: relative;
+    z-index: 5;
+}
+
+.nook-link-anchor:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.nook-link-anchor:hover .nook-link-name {
+    color: var(--accent-light, #38bdf8);
+}
+
+.nook-link-anchor:hover .nook-link-icon {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Akordeon Düzenleme Başlığı (İkon + İsim Inputu) */
+.nook-link-edit-fields {
+    display: none;
+    align-items: center;
+    gap: 3cqw;
+    flex: 1;
+    min-width: 0;
+}
+
+.nook-link-row.is-expanded .nook-link-anchor {
+    display: none !important;
+}
+
+.nook-link-row.is-expanded .nook-link-edit-fields {
+    display: flex;
+}
+
+.nook-link-edit-fields .edit-isim-input {
+    display: block !important;
+    flex: 1;
 }
 
 /* Metin Alanı ve Link Başlıkları */
@@ -416,20 +473,6 @@ body.is-owner .nook-link-main {
     border-color: var(--accent-color);
 }
 
-/* Akordeon Açıkken İsim Inputunu Göster, Başlığı Gizle */
-.nook-link-row .edit-isim-input {
-    display: none;
-}
-
-.nook-link-row.is-expanded .nook-link-texts,
-.nook-link-row.is-expanded .nook-link-text-anchor {
-    display: none !important;
-}
-
-.nook-link-row.is-expanded .edit-isim-input {
-    display: block;
-}
-
 /* Hata mesajı */
 .inline-url-error {
     color: #f87171;
@@ -440,6 +483,10 @@ body.is-owner .nook-link-main {
 /* Ziyaretçi Modunda Tıklanabilir Link ve Kararlı İmleç */
 body:not(.is-owner) .nook-link-row {
     cursor: pointer;
+}
+
+body:not(.is-owner) .nook-link-row:hover .nook-link-name {
+    color: var(--accent-light, #38bdf8);
 }
 
 body:not(.is-owner) .nook-link-row * {
@@ -455,24 +502,26 @@ body.is-owner .nook-link-row[draggable="true"]:active {
     cursor: grabbing;
 }
 
-body.is-owner .nook-link-row[draggable="true"] .nook-link-main,
-body.is-owner .nook-link-row[draggable="true"] .nook-link-icon,
-body.is-owner .nook-link-row[draggable="true"] .nook-link-info,
-body.is-owner .nook-link-row[draggable="true"] .nook-link-texts,
-body.is-owner .nook-link-row[draggable="true"] .nook-link-name,
-body.is-owner .nook-link-row[draggable="true"] .nook-link-domain {
-    cursor: grab;
-    user-select: none;
-}
-
-/* Tıklanabilir butonlar */
-body.is-owner .nook-action-btn {
+/* Link alanı: Tıklanabilir ve kararlı pointer */
+body.is-owner .nook-link-anchor,
+body.is-owner .nook-link-anchor * {
     cursor: pointer !important;
 }
 
-body.is-owner .nook-link-row.is-expanded,
+/* Aksiyon butonları: Tıklanabilir ve kararlı pointer */
+body.is-owner .nook-link-actions,
+body.is-owner .nook-action-btn,
+body.is-owner .nook-action-btn * {
+    cursor: pointer !important;
+}
+
+/* Düzenleme modu (Akordeon açık) */
+body.is-owner .nook-link-row.is-expanded {
+    cursor: default;
+}
+
 body.is-owner .nook-link-row.is-expanded .nook-link-main,
-body.is-owner .nook-link-row.is-expanded .nook-link-info {
+body.is-owner .nook-link-row.is-expanded .nook-link-edit-fields {
     cursor: default;
 }
 

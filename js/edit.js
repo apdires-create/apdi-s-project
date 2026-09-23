@@ -962,6 +962,8 @@ EditManager.BackViews = {
                     } catch(e) {}
                     if (domainDisplay) domainDisplay.textContent = d;
                     if (testBtn && p) testBtn.href = RenderEngine.safeUrl(p);
+                    const anchor = rowEl.querySelector('.nook-link-anchor');
+                    if (anchor && p) anchor.href = RenderEngine.safeUrl(p);
                 }
 
                 return true;
@@ -1024,17 +1026,20 @@ EditManager.BackViews = {
 
                 row.innerHTML = `
                     <div class="nook-link-actions" draggable="false">
-                        <button type="button" class="nook-action-btn nook-link-toggle" title="Düzenle">
+                        <button type="button" class="nook-action-btn nook-link-toggle" title="Düzenle" draggable="false">
                             ${KALEM_IKONU}
                         </button>
                     </div>
                     <div class="nook-link-main">
-                        <div class="nook-link-icon">${RenderEngine.getLinkIcon(link.url)}</div>
-                        <div class="nook-link-info">
+                        <a href="${RenderEngine.safeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="nook-link-anchor" draggable="false">
+                            <div class="nook-link-icon">${RenderEngine.getLinkIcon(link.url)}</div>
                             <div class="nook-link-texts">
                                 <span class="nook-link-name">${RenderEngine.escapeHtml(baslik) || 'Yeni bağlantı'}</span>
                                 <span class="nook-link-domain">${RenderEngine.escapeHtml(domain)}</span>
                             </div>
+                        </a>
+                        <div class="nook-link-edit-fields">
+                            <div class="nook-link-icon">${RenderEngine.getLinkIcon(link.url)}</div>
                             <input type="text" class="nook-link-input edit-isim-input" placeholder="Görünen İsim (Örn: GitHub)" value="${RenderEngine.escapeHtml(baslik)}" autocomplete="off" spellcheck="false" draggable="false">
                         </div>
                     </div>
@@ -1061,9 +1066,10 @@ EditManager.BackViews = {
                 const urlInput = row.querySelector('.edit-url-input');
                 const testBtn = row.querySelector('.nook-link-test-btn');
                 const errorEl = row.querySelector('.inline-url-error');
+                const anchor = row.querySelector('.nook-link-anchor');
 
-                // Tıklanabilir iç kontrollerin mousedown olayını durdur ki kart sürüklenmeye başlamasın
-                [toggleBtn, testBtn, nameInput, urlInput].forEach(el => {
+                // Tıklanabilir iç kontrollerin mousedown ve dragstart olayını durdur ki kart sürüklenmeye başlamasın
+                [toggleBtn, testBtn, nameInput, urlInput, anchor].forEach(el => {
                     if (!el) return;
                     el.addEventListener('mousedown', (e) => e.stopPropagation());
                     el.addEventListener('dragstart', (e) => { e.preventDefault(); e.stopPropagation(); });
@@ -1094,6 +1100,10 @@ EditManager.BackViews = {
                         isim: nameInput.value.trim(),
                         url: val
                     };
+                    const anchorEl = row.querySelector('.nook-link-anchor');
+                    if (anchorEl && val) anchorEl.href = RenderEngine.safeUrl(val);
+                    const nameDisplay = row.querySelector('.nook-link-name');
+                    if (nameDisplay) nameDisplay.textContent = nameInput.value.trim() || 'Yeni bağlantı';
                     EditManager.Global.degisiklikYapildi();
                 };
 
@@ -1104,9 +1114,10 @@ EditManager.BackViews = {
                     if (!val.startsWith('http://') && !val.startsWith('https://')) val = 'https://' + val;
 
                     const doUpdate = () => {
-                        const iconEl = row.querySelector('.nook-link-icon');
+                        const iconEls = row.querySelectorAll('.nook-link-icon');
                         const domainEl = row.querySelector('.nook-link-domain');
                         const testBtn = row.querySelector('.nook-link-test-btn');
+                        const anchorEl = row.querySelector('.nook-link-anchor');
 
                         if (this.urlGecerliMi(val)) {
                             let d = 'Bağlantı';
@@ -1115,8 +1126,10 @@ EditManager.BackViews = {
                             } catch(e) {}
 
                             if (domainEl) domainEl.textContent = d;
-                            if (iconEl) iconEl.innerHTML = RenderEngine.getLinkIcon(val);
+                            const newIconSvg = RenderEngine.getLinkIcon(val);
+                            iconEls.forEach(iconEl => iconEl.innerHTML = newIconSvg);
                             if (testBtn) testBtn.href = RenderEngine.safeUrl(val);
+                            if (anchorEl) anchorEl.href = RenderEngine.safeUrl(val);
                         }
                     };
 
@@ -1229,6 +1242,10 @@ EditManager.BackViews = {
             let linkHareketEtti = false;
 
             wrapper.addEventListener('dragstart', (e) => {
+                if (e.target.closest('.nook-link-anchor, .nook-link-actions, .nook-action-btn, input, button, a')) {
+                    e.preventDefault();
+                    return;
+                }
                 const row = e.target.closest('.nook-link-row');
                 if (!row || row.classList.contains('is-expanded')) {
                     e.preventDefault();
