@@ -76,9 +76,9 @@ html, body {
 .tops-companion-card {
     position: relative;
     aspect-ratio: var(--card-aspect-ratio);
-    height: var(--card-max-height);
-    width: auto;
-    max-width: 92vw;
+    height: var(--card-height);
+    width: var(--card-width);
+    max-width: var(--card-max-width);
     container-type: size;
     box-sizing: border-box;
 }
@@ -91,14 +91,19 @@ html, body {
 @media (max-aspect-ratio: 5/7) {
     .card-container,
     .tops-companion-card {
-        width: var(--card-mobile-width);
+        width: var(--card-narrow-width);
         height: auto;
     }
 }
 
+.card-container,
 .nook-card,
 .tops-companion-card {
     border-radius: var(--card-radius);
+}
+
+.nook-card,
+.tops-companion-card {
     background: var(--card-bg);
     border: var(--card-border);
     box-shadow: var(--card-shadow);
@@ -122,7 +127,7 @@ html, body {
     inset: 0;
     width: 100%;
     height: 100%;
-    border-radius: var(--radius-card);
+    border-radius: var(--card-radius);
     z-index: 500;
     background: transparent;
     pointer-events: none;
@@ -148,7 +153,7 @@ body.is-pointer-dragging * {
     inset: 0;
     width: 100%;
     height: 100%;
-    border-radius: var(--radius-card);
+    border-radius: var(--card-radius);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     overflow: hidden;
@@ -449,7 +454,7 @@ html.is-profile-loading #landing-screen {
         aspect-ratio: var(--card-aspect-ratio);
         /* Duvarlar ve kartlar arası gap tam dengeli; kartlar asla ekran dışına taşmaz */
         height: min(
-            var(--card-max-height),
+            var(--card-height),
             calc((100vw - (2 * var(--stage-padding)) - var(--stage-gap)) / 2 * 7 / 5)
         );
         max-height: calc(100vh - (2 * var(--stage-padding)));
@@ -479,7 +484,7 @@ html.is-profile-loading #landing-screen {
     .stage.has-companion-open .tops-companion-card {
         scroll-snap-align: center;
         flex-shrink: 0;
-        width: var(--card-mobile-width);
+        width: var(--card-narrow-width);
         aspect-ratio: var(--card-aspect-ratio);
         height: auto;
         margin: 0 auto;
