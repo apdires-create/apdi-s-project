@@ -2271,6 +2271,7 @@ EditManager.TopsModal = {
         EditManager.Global.degisiklikYapildi();
     }
 };
+// #endregion
 
 // #region 9: İÇERİK ARAMA VE AFİŞ SEÇME MODALI (MEDIA SEARCH MODAL)
 EditManager.MediaSearchModal = {
@@ -2456,6 +2457,7 @@ EditManager.MediaSearchModal = {
         EditManager.Global.degisiklikYapildi();
     }
 };
+// #endregion
 
 // #region 10: TOPS EŞLİKÇİ KART (SHOWCASE WING) DÜZENLEME MOTORU
 EditManager.CompanionViews = {
@@ -2555,4 +2557,3 @@ EditManager.CompanionViews = {
     }
 };
 // #endregion
-
