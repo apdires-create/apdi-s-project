@@ -49,7 +49,18 @@ async function tumVerileriCek() {
         kartVerisi.kullanici_adi = profil.kullanici_adi;
         kartVerisi.front_data = guvenliObje(profil.front_data);
         kartVerisi.links = guvenliDizi(profil.links);
-        kartVerisi.tops = guvenliObje(profil.tops);
+        const rawTops = guvenliObje(profil.tops);
+        if (rawTops && Array.isArray(rawTops.ogeler)) {
+            rawTops.ogeler = rawTops.ogeler.map((item, i) => ({
+                id: item.id || item.kimlik || ('top_' + (i + 1)),
+                baslik: item.baslik || '',
+                aciklama: item.aciklama || '',
+                afis_url: item.afis_url || item.gorsel_url || null,
+                yil: item.yil || null,
+                skor: item.skor || null
+            }));
+        }
+        kartVerisi.tops = rawTops;
         kartVerisi.trophies = guvenliDizi(profil.trophies);
         kartVerisi.widgets = guvenliDizi(profil.widgets);
         kartVerisi.working_on = guvenliObje(profil.working_on);
@@ -181,7 +192,14 @@ async function icerikAra(aramaMetni, aramaTuru) {
                 }
             });
             if (!error && data && Array.isArray(data.sonuclar) && data.sonuclar.length > 0) {
-                return data.sonuclar;
+                return data.sonuclar.map(item => ({
+                    id: item.id || item.kimlik,
+                    baslik: item.baslik || 'Bilinmeyen Yapım',
+                    afis_url: item.afis_url || item.gorsel_url || null,
+                    skor: item.skor || null,
+                    yil: item.yil || null,
+                    aciklama: item.aciklama || ''
+                }));
             }
         } catch (err) {
             console.warn("Supabase Functions arama başarısız, client fallback kullanılıyor:", err);
@@ -197,10 +215,11 @@ async function icerikAra(aramaMetni, aramaTuru) {
                 const json = await res.json();
                 if (Array.isArray(json.data)) {
                     return json.data.map(item => ({
-                        kimlik: `mal_${item.mal_id}`,
+                        id: `mal_${item.mal_id}`,
                         baslik: item.title_english || item.title || "Bilinmeyen Anime",
-                        gorsel_url: item.images?.webp?.large_image_url || item.images?.jpg?.large_image_url || null,
+                        afis_url: item.images?.webp?.large_image_url || item.images?.jpg?.large_image_url || null,
                         skor: item.score ? String(item.score) : null,
+                        yil: item.year ? String(item.year) : (item.aired?.prop?.from?.year ? String(item.aired.prop.from.year) : null),
                         aciklama: item.synopsis ? item.synopsis.slice(0, 160) + '...' : ''
                     }));
                 }
@@ -215,10 +234,11 @@ async function icerikAra(aramaMetni, aramaTuru) {
                         return data.slice(0, 8).map(entry => {
                             const show = entry.show || {};
                             return {
-                                kimlik: `tv_${show.id}`,
+                                id: `tv_${show.id}`,
                                 baslik: show.name || "Bilinmeyen Dizi",
-                                gorsel_url: show.image?.original || show.image?.medium || null,
+                                afis_url: show.image?.original || show.image?.medium || null,
                                 skor: show.rating?.average ? String(show.rating.average) : null,
+                                yil: show.premiered ? show.premiered.slice(0, 4) : null,
                                 aciklama: show.summary ? show.summary.replace(/<[^>]*>/g, '').slice(0, 160) + '...' : ''
                             };
                         });

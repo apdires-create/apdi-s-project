@@ -539,7 +539,14 @@ EditManager.Global = {
                     kategori: veri.tops.kategori || 'Tops',
                     tur: veri.tops.tur || 'film',
                     harici_link: veri.tops.harici_link || null,
-                    ogeler: ogeler
+                    ogeler: ogeler.map((item, idx) => ({
+                        id: item.id || item.kimlik || ('top_' + (idx + 1)),
+                        baslik: item.baslik || '',
+                        aciklama: item.aciklama || '',
+                        afis_url: item.afis_url || item.gorsel_url || null,
+                        yil: item.yil || null,
+                        skor: item.skor || null
+                    }))
                 };
             }
         }
@@ -1624,6 +1631,7 @@ EditManager.BackViews = {
 
         // Tops öğelerine silme butonu ekle
         scrollWrap.querySelectorAll('.top-item-card').forEach((card, idx) => {
+            const cardId = card.dataset.id;
             card.dataset.index = idx;
             if (!card.querySelector('.item-delete-btn')) {
                 const delBtn = document.createElement('button');
@@ -1640,8 +1648,12 @@ EditManager.BackViews = {
                 `;
                 delBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    if (kartVerisi.tops?.ogeler) {
-                        kartVerisi.tops.ogeler.splice(idx, 1);
+                    if (kartVerisi.tops && Array.isArray(kartVerisi.tops.ogeler)) {
+                        if (cardId) {
+                            kartVerisi.tops.ogeler = kartVerisi.tops.ogeler.filter(x => (x.id || x.kimlik) !== cardId);
+                        } else {
+                            kartVerisi.tops.ogeler.splice(idx, 1);
+                        }
                         RenderEngine.menuCiz(kartVerisi);
                         RenderEngine.altEkranlariCiz(kartVerisi);
                         EditManager.BackViews.init();
@@ -1666,8 +1678,15 @@ EditManager.BackViews = {
                 if (currentAddCard) scrollWrap.appendChild(currentAddCard);
 
                 if (kartVerisi.tops && Array.isArray(kartVerisi.tops.ogeler)) {
-                    const yeniSiraIndices = [...scrollWrap.querySelectorAll('.top-item-card')].map(c => parseInt(c.dataset.index, 10));
-                    const yeniOgeler = yeniSiraIndices.map(i => kartVerisi.tops.ogeler[i]).filter(Boolean);
+                    const cards = [...scrollWrap.querySelectorAll('.top-item-card')];
+                    const yeniOgeler = cards.map(c => {
+                        const cid = c.dataset.id;
+                        if (cid) {
+                            return kartVerisi.tops.ogeler.find(x => (x.id || x.kimlik) === cid);
+                        }
+                        const i = parseInt(c.dataset.index, 10);
+                        return kartVerisi.tops.ogeler[i];
+                    }).filter(Boolean);
 
                     if (JSON.stringify(yeniOgeler) !== JSON.stringify(kartVerisi.tops.ogeler)) {
                         kartVerisi.tops.ogeler = yeniOgeler;
@@ -2443,17 +2462,19 @@ EditManager.MediaSearchModal = {
         }
 
         resultsWrap.innerHTML = sonuclar.map((item, idx) => {
-            const posterHtml = item.gorsel_url
-                ? `<img class="tops-search-poster" src="${EditManager.escapeHtml(item.gorsel_url)}" alt="${EditManager.escapeHtml(item.baslik)}" onerror="this.style.display='none'">`
+            const rawAfis = item.afis_url || item.gorsel_url;
+            const posterHtml = rawAfis
+                ? `<img class="tops-search-poster" src="${EditManager.escapeHtml(rawAfis)}" alt="${EditManager.escapeHtml(item.baslik)}" onerror="this.style.display='none'">`
                 : `<div class="tops-search-poster"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2"></rect></svg></div>`;
 
             const skorHtml = item.skor ? `<span class="tops-search-score">★ ${EditManager.escapeHtml(item.skor)}</span>` : '';
+            const yilHtml = item.yil ? `<span class="tops-search-year">(${EditManager.escapeHtml(item.yil)})</span>` : '';
 
             return `
                 <div class="tops-search-item" data-index="${idx}">
                     ${posterHtml}
                     <div class="tops-search-info">
-                        <div class="tops-search-title">${EditManager.escapeHtml(item.baslik)}</div>
+                        <div class="tops-search-title">${EditManager.escapeHtml(item.baslik)} ${yilHtml}</div>
                         <div class="tops-search-meta">
                             ${skorHtml}
                             <span class="tops-search-type">${this.aramaTuru.toUpperCase()}</span>
@@ -2474,7 +2495,7 @@ EditManager.MediaSearchModal = {
         });
     },
 
-    icerikEkle(item) {
+    icerikEkle(secilen) {
         if (!kartVerisi.tops) {
             kartVerisi.tops = {
                 kategori: 'Favorilerim',
@@ -2493,10 +2514,12 @@ EditManager.MediaSearchModal = {
         }
 
         kartVerisi.tops.ogeler.push({
-            id: item.kimlik || ('top_' + Date.now()),
-            baslik: item.baslik || 'Bilinmeyen Yapım',
-            afis_url: item.gorsel_url || null,
-            aciklama: item.aciklama || ''
+            id: secilen.id || secilen.kimlik || ('top_' + Date.now()),
+            baslik: secilen.baslik || 'Bilinmeyen Yapım',
+            aciklama: secilen.aciklama || '',
+            afis_url: secilen.afis_url || secilen.gorsel_url || null,
+            yil: secilen.yil || null,
+            skor: secilen.skor || null
         });
 
         this.kapat();

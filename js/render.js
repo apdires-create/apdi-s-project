@@ -312,13 +312,15 @@ const RenderEngine = {
 
         // Afiş Kartları (Maksimum 3 adet)
         const kartlarHtml = ogeler.slice(0, 3).map((item, idx) => {
-            const safeAfis = this.safeUrl(item.afis_url);
+            const rawAfis = item.afis_url || item.gorsel_url;
+            const safeAfis = this.safeUrl(rawAfis);
+            const itemId = item.id || item.kimlik || ('top_' + (idx + 1));
             const thumbHtml = (safeAfis && safeAfis !== '#')
                 ? `<img class="top-item-thumb" src="${safeAfis}" alt="${this.escapeHtml(item.baslik || '')}" loading="lazy" draggable="false" onerror="this.style.display='none'">`
                 : `<div class="top-item-thumb"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></div>`;
 
             return `
-                <div class="top-item-card" data-index="${idx}">
+                <div class="top-item-card" data-index="${idx}" data-id="${this.escapeHtml(itemId)}">
                     ${thumbHtml}
                     <div class="top-item-content">
                         <div class="top-item-header-row">
