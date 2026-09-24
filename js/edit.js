@@ -264,12 +264,8 @@ const EditManager = {
             bar.id = 'edit-action-bar';
             bar.className = 'edit-action-bar';
             bar.innerHTML = `
-                <div class="edit-action-status">
-                    <span class="edit-status-dot"></span>
-                    <span class="edit-status-text">Değişiklikler yapıldı...</span>
-                </div>
                 <div class="edit-action-btns">
-                    <button type="button" id="edit-cancel-btn" class="edit-bar-btn cancel-btn">İptal</button>
+                    <button type="button" id="edit-cancel-btn" class="edit-bar-btn cancel-btn">Sıfırla</button>
                     <button type="button" id="edit-save-btn" class="edit-bar-btn save-btn">Kaydet</button>
                 </div>
             `;

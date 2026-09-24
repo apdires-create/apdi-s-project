@@ -63,3 +63,18 @@
 }
 /* #endregion */
 
+/* #region 4: ORTAK KART VE COMPANION KONTEYNER STANDARTLARI */
+:root {
+    --card-aspect-ratio: 5 / 7;
+    --card-max-height: min(84vh, 660px);
+    --card-mobile-width: min(88vw, 400px);
+    --card-radius: 5cqw;
+    --card-bg: var(--bg-card);
+    --card-border: 1px solid var(--border-soft);
+    --card-shadow: var(--shadow-card);
+    
+    --stage-gap: clamp(20px, 3.5vw, 44px);
+    --stage-padding: clamp(24px, 4vw, 52px);
+}
+/* #endregion */
+

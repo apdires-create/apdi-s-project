@@ -650,18 +650,20 @@ textarea.inline-form-input {
     bottom: -90px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(18, 20, 29, 0.92);
+    background: rgba(18, 20, 29, 0.94);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-pill);
-    padding: 10px 20px;
+    padding: 6px 10px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
+    gap: 8px;
     z-index: 1000;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(59, 91, 219, 0.2);
     transition: bottom 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    width: auto;
     max-width: 90vw;
     user-select: none;
 }
@@ -671,30 +673,7 @@ body.has-unsaved-changes .edit-action-bar {
 }
 
 .edit-action-status {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.edit-status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #f59e0b;
-    box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
-    animation: editDotPulse 1.5s infinite;
-}
-
-@keyframes editDotPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-.edit-status-text {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.85);
-    white-space: nowrap;
+    display: none !important;
 }
 
 .edit-action-btns {
@@ -842,7 +821,7 @@ body.has-unsaved-changes .edit-action-bar {
 /* Toast Bildirimi */
 .nook-toast {
     position: fixed;
-    top: -60px;
+    top: -100px;
     left: 50%;
     transform: translateX(-50%);
     background: #10b981;
@@ -853,12 +832,16 @@ body.has-unsaved-changes .edit-action-bar {
     border-radius: var(--radius-pill);
     box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
     z-index: 10001;
-    transition: top 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
     pointer-events: none;
+    transition: top 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease, visibility 0.25s ease;
 }
 
 .nook-toast.is-visible {
     top: 24px;
+    opacity: 1;
+    visibility: visible;
 }
 /* #endregion */
 

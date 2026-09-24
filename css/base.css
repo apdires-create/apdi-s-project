@@ -72,32 +72,42 @@ html, body {
 /* #endregion */
 
 /* #region 2: 5:7 SABİT ORANLI KART GÖVDESİ */
-.card-container {
+.card-container,
+.tops-companion-card {
     position: relative;
-    aspect-ratio: 5 / 7;
-    height: min(85vh, 660px);
+    aspect-ratio: var(--card-aspect-ratio);
+    height: var(--card-max-height);
     width: auto;
     max-width: 92vw;
     container-type: size;
+    box-sizing: border-box;
+}
+
+.card-container {
     transform-style: preserve-3d;
     transition: transform 0.15s ease-out;
 }
 
 @media (max-aspect-ratio: 5/7) {
-    .card-container {
-        width: min(90vw, 420px);
+    .card-container,
+    .tops-companion-card {
+        width: var(--card-mobile-width);
         height: auto;
     }
+}
+
+.nook-card,
+.tops-companion-card {
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
+    border: var(--card-border);
+    box-shadow: var(--card-shadow);
 }
 
 .nook-card {
     position: relative;
     width: 100%;
     height: 100%;
-    border-radius: var(--radius-card);
-    background: var(--bg-card);
-    border: 1px solid var(--border-soft);
-    box-shadow: var(--shadow-card);
     transform-style: preserve-3d;
     transition: transform 0.6s var(--ease-spring), box-shadow 0.3s ease;
 }
@@ -427,17 +437,24 @@ html.is-profile-loading #landing-screen {
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: clamp(24px, 3.5vw, 48px);
-        padding: 24px;
-        overflow: visible;
+        gap: var(--stage-gap);
+        padding: var(--stage-padding);
+        box-sizing: border-box;
+        overflow: hidden;
     }
 
     .stage.has-companion-open .card-container,
     .stage.has-companion-open .tops-companion-card {
         flex-shrink: 0;
-        height: min(84vh, 650px);
+        aspect-ratio: var(--card-aspect-ratio);
+        /* Duvarlar ve kartlar arası gap tam dengeli; kartlar asla ekran dışına taşmaz */
+        height: min(
+            var(--card-max-height),
+            calc((100vw - (2 * var(--stage-padding)) - var(--stage-gap)) / 2 * 7 / 5)
+        );
+        max-height: calc(100vh - (2 * var(--stage-padding)));
+        max-width: calc((100vw - (2 * var(--stage-padding)) - var(--stage-gap)) / 2);
         width: auto;
-        aspect-ratio: 5 / 7;
     }
 }
 
@@ -447,23 +464,23 @@ html.is-profile-loading #landing-screen {
         height: 100vh;
         max-height: 100vh;
         overflow-y: auto;
-        scroll-snap-type: y mandatory;
+        scroll-snap-type: y proximity;
+        scroll-behavior: smooth;
         -webkit-overflow-scrolling: touch;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        gap: 32px;
-        padding: 40px 16px 80px 16px;
+        gap: 28px;
+        padding: 32px 16px 80px 16px;
     }
 
     .stage.has-companion-open .card-container,
     .stage.has-companion-open .tops-companion-card {
         scroll-snap-align: center;
-        scroll-snap-stop: always;
         flex-shrink: 0;
-        width: min(90vw, 380px);
-        aspect-ratio: 5 / 7;
+        width: var(--card-mobile-width);
+        aspect-ratio: var(--card-aspect-ratio);
         height: auto;
         margin: 0 auto;
     }
@@ -472,26 +489,26 @@ html.is-profile-loading #landing-screen {
 /* 3. TOPS COMPANION CARD GÖVDESİ */
 .tops-companion-card {
     position: relative;
-    border-radius: var(--radius-card);
-    background: var(--bg-card);
-    border: 1px solid var(--border-soft);
-    box-shadow: var(--shadow-card);
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
+    border: var(--card-border);
+    box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     container-type: size;
-    animation: companionCardEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: companionCardEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 2;
 }
 
 @keyframes companionCardEnter {
     from {
         opacity: 0;
-        transform: translate3d(24px, 0, 0) scale(0.96);
+        transform: translate3d(24px, 0, 0);
     }
     to {
         opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
+        transform: translate3d(0, 0, 0);
     }
 }
 
@@ -499,11 +516,11 @@ html.is-profile-loading #landing-screen {
     @keyframes companionCardEnter {
         from {
             opacity: 0;
-            transform: translate3d(0, 30px, 0) scale(0.96);
+            transform: translate3d(0, 20px, 0);
         }
         to {
             opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
+            transform: translate3d(0, 0, 0);
         }
     }
 }

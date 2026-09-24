@@ -272,13 +272,18 @@ const Router = {
 
             // Mobilde Companion Card açıldığında yumuşakça yapışarak kartı hizala
             if (window.innerWidth <= 899) {
-                setTimeout(() => {
-                    companionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        companionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 60);
+                });
             }
         } else {
             stage.classList.remove('has-companion-open');
             companionCard.style.display = 'none';
+            if (window.innerWidth <= 899) {
+                stage.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
     }
 };
