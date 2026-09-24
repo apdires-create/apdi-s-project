@@ -631,7 +631,7 @@ EditManager.Global = {
                 }
             }
 
-            const { error } = await supabaseClient
+            const { data: guncellenen, error } = await supabaseClient
                 .from('profiles')
                 .update({
                     front_data: guvenliObje(kartVerisi.front_data),
@@ -642,9 +642,16 @@ EditManager.Global = {
                     working_on: workingOnPayload,
                     theme_config: guvenliObje(kartVerisi.theme_config)
                 })
-                .eq('auth_id', kartVerisi.auth_id);
+                .eq('auth_id', kartVerisi.auth_id)
+                .select('id');
 
-            if (error) throw error;
+            if (error) {
+                throw error;
+            }
+
+            if (!guncellenen || guncellenen.length === 0) {
+                throw new Error('Profil güncellenmedi: eşleşen kayıt bulunamadı.');
+            }
 
             EditManager.state.orijinalVeri = JSON.parse(JSON.stringify(kartVerisi));
             EditManager.state.hasUnsavedChanges = false;

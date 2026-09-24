@@ -257,12 +257,21 @@ const Router = {
         const companionCard = document.getElementById('topsCompanionCard');
         if (!stage || !companionCard) return;
 
-        const isCurrentlyOpen = stage.classList.contains('has-companion-open');
+        // Devam eden bir kapanış veya açılış geçişi varsa bekle
+        if (this._companionTransitioning) return;
+
+        const isCurrentlyOpen = stage.classList.contains('has-companion-open') && !companionCard.classList.contains('is-closing');
         const nextState = (typeof forceState === 'boolean') ? forceState : !isCurrentlyOpen;
 
         if (nextState) {
-            stage.classList.add('has-companion-open');
+            // AÇILIŞ SEKANSI
+            this._companionTransitioning = true;
+            companionCard.classList.remove('is-closing');
             companionCard.style.display = 'flex';
+            
+            // Sahneye açılış sınıfını ekle
+            stage.classList.add('has-companion-open');
+
             if (typeof RenderEngine !== 'undefined') {
                 RenderEngine.companionCiz(kartVerisi.tops);
             }
@@ -270,20 +279,32 @@ const Router = {
                 EditManager.CompanionViews?.init();
             }
 
-            // Mobilde Companion Card açıldığında yumuşakça yapışarak kartı hizala
+            // Mobilde Companion Card yukarıdan aşağıya doğru akarken kullanıcıyı yumuşakça odakla
             if (window.innerWidth <= 899) {
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        companionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 60);
-                });
+                setTimeout(() => {
+                    companionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 120);
             }
+
+            setTimeout(() => {
+                this._companionTransitioning = false;
+            }, 450);
         } else {
-            stage.classList.remove('has-companion-open');
-            companionCard.style.display = 'none';
+            // KAPANIŞ SEKANSI (Yumuşak süzülerek çıkış)
+            this._companionTransitioning = true;
+            companionCard.classList.add('is-closing');
+
             if (window.innerWidth <= 899) {
                 stage.scrollTo({ top: 0, behavior: 'smooth' });
             }
+
+            // Animasyon tamamlandıktan sonra DOM durumunu temizle
+            setTimeout(() => {
+                stage.classList.remove('has-companion-open');
+                companionCard.classList.remove('is-closing');
+                companionCard.style.display = 'none';
+                this._companionTransitioning = false;
+            }, 360);
         }
     }
 };

@@ -432,7 +432,9 @@ html.is-profile-loading #landing-screen {
 
 /* #region 5: SHOWCASE WING (TOPS COMPANION CARD) SAHNE MİMARİSİ */
 .stage {
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                padding 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                gap 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* 1. MASAÜSTÜ DUAL STAGE (Yan Yana Çift Kart) */
@@ -448,6 +450,10 @@ html.is-profile-loading #landing-screen {
         overflow: hidden;
     }
 
+    .stage.has-companion-open .card-container {
+        animation: mainCardShiftLeft 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
     .stage.has-companion-open .card-container,
     .stage.has-companion-open .tops-companion-card {
         flex-shrink: 0;
@@ -460,6 +466,15 @@ html.is-profile-loading #landing-screen {
         max-height: calc(100vh - (2 * var(--stage-padding)));
         max-width: calc((100vw - (2 * var(--stage-padding)) - var(--stage-gap)) / 2);
         width: auto;
+    }
+
+    @keyframes mainCardShiftLeft {
+        from {
+            transform: translate3d(28px, 0, 0);
+        }
+        to {
+            transform: translate3d(0, 0, 0);
+        }
     }
 }
 
@@ -502,14 +517,103 @@ html.is-profile-loading #landing-screen {
     flex-direction: column;
     overflow: hidden;
     container-type: size;
-    animation: companionCardEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: companionCardEnter 0.44s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: center center;
     z-index: 2;
+    will-change: transform, opacity;
 }
 
+/* Kapanırken yumuşakça süzülerek çıkış */
+.tops-companion-card.is-closing {
+    animation: companionCardExit 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    pointer-events: none;
+}
+
+/* Masaüstü: Sağa doğru derinlikten süzülerek açılış ve kapanış */
 @keyframes companionCardEnter {
+    0% {
+        opacity: 0;
+        transform: translate3d(-18px, 0, 0) scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes companionCardExit {
+    0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate3d(-18px, 0, 0) scale(0.95);
+    }
+}
+
+/* Mobil: Kullanıcının talebine uygun olarak YUKARIDAN AŞAĞIYA DOĞRU akış */
+@media (max-width: 899px) {
+    .tops-companion-card {
+        animation: companionMobileDropEnter 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .tops-companion-card.is-closing {
+        animation: companionMobileDropExit 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    }
+
+    @keyframes companionMobileDropEnter {
+        0% {
+            opacity: 0;
+            transform: translate3d(0, -38px, 0) scale(0.96);
+        }
+        100% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+    }
+
+    @keyframes companionMobileDropExit {
+        0% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: translate3d(0, -28px, 0) scale(0.95);
+        }
+    }
+}
+
+/* 4. KART İÇİ AKICI KADEMELİ GİRİŞ (STAGGERED REVEAL) */
+.tops-companion-card .companion-header {
+    animation: companionSubFadeIn 0.36s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+}
+
+.tops-companion-card .companion-list-meta {
+    animation: companionSubFadeIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+
+.tops-companion-card .top-item-card:nth-child(1) {
+    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
+}
+
+.tops-companion-card .top-item-card:nth-child(2) {
+    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.19s both;
+}
+
+.tops-companion-card .top-item-card:nth-child(3) {
+    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+}
+
+.tops-companion-card .top-add-poster-card {
+    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+}
+
+@keyframes companionSubFadeIn {
     from {
         opacity: 0;
-        transform: translate3d(24px, 0, 0);
+        transform: translate3d(0, -6px, 0);
     }
     to {
         opacity: 1;
@@ -517,16 +621,14 @@ html.is-profile-loading #landing-screen {
     }
 }
 
-@media (max-width: 899px) {
-    @keyframes companionCardEnter {
-        from {
-            opacity: 0;
-            transform: translate3d(0, 20px, 0);
-        }
-        to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-        }
+@keyframes companionItemSlideIn {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 14px, 0) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
     }
 }
 

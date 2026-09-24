@@ -246,4 +246,3 @@ async function icerikAra(aramaMetni, aramaTuru) {
     return [];
 }
 // #endregion
-
