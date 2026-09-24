@@ -77,6 +77,7 @@ let kartVerisi = {
     ],
     tops: {
         kategori: "Favorite Movies",
+        tur: "film",
         harici_link: { baslik: "Letterboxd Account →", url: "https://letterboxd.com" },
         ogeler: [
             {

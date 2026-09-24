@@ -300,32 +300,61 @@ const RenderEngine = {
     },
 
     topsIcerikHTML(tops) {
-        if (!tops || (!Array.isArray(tops.ogeler) && !Array.isArray(tops))) {
-            return `<p class="placeholder-text">Henüz içerik eklenmemiş.</p>`;
-        }
-        const ogeler = Array.isArray(tops.ogeler) ? tops.ogeler : (Array.isArray(tops) ? tops : []);
-        if (ogeler.length === 0) {
+        const ogeler = (tops && Array.isArray(tops.ogeler))
+            ? tops.ogeler
+            : (Array.isArray(tops) ? tops : []);
+
+        const isUserOwner = (typeof isOwner !== 'undefined' && isOwner);
+
+        if (ogeler.length === 0 && !isUserOwner) {
             return `<p class="placeholder-text">Henüz içerik eklenmemiş.</p>`;
         }
 
-        const kartlarHtml = ogeler.map(item => {
+        // Afiş Kartları (Maksimum 3 adet)
+        const kartlarHtml = ogeler.slice(0, 3).map((item, idx) => {
             const safeAfis = this.safeUrl(item.afis_url);
             const thumbHtml = (safeAfis && safeAfis !== '#')
                 ? `<img class="top-item-thumb" src="${safeAfis}" alt="${this.escapeHtml(item.baslik || '')}" loading="lazy" draggable="false" onerror="this.style.display='none'">`
-                : `<div class="top-item-thumb"></div>`;
+                : `<div class="top-item-thumb"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></div>`;
 
             return `
-                <div class="top-item-card">
+                <div class="top-item-card" data-index="${idx}">
                     ${thumbHtml}
                     <div class="top-item-content">
-                        <h4 class="top-item-title">${this.escapeHtml(item.baslik)}</h4>
+                        <div class="top-item-header-row">
+                            <span class="top-item-rank">#${idx + 1}</span>
+                            <h4 class="top-item-title">${this.escapeHtml(item.baslik)}</h4>
+                        </div>
                         <p class="top-item-desc">${this.escapeHtml(item.aciklama || '')}</p>
                     </div>
                 </div>
             `;
         }).join('');
 
-        const linkHtml = (tops.harici_link && tops.harici_link.url) ? `
+        // Kart Sahibi İçin Afiş Buton Slotu (Slot < 3 ise)
+        let addPosterSlotHtml = '';
+        if (isUserOwner && ogeler.length < 3) {
+            const kalan = 3 - ogeler.length;
+            addPosterSlotHtml = `
+                <div class="top-poster-add-card" id="top-add-poster-btn" role="button" tabindex="0" title="İçerik Ara ve Ekle">
+                    <div class="top-poster-add-thumb">
+                        <div class="top-poster-add-icon-wrap">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </div>
+                        <span class="top-poster-badge">2:3 Afiş</span>
+                    </div>
+                    <div class="top-poster-add-info">
+                        <div class="top-poster-add-title">İçerik Ekle (${ogeler.length}/3)</div>
+                        <div class="top-poster-add-sub">Afiş aramak için tıkla &bull; ${kalan} slot kaldı</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const linkHtml = (tops && tops.harici_link && tops.harici_link.url) ? `
             <div class="top-external-link">
                 <a href="${this.safeUrl(tops.harici_link.url)}" target="_blank" rel="noopener noreferrer" class="letterboxd-link">
                     ${this.escapeHtml(tops.harici_link.baslik || 'Harici Profil →')}
@@ -333,7 +362,13 @@ const RenderEngine = {
             </div>
         ` : '';
 
-        return kartlarHtml + linkHtml;
+        return `
+            <div class="tops-container-wrap" id="tops-container-wrap">
+                ${kartlarHtml}
+                ${addPosterSlotHtml}
+            </div>
+            ${linkHtml}
+        `;
     },
 
     trophiesIcerikHTML(trophies) {

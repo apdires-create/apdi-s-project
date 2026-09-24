@@ -23,6 +23,8 @@ const EditManager = {
         this.BackViews.init();
         this.SectionPicker.init();
         this.TagPicker.init();
+        this.TopsModal.init();
+        this.MediaSearchModal.init();
 
         document.body.classList.add('global-edit-mode');
     },
@@ -412,6 +414,98 @@ const EditManager = {
             `;
             document.body.appendChild(blockModal);
         }
+
+        // 8. Tops Kategori Ayarları Modalı (Tops Setup Modal)
+        if (!document.getElementById('tops-setup-modal')) {
+            const topsModal = document.createElement('div');
+            topsModal.id = 'tops-setup-modal';
+            topsModal.className = 'tops-setup-modal';
+            topsModal.innerHTML = `
+                <div class="tops-modal-backdrop" id="tops-setup-backdrop"></div>
+                <div class="tops-modal-panel">
+                    <div class="tops-modal-header">
+                        <div>
+                            <h3 class="tops-modal-title" id="tops-setup-title">Vitrin (Tops) Ayarları</h3>
+                            <p class="tops-modal-desc">Kategorinin türünü, başlığını ve varsa harici profil bağlantısını belirleyin.</p>
+                        </div>
+                        <button type="button" class="tops-modal-close" id="tops-setup-close">&times;</button>
+                    </div>
+
+                    <div class="tops-form-group">
+                        <label class="tops-form-label">Kategori Türü</label>
+                        <div class="tops-type-grid" id="tops-type-grid">
+                            <button type="button" class="tops-type-btn is-active" data-type="film">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+                                <span>Film</span>
+                            </button>
+                            <button type="button" class="tops-type-btn" data-type="dizi">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                                <span>Dizi</span>
+                            </button>
+                            <button type="button" class="tops-type-btn" data-type="oyun">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="2"></rect></svg>
+                                <span>Oyun</span>
+                            </button>
+                            <button type="button" class="tops-type-btn" data-type="anime">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                                <span>Anime</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tops-form-group">
+                        <label class="tops-form-label" for="tops-name-input">Kategori Başlığı</label>
+                        <input type="text" id="tops-name-input" class="tops-form-input" placeholder="Örn: Favori Filmlerim, Tüm Zamanların En İyileri">
+                    </div>
+
+                    <div class="tops-form-group">
+                        <label class="tops-form-label">Harici Bağlantı (İsteğe Bağlı)</label>
+                        <input type="text" id="tops-link-title-input" class="tops-form-input" placeholder="Bağlantı Metni (Örn: Letterboxd Profilim →)" style="margin-bottom: 6px;">
+                        <input type="url" id="tops-link-url-input" class="tops-form-input" placeholder="URL (https://letterboxd.com/kullanici)">
+                    </div>
+
+                    <div class="tops-form-footer">
+                        <button type="button" class="form-btn-sm form-btn-cancel" id="tops-setup-cancel">İptal</button>
+                        <button type="button" class="form-btn-sm form-btn-submit" id="tops-setup-save">Kaydet</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(topsModal);
+        }
+
+        // 9. İçerik Arama Modalı (Media Search Modal)
+        if (!document.getElementById('tops-search-modal')) {
+            const searchModal = document.createElement('div');
+            searchModal.id = 'tops-search-modal';
+            searchModal.className = 'tops-search-modal';
+            searchModal.innerHTML = `
+                <div class="tops-modal-backdrop" id="tops-search-backdrop"></div>
+                <div class="tops-modal-panel">
+                    <div class="tops-modal-header">
+                        <div>
+                            <h3 class="tops-modal-title" id="tops-search-title">İçerik Ara</h3>
+                            <p class="tops-modal-desc" id="tops-search-desc">Eklemek istediğiniz yapımı aratın ve listeden seçin.</p>
+                        </div>
+                        <button type="button" class="tops-modal-close" id="tops-search-close">&times;</button>
+                    </div>
+
+                    <div class="tag-search-box">
+                        <span class="tag-search-icon">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" id="tops-search-input" class="tag-search-input" placeholder="Film adı yazın..." autocomplete="off">
+                    </div>
+
+                    <div class="tops-search-results" id="tops-search-results">
+                        <div class="tops-search-empty">Aramak için bir isim yazın...</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(searchModal);
+        }
     }
 };
 // #endregion
@@ -443,6 +537,7 @@ EditManager.Global = {
             if (ogeler.length > 0) {
                 tops = {
                     kategori: veri.tops.kategori || 'Tops',
+                    tur: veri.tops.tur || 'film',
                     harici_link: veri.tops.harici_link || null,
                     ogeler: ogeler
                 };
@@ -1495,126 +1590,36 @@ EditManager.BackViews = {
     },
 
     // --- Tops ---
-    acTopFormu() {
-        const panel = document.getElementById('view-tops');
-        if (!panel) return;
-        const scrollWrap = panel.querySelector('.scrollable-fade');
-        if (!scrollWrap) return;
-
-        let form = scrollWrap.querySelector('.top-add-form');
-        if (form) {
-            form.querySelector('.top-title-input')?.focus();
-            return;
-        }
-
-        form = document.createElement('div');
-        form.className = 'inline-form-card top-add-form';
-        form.innerHTML = `
-            <h4 class="inline-form-title">Yeni Vitrin Öğesi</h4>
-            <input type="text" class="inline-form-input top-title-input" placeholder="Başlık (Örn: Interstellar, Radiohead)">
-            <input type="text" class="inline-form-input top-desc-input" placeholder="Açıklama / Yıl (Örn: 2014, Christopher Nolan)">
-            <input type="url" class="inline-form-input top-img-input" placeholder="Afiş Görsel URL'si (İsteğe bağlı)">
-            <div class="inline-form-actions">
-                <button type="button" class="form-btn-sm form-btn-cancel top-cancel-btn">İptal</button>
-                <button type="button" class="form-btn-sm form-btn-submit top-save-btn">Ekle</button>
-            </div>
-        `;
-
-        const addBtn = scrollWrap.querySelector('.tops-add-btn');
-        if (addBtn) {
-            scrollWrap.insertBefore(form, addBtn);
-        } else {
-            scrollWrap.appendChild(form);
-        }
-
-        const titleInput = form.querySelector('.top-title-input');
-        if (titleInput) setTimeout(() => titleInput.focus(), 50);
-
-        form.querySelector('.top-cancel-btn').onclick = () => {
-            form.remove();
-            const ogeler = Array.isArray(kartVerisi.tops?.ogeler) ? kartVerisi.tops.ogeler : [];
-            if (ogeler.length === 0) {
-                if (typeof Router !== 'undefined') Router.resetToMainMenu();
-            }
-        };
-
-        form.querySelector('.top-save-btn').onclick = () => {
-            const baslik = form.querySelector('.top-title-input').value.trim();
-            const aciklama = form.querySelector('.top-desc-input').value.trim();
-            const afis_url = form.querySelector('.top-img-input').value.trim();
-            if (!baslik) {
-                alert("Lütfen bir başlık girin!");
-                return;
-            }
-
-            if (!kartVerisi.tops || Array.isArray(kartVerisi.tops)) {
-                kartVerisi.tops = { kategori: kartVerisi.tops?.kategori || 'Tops', ogeler: [] };
-            }
-            if (!Array.isArray(kartVerisi.tops.ogeler)) {
-                kartVerisi.tops.ogeler = [];
-            }
-
-            kartVerisi.tops.ogeler.push({
-                baslik,
-                aciklama,
-                afis_url: afis_url || null
-            });
-
-            RenderEngine.menuCiz(kartVerisi);
-            RenderEngine.altEkranlariCiz(kartVerisi);
-            EditManager.BackViews.init();
-            EditManager.Global.degisiklikYapildi();
-        };
-    },
-
     topsDuzenlemeKur() {
         const panel = document.getElementById('view-tops');
         if (!panel) return;
 
+        // Üst Başlığa Tıklandığında Kategori Ayarları Modalını Aç
         const titleEl = panel.querySelector('.view-title');
         if (titleEl && !titleEl.classList.contains('editable-hover')) {
             titleEl.classList.add('editable-hover');
-            titleEl.title = "Kategori adını değiştirmek için tıkla";
+            titleEl.title = "Kategori türü, adı ve bağlantısını düzenlemek için tıkla";
             titleEl.onclick = () => {
-                const mevcutKategori = kartVerisi.tops?.kategori || titleEl.textContent.trim();
-                const yeniAd = prompt("Yeni kategori adı (Örn: Favorite Movies, Anime, Games):", mevcutKategori);
-                if (yeniAd !== null && yeniAd.trim() && yeniAd.trim() !== mevcutKategori) {
-                    if (!kartVerisi.tops) kartVerisi.tops = {};
-                    kartVerisi.tops.kategori = yeniAd.trim();
-                    titleEl.textContent = yeniAd.trim();
-                    RenderEngine.menuCiz(kartVerisi);
-                    EditManager.Global.degisiklikYapildi();
-                }
+                EditManager.TopsModal.ac();
             };
         }
 
         const scrollWrap = panel.querySelector('.scrollable-fade');
         if (!scrollWrap) return;
 
-        // Sahip modunda boş bildirim metnini kaldır ki ekleme butonu en yukarıda dursun
+        // Eski buton veya placeholder temizliği
         const placeholder = scrollWrap.querySelector('.placeholder-text');
         if (placeholder) placeholder.remove();
+        const oldAddBtn = scrollWrap.querySelector('.tops-add-btn');
+        if (oldAddBtn) oldAddBtn.remove();
 
-        // En alta "+ Yeni Öğe Ekle" butonu koy
-        let addBtn = scrollWrap.querySelector('.tops-add-btn');
-        if (!addBtn) {
-            addBtn = document.createElement('button');
-            addBtn.className = 'view-add-btn tops-add-btn';
-            addBtn.innerHTML = `
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span>Yeni Öğe Ekle</span>
-            `;
-
-            addBtn.addEventListener('click', () => {
-                this.acTopFormu();
-            });
-
-            scrollWrap.appendChild(addBtn);
-        } else {
-            scrollWrap.appendChild(addBtn);
+        // Afiş Ekle Butonuna Tıklanması
+        const addPosterCard = scrollWrap.querySelector('#top-add-poster-btn');
+        if (addPosterCard) {
+            addPosterCard.onclick = () => {
+                const tur = kartVerisi.tops?.tur || 'film';
+                EditManager.MediaSearchModal.ac(tur);
+            };
         }
 
         // Tops öğelerine silme butonu ekle
@@ -1626,6 +1631,7 @@ EditManager.BackViews = {
                 delBtn.style.position = 'absolute';
                 delBtn.style.top = '8px';
                 delBtn.style.right = '8px';
+                delBtn.title = "Afişi Kaldır";
                 delBtn.innerHTML = `
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"></polyline>
@@ -1636,19 +1642,10 @@ EditManager.BackViews = {
                     e.stopPropagation();
                     if (kartVerisi.tops?.ogeler) {
                         kartVerisi.tops.ogeler.splice(idx, 1);
-                        if (kartVerisi.tops.ogeler.length === 0) {
-                            delete kartVerisi.tops;
-                            RenderEngine.menuCiz(kartVerisi);
-                            RenderEngine.altEkranlariCiz(kartVerisi);
-                            EditManager.BackViews.init();
-                            EditManager.Global.degisiklikYapildi();
-                            if (typeof Router !== 'undefined') Router.resetToMainMenu();
-                        } else {
-                            RenderEngine.menuCiz(kartVerisi);
-                            RenderEngine.altEkranlariCiz(kartVerisi);
-                            EditManager.BackViews.init();
-                            EditManager.Global.degisiklikYapildi();
-                        }
+                        RenderEngine.menuCiz(kartVerisi);
+                        RenderEngine.altEkranlariCiz(kartVerisi);
+                        EditManager.BackViews.init();
+                        EditManager.Global.degisiklikYapildi();
                     }
                 });
                 card.appendChild(delBtn);
@@ -1659,18 +1656,14 @@ EditManager.BackViews = {
         EditManager.initPointerSortable(scrollWrap, {
             itemSelector: '.top-item-card',
             axis: 'y',
-            excludedDragSelectors: '.item-delete-btn, .tops-add-btn, .top-add-form, input, button, a',
+            excludedDragSelectors: '.item-delete-btn, .top-poster-add-card, input, button, a',
             onMove: () => {
-                const currentAddBtn = scrollWrap.querySelector('.tops-add-btn');
-                const currentForm = scrollWrap.querySelector('.top-add-form');
-                if (currentForm) scrollWrap.appendChild(currentForm);
-                if (currentAddBtn) scrollWrap.appendChild(currentAddBtn);
+                const currentAddCard = scrollWrap.querySelector('#top-add-poster-btn');
+                if (currentAddCard) scrollWrap.appendChild(currentAddCard);
             },
             onDrop: () => {
-                const currentAddBtn = scrollWrap.querySelector('.tops-add-btn');
-                const currentForm = scrollWrap.querySelector('.top-add-form');
-                if (currentForm) scrollWrap.appendChild(currentForm);
-                if (currentAddBtn) scrollWrap.appendChild(currentAddBtn);
+                const currentAddCard = scrollWrap.querySelector('#top-add-poster-btn');
+                if (currentAddCard) scrollWrap.appendChild(currentAddCard);
 
                 if (kartVerisi.tops && Array.isArray(kartVerisi.tops.ogeler)) {
                     const yeniSiraIndices = [...scrollWrap.querySelectorAll('.top-item-card')].map(c => parseInt(c.dataset.index, 10));
@@ -2078,9 +2071,22 @@ EditManager.SectionPicker = {
             if (!Array.isArray(kartVerisi.links)) kartVerisi.links = [];
         } else if (catId === 'tops') {
             if (!kartVerisi.tops || Array.isArray(kartVerisi.tops)) {
-                kartVerisi.tops = { kategori: kartVerisi.tops?.kategori || 'Tops', ogeler: [] };
+                kartVerisi.tops = {
+                    kategori: 'Favorilerim',
+                    tur: 'film',
+                    harici_link: null,
+                    ogeler: []
+                };
             }
             if (!Array.isArray(kartVerisi.tops.ogeler)) kartVerisi.tops.ogeler = [];
+            
+            RenderEngine.menuCiz(kartVerisi);
+            RenderEngine.altEkranlariCiz(kartVerisi);
+            EditManager.BackViews.init();
+            this.bagla();
+            if (typeof Router !== 'undefined') Router.openDetailView('tops');
+            EditManager.TopsModal.ac();
+            return;
         } else if (catId === 'widgets') {
             if (!Array.isArray(kartVerisi.widgets)) kartVerisi.widgets = [];
         } else if (catId === 'working-on') {
@@ -2215,3 +2221,290 @@ EditManager.escapeHtml = function(str) {
         .replace(/'/g, '&#039;');
 };
 // #endregion
+
+// #region 8: TOPS KATEGORİ AYARLARI MODALI (TOPS MODAL)
+EditManager.TopsModal = {
+    seciliTur: 'film',
+
+    init() {
+        const modal = document.getElementById('tops-setup-modal');
+        const closeBtn = document.getElementById('tops-setup-close');
+        const backdrop = document.getElementById('tops-setup-backdrop');
+        const cancelBtn = document.getElementById('tops-setup-cancel');
+        const saveBtn = document.getElementById('tops-setup-save');
+        const typeGrid = document.getElementById('tops-type-grid');
+
+        if (closeBtn) closeBtn.onclick = () => this.kapat();
+        if (backdrop) backdrop.onclick = () => this.kapat();
+        if (cancelBtn) cancelBtn.onclick = () => this.kapat();
+
+        if (typeGrid) {
+            typeGrid.querySelectorAll('.tops-type-btn').forEach(btn => {
+                btn.onclick = () => {
+                    typeGrid.querySelectorAll('.tops-type-btn').forEach(b => b.classList.remove('is-active'));
+                    btn.classList.add('is-active');
+                    this.seciliTur = btn.dataset.type;
+
+                    // Eğer başlık boşsa veya varsayılansa, türe uygun dinamik isim öner
+                    const nameInput = document.getElementById('tops-name-input');
+                    if (nameInput && (!nameInput.value.trim() || ['Favori Filmlerim', 'Favori Dizilerim', 'Favori Oyunlarım', 'Favori Animelerim', 'Tops'].includes(nameInput.value.trim()))) {
+                        const ornekler = {
+                            film: 'Favori Filmlerim',
+                            dizi: 'Favori Dizilerim',
+                            oyun: 'Favori Oyunlarım',
+                            anime: 'Favori Animelerim'
+                        };
+                        nameInput.value = ornekler[this.seciliTur] || 'Vitrin';
+                    }
+                };
+            });
+        }
+
+        if (saveBtn) {
+            saveBtn.onclick = () => this.kaydet();
+        }
+    },
+
+    ac() {
+        const modal = document.getElementById('tops-setup-modal');
+        const nameInput = document.getElementById('tops-name-input');
+        const linkTitleInput = document.getElementById('tops-link-title-input');
+        const linkUrlInput = document.getElementById('tops-link-url-input');
+        const typeGrid = document.getElementById('tops-type-grid');
+        if (!modal) return;
+
+        const mevcutTops = kartVerisi.tops || {};
+        this.seciliTur = (mevcutTops.tur || 'film').toLowerCase();
+
+        if (typeGrid) {
+            typeGrid.querySelectorAll('.tops-type-btn').forEach(btn => {
+                btn.classList.toggle('is-active', btn.dataset.type === this.seciliTur);
+            });
+        }
+
+        if (nameInput) {
+            nameInput.value = mevcutTops.kategori || 'Favori Filmlerim';
+        }
+
+        if (linkTitleInput) {
+            linkTitleInput.value = mevcutTops.harici_link?.baslik || '';
+        }
+
+        if (linkUrlInput) {
+            linkUrlInput.value = mevcutTops.harici_link?.url || '';
+        }
+
+        modal.classList.add('is-open');
+        if (nameInput) setTimeout(() => nameInput.focus(), 50);
+    },
+
+    kapat() {
+        const modal = document.getElementById('tops-setup-modal');
+        if (modal) modal.classList.remove('is-open');
+    },
+
+    kaydet() {
+        const nameInput = document.getElementById('tops-name-input');
+        const linkTitleInput = document.getElementById('tops-link-title-input');
+        const linkUrlInput = document.getElementById('tops-link-url-input');
+
+        const yeniBaslik = nameInput ? nameInput.value.trim() : '';
+        if (!yeniBaslik) {
+            alert("Lütfen bir kategori başlığı girin!");
+            return;
+        }
+
+        const linkTitle = linkTitleInput ? linkTitleInput.value.trim() : '';
+        const linkUrl = linkUrlInput ? linkUrlInput.value.trim() : '';
+
+        if (!kartVerisi.tops) {
+            kartVerisi.tops = { ogeler: [] };
+        }
+
+        kartVerisi.tops.kategori = yeniBaslik;
+        kartVerisi.tops.tur = this.seciliTur;
+
+        if (linkUrl) {
+            kartVerisi.tops.harici_link = {
+                baslik: linkTitle || 'Harici Profil →',
+                url: linkUrl
+            };
+        } else {
+            kartVerisi.tops.harici_link = null;
+        }
+
+        this.kapat();
+
+        RenderEngine.menuCiz(kartVerisi);
+        RenderEngine.altEkranlariCiz(kartVerisi);
+        EditManager.BackViews.init();
+        EditManager.Global.degisiklikYapildi();
+    }
+};
+
+// #region 9: İÇERİK ARAMA VE AFİŞ SEÇME MODALI (MEDIA SEARCH MODAL)
+EditManager.MediaSearchModal = {
+    aramaTuru: 'film',
+    debounceTimer: null,
+
+    init() {
+        const modal = document.getElementById('tops-search-modal');
+        const closeBtn = document.getElementById('tops-search-close');
+        const backdrop = document.getElementById('tops-search-backdrop');
+        const searchInput = document.getElementById('tops-search-input');
+
+        if (closeBtn) closeBtn.onclick = () => this.kapat();
+        if (backdrop) backdrop.onclick = () => this.kapat();
+
+        if (searchInput) {
+            searchInput.oninput = (e) => {
+                clearTimeout(this.debounceTimer);
+                const query = e.target.value.trim();
+                if (!query) {
+                    this.sonuclariCiz([], 'Aramak için bir isim yazın...');
+                    return;
+                }
+                this.debounceTimer = setTimeout(() => {
+                    this.ara(query);
+                }, 350);
+            };
+        }
+    },
+
+    ac(tur = 'film') {
+        const modal = document.getElementById('tops-search-modal');
+        const titleEl = document.getElementById('tops-search-title');
+        const descEl = document.getElementById('tops-search-desc');
+        const searchInput = document.getElementById('tops-search-input');
+        if (!modal) return;
+
+        this.aramaTuru = tur || 'film';
+
+        const turBasliklari = {
+            film: { baslik: 'Film Ara', placeholder: 'Film adı yazın (Örn: Inception, Interstellar)...' },
+            dizi: { baslik: 'Dizi Ara', placeholder: 'Dizi adı yazın (Örn: Breaking Bad, Dark)...' },
+            oyun: { baslik: 'Oyun Ara', placeholder: 'Oyun adı yazın (Örn: Cyberpunk 2077, Elden Ring)...' },
+            anime: { baslik: 'Anime Ara', placeholder: 'Anime adı yazın (Örn: Death Note, Attack on Titan)...' }
+        };
+
+        const config = turBasliklari[this.aramaTuru] || turBasliklari.film;
+
+        if (titleEl) titleEl.textContent = config.baslik;
+        if (descEl) descEl.textContent = `Seçili kategori türü: ${this.aramaTuru.toUpperCase()} — Listedeki yapımlardan birini seçin.`;
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.placeholder = config.placeholder;
+        }
+
+        this.sonuclariCiz([], 'Aramak için bir isim yazın...');
+        modal.classList.add('is-open');
+        if (searchInput) setTimeout(() => searchInput.focus(), 60);
+    },
+
+    kapat() {
+        const modal = document.getElementById('tops-search-modal');
+        if (modal) modal.classList.remove('is-open');
+    },
+
+    async ara(query) {
+        const resultsWrap = document.getElementById('tops-search-results');
+        if (resultsWrap) {
+            resultsWrap.innerHTML = `
+                <div class="tops-search-loading">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+                        <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+                    </svg>
+                    <span>Aranıyor...</span>
+                </div>
+            `;
+        }
+
+        try {
+            const sonuclar = await icerikAra(query, this.aramaTuru);
+            if (!sonuclar || sonuclar.length === 0) {
+                this.sonuclariCiz([], `"${query}" ile ilgili sonuç bulunamadı.`);
+            } else {
+                this.sonuclariCiz(sonuclar);
+            }
+        } catch (err) {
+            console.error("Arama hatası:", err);
+            this.sonuclariCiz([], 'Arama sırasında bir sorun oluştu.');
+        }
+    },
+
+    sonuclariCiz(sonuclar, mesaj = '') {
+        const resultsWrap = document.getElementById('tops-search-results');
+        if (!resultsWrap) return;
+
+        if (!sonuclar || sonuclar.length === 0) {
+            resultsWrap.innerHTML = `<div class="tops-search-empty">${EditManager.escapeHtml(mesaj)}</div>`;
+            return;
+        }
+
+        resultsWrap.innerHTML = sonuclar.map((item, idx) => {
+            const posterHtml = item.gorsel_url
+                ? `<img class="tops-search-poster" src="${EditManager.escapeHtml(item.gorsel_url)}" alt="${EditManager.escapeHtml(item.baslik)}" onerror="this.style.display='none'">`
+                : `<div class="tops-search-poster"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2"></rect></svg></div>`;
+
+            const skorHtml = item.skor ? `<span class="tops-search-score">★ ${EditManager.escapeHtml(item.skor)}</span>` : '';
+
+            return `
+                <div class="tops-search-item" data-index="${idx}">
+                    ${posterHtml}
+                    <div class="tops-search-info">
+                        <div class="tops-search-title">${EditManager.escapeHtml(item.baslik)}</div>
+                        <div class="tops-search-meta">
+                            ${skorHtml}
+                            <span class="tops-search-type">${this.aramaTuru.toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        resultsWrap.querySelectorAll('.tops-search-item').forEach(el => {
+            el.onclick = () => {
+                const idx = parseInt(el.dataset.index, 10);
+                const secilen = sonuclar[idx];
+                if (secilen) {
+                    this.icerikEkle(secilen);
+                }
+            };
+        });
+    },
+
+    icerikEkle(item) {
+        if (!kartVerisi.tops) {
+            kartVerisi.tops = {
+                kategori: 'Favorilerim',
+                tur: this.aramaTuru,
+                ogeler: []
+            };
+        }
+        if (!Array.isArray(kartVerisi.tops.ogeler)) {
+            kartVerisi.tops.ogeler = [];
+        }
+
+        if (kartVerisi.tops.ogeler.length >= 3) {
+            alert("En fazla 3 adet vitrin afişi ekleyebilirsiniz!");
+            this.kapat();
+            return;
+        }
+
+        kartVerisi.tops.ogeler.push({
+            id: item.kimlik || ('top_' + Date.now()),
+            baslik: item.baslik || 'Bilinmeyen Yapım',
+            afis_url: item.gorsel_url || null,
+            aciklama: item.aciklama || ''
+        });
+
+        this.kapat();
+
+        RenderEngine.menuCiz(kartVerisi);
+        RenderEngine.altEkranlariCiz(kartVerisi);
+        EditManager.BackViews.init();
+        EditManager.Global.degisiklikYapildi();
+    }
+};
+

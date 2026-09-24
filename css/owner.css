@@ -1206,3 +1206,268 @@ body.has-unsaved-changes .edit-action-bar {
     padding: 24px 0;
 }
 /* #endregion */
+
+/* #region 9: TOPS KATEGORİ AYARLARI VE İÇERİK ARAMA MODALLARI */
+.tops-setup-modal,
+.tops-search-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.tops-setup-modal.is-open,
+.tops-search-modal.is-open {
+    display: flex;
+    opacity: 1;
+}
+
+.tops-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.tops-modal-panel {
+    position: relative;
+    z-index: 2;
+    width: min(480px, 92vw);
+    background: #141724;
+    border: 1px solid var(--border-highlight);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tops-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.tops-modal-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.tops-modal-desc {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.4;
+}
+
+.tops-modal-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.15s ease;
+}
+
+.tops-modal-close:hover {
+    color: #ffffff;
+}
+
+/* Tür Seçici Butonları (Grid) */
+.tops-type-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.tops-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.tops-type-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+}
+
+.tops-type-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.tops-type-btn.is-active {
+    background: rgba(59, 91, 219, 0.2);
+    border-color: var(--accent-color);
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(59, 91, 219, 0.3);
+}
+
+/* Form Elemanları */
+.tops-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tops-form-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tops-form-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    color: #ffffff;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.tops-form-input:focus {
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.tops-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+/* İÇERİK ARAMA MODALI */
+.tops-search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.tops-search-results::-webkit-scrollbar {
+    width: 4px;
+}
+
+.tops-search-results::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.tops-search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tops-search-item:hover {
+    background: rgba(59, 91, 219, 0.12);
+    border-color: var(--accent-color);
+    transform: translateX(3px);
+}
+
+.tops-search-poster {
+    width: 40px;
+    aspect-ratio: 2 / 3;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    object-fit: cover;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+}
+
+.tops-search-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.tops-search-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tops-search-meta {
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.45);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tops-search-score {
+    color: #ffd43b;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.tops-search-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+}
+
+.tops-search-empty {
+    text-align: center;
+    padding: 28px 0;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.84rem;
+}
+/* #endregion */
+

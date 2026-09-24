@@ -163,3 +163,74 @@ function yuklemeHataDurumunuGoster(mesaj) {
     }
 }
 // #endregion
+
+// #region 4: İÇERİK ARAMA API SERVİSİ (FILM, DİZİ, OYUN, ANIME)
+async function icerikAra(aramaMetni, aramaTuru) {
+    if (!aramaMetni || !aramaMetni.trim()) return [];
+    const query = aramaMetni.trim();
+    const tur = (aramaTuru || 'film').toLowerCase();
+
+    // 1. Önce Supabase Edge Function üzerinden ara (Varsa)
+    if (supabaseClient && typeof supabaseClient.functions !== 'undefined') {
+        try {
+            const { data, error } = await supabaseClient.functions.invoke('bright-task', {
+                body: {
+                    action: 'search',
+                    arama_metni: query,
+                    arama_turu: tur
+                }
+            });
+            if (!error && data && Array.isArray(data.sonuclar) && data.sonuclar.length > 0) {
+                return data.sonuclar;
+            }
+        } catch (err) {
+            console.warn("Supabase Functions arama başarısız, client fallback kullanılıyor:", err);
+        }
+    }
+
+    // 2. Doğrudan Client-Side API Fallback Mekanizmaları
+    try {
+        if (tur === 'anime') {
+            // Jikan API (Ücretsiz, API anahtarı gerektirmeyen resmi MyAnimeList v4 REST API)
+            const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=8&sfw=true`);
+            if (res.ok) {
+                const json = await res.json();
+                if (Array.isArray(json.data)) {
+                    return json.data.map(item => ({
+                        kimlik: `mal_${item.mal_id}`,
+                        baslik: item.title_english || item.title || "Bilinmeyen Anime",
+                        gorsel_url: item.images?.webp?.large_image_url || item.images?.jpg?.large_image_url || null,
+                        skor: item.score ? String(item.score) : null,
+                        aciklama: item.synopsis ? item.synopsis.slice(0, 160) + '...' : ''
+                    }));
+                }
+            }
+        } else if (tur === 'film' || tur === 'dizi') {
+            // TVMaze (Dizi için açık API) veya Film için açık kaynaklı arama
+            if (tur === 'dizi') {
+                const res = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(query)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data)) {
+                        return data.slice(0, 8).map(entry => {
+                            const show = entry.show || {};
+                            return {
+                                kimlik: `tv_${show.id}`,
+                                baslik: show.name || "Bilinmeyen Dizi",
+                                gorsel_url: show.image?.original || show.image?.medium || null,
+                                skor: show.rating?.average ? String(show.rating.average) : null,
+                                aciklama: show.summary ? show.summary.replace(/<[^>]*>/g, '').slice(0, 160) + '...' : ''
+                            };
+                        });
+                    }
+                }
+            }
+        }
+    } catch (fallbackErr) {
+        console.warn("Client fallback arama hatası:", fallbackErr);
+    }
+
+    return [];
+}
+// #endregion
+
