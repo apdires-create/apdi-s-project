@@ -935,6 +935,8 @@ body.has-unsaved-changes .edit-action-bar {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .section-picker-item {
@@ -947,6 +949,9 @@ body.has-unsaved-changes .edit-action-bar {
     border-radius: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
 }
 
 .section-picker-item:hover {
@@ -1272,6 +1277,15 @@ body.has-unsaved-changes .edit-action-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+    .tops-type-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
 }
 
 .tops-type-btn {
@@ -1290,12 +1304,16 @@ body.has-unsaved-changes .edit-action-bar {
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
+    box-sizing: border-box;
+    white-space: nowrap;
+    user-select: none;
 }
 
 .tops-type-btn svg {
     width: 20px;
     height: 20px;
     stroke: currentColor;
+    flex-shrink: 0;
 }
 
 .tops-type-btn:hover {
@@ -1316,6 +1334,8 @@ body.has-unsaved-changes .edit-action-bar {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .tops-form-label {
@@ -1324,6 +1344,7 @@ body.has-unsaved-changes .edit-action-bar {
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    user-select: none;
 }
 
 .tops-form-input {
@@ -1351,6 +1372,18 @@ body.has-unsaved-changes .edit-action-bar {
     justify-content: flex-end;
     gap: 10px;
     margin-top: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tops-form-footer .form-btn-sm {
+    padding: 9px 18px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* İÇERİK ARAMA MODALI */
