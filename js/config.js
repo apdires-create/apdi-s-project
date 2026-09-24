@@ -14,7 +14,6 @@ let isOwner = false;
 // #region 2: SABİT NAVİGASYON MENÜLERİ VE TAG HAVUZU
 const SABIT_MENULER = [
     { id: "links", baslik: "Links" },
-    { id: "tops", baslik: "Tops" },
     { id: "trophies", baslik: "Trophies" },
     { id: "widgets", baslik: "Widgets" },
     { id: "working-on", baslik: "Working on" }
@@ -76,27 +75,33 @@ let kartVerisi = {
         }
     ],
     tops: {
-        kategori: "Favorite Movies",
-        tur: "film",
-        harici_link: { baslik: "Letterboxd Account →", url: "https://letterboxd.com" },
-        ogeler: [
+        aktifListeId: "list_default_1",
+        listeler: [
             {
-                id: "top_default_1",
-                baslik: "Blade Runner 2049",
-                aciklama: "A visually mesmerizing cyberpunk masterpiece exploring humanity and memory.",
-                afis_url: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&w=300&auto=format&fit=crop"
-            },
-            {
-                id: "top_default_2",
-                baslik: "Interstellar",
-                aciklama: "Humanity's journey through love, spacetime, and gravity across distant stars.",
-                afis_url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=300&auto=format&fit=crop"
-            },
-            {
-                id: "top_default_3",
-                baslik: "Her",
-                aciklama: "A poignant exploration of emotional connection in an increasingly digital world.",
-                afis_url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=300&auto=format&fit=crop"
+                id: "list_default_1",
+                kategori: "Favorite Movies",
+                tur: "film",
+                harici_link: { baslik: "Letterboxd Account →", url: "https://letterboxd.com" },
+                ogeler: [
+                    {
+                        id: "top_default_1",
+                        baslik: "Blade Runner 2049",
+                        aciklama: "A visually mesmerizing cyberpunk masterpiece exploring humanity and memory.",
+                        afis_url: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?q=80&w=300&auto=format&fit=crop"
+                    },
+                    {
+                        id: "top_default_2",
+                        baslik: "Interstellar",
+                        aciklama: "Humanity's journey through love, spacetime, and gravity across distant stars.",
+                        afis_url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=300&auto=format&fit=crop"
+                    },
+                    {
+                        id: "top_default_3",
+                        baslik: "Her",
+                        aciklama: "A poignant exploration of emotional connection in an increasingly digital world.",
+                        afis_url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=300&auto=format&fit=crop"
+                    }
+                ]
             }
         ]
     },

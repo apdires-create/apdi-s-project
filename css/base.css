@@ -414,3 +414,363 @@ html.is-profile-loading #landing-screen {
     display: block;
 }
 /* #endregion */
+
+/* #region 5: SHOWCASE WING (TOPS COMPANION CARD) SAHNE MİMARİSİ */
+.stage {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. MASAÜSTÜ DUAL STAGE (Yan Yana Çift Kart) */
+@media (min-width: 900px) {
+    .stage.has-companion-open {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(24px, 3.5vw, 48px);
+        padding: 24px;
+        overflow: visible;
+    }
+
+    .stage.has-companion-open .card-container,
+    .stage.has-companion-open .tops-companion-card {
+        flex-shrink: 0;
+        height: min(84vh, 650px);
+        width: auto;
+        aspect-ratio: 5 / 7;
+    }
+}
+
+/* 2. MOBİL VE DİKEY EKRANLAR (Scroll-Snap Yapışmalı Dikey Sahne) */
+@media (max-width: 899px) {
+    .stage.has-companion-open {
+        height: 100vh;
+        max-height: 100vh;
+        overflow-y: auto;
+        scroll-snap-type: y mandatory;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 32px;
+        padding: 40px 16px 80px 16px;
+    }
+
+    .stage.has-companion-open .card-container,
+    .stage.has-companion-open .tops-companion-card {
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        flex-shrink: 0;
+        width: min(90vw, 380px);
+        aspect-ratio: 5 / 7;
+        height: auto;
+        margin: 0 auto;
+    }
+}
+
+/* 3. TOPS COMPANION CARD GÖVDESİ */
+.tops-companion-card {
+    position: relative;
+    border-radius: var(--radius-card);
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    container-type: size;
+    animation: companionCardEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2;
+}
+
+@keyframes companionCardEnter {
+    from {
+        opacity: 0;
+        transform: translate3d(24px, 0, 0) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@media (max-width: 899px) {
+    @keyframes companionCardEnter {
+        from {
+            opacity: 0;
+            transform: translate3d(0, 30px, 0) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+    }
+}
+
+/* Companion Card Header */
+.companion-header {
+    flex-shrink: 0;
+    padding: 3.5cqw 4cqw 2cqw 4cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 2cqh;
+    border-bottom: 1px solid var(--border-soft);
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.companion-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.companion-brand {
+    display: flex;
+    align-items: center;
+    gap: 2.2cqw;
+}
+
+.companion-brand-icon {
+    width: 6.5cqw;
+    height: 6.5cqw;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 8px;
+    background: rgba(255, 212, 59, 0.15);
+    color: #ffd43b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.companion-title {
+    font-size: var(--cq-fs-title);
+    font-weight: 750;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.companion-close-btn {
+    width: 7cqw;
+    height: 7cqw;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: var(--radius-circle);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-soft);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.companion-close-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: scale(1.08);
+}
+
+/* Çoklu Liste Sekmeleri (Tabs Bar) */
+.companion-tabs-container {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.companion-tabs-container::-webkit-scrollbar {
+    display: none;
+}
+
+.companion-tabs-bar {
+    display: flex;
+    align-items: center;
+    gap: 2cqw;
+    width: max-content;
+    padding-bottom: 2px;
+}
+
+.companion-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5cqw;
+    padding: 1.6cqw 3.2cqw;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-pill);
+    color: var(--text-secondary);
+    font-size: var(--cq-fs-desc);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.companion-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #ffffff;
+}
+
+.companion-tab-btn.is-active {
+    background: rgba(59, 91, 219, 0.22);
+    border-color: var(--accent-color);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(59, 91, 219, 0.25);
+}
+
+.companion-tab-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 6.5cqw;
+    height: 6.5cqw;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: var(--radius-circle);
+    background: transparent;
+    border: 1px dashed var(--border-highlight);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.companion-tab-add-btn:hover {
+    border-color: var(--accent-color);
+    color: #ffffff;
+    background: rgba(59, 91, 219, 0.15);
+    transform: scale(1.1);
+}
+
+/* Liste Meta (Başlık, Tür, Harici Link, Liste Silme/Düzenleme) */
+.companion-list-meta {
+    padding: 2cqh 4.5cqw 1cqh 4.5cqw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2cqw;
+    flex-shrink: 0;
+}
+
+.companion-meta-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4cqh;
+    overflow: hidden;
+}
+
+.companion-meta-title-row {
+    display: flex;
+    align-items: center;
+    gap: 2cqw;
+}
+
+.companion-meta-title {
+    font-size: var(--cq-fs-item-title);
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.companion-meta-type-badge {
+    font-size: 0.6rem;
+    font-weight: 750;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--accent-light, #748ffc);
+}
+
+.companion-meta-link {
+    font-size: var(--cq-fs-mono);
+    color: var(--text-tertiary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.18s ease;
+}
+
+.companion-meta-link:hover {
+    color: var(--text-primary);
+    text-decoration: underline;
+}
+
+.companion-meta-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5cqw;
+    flex-shrink: 0;
+}
+
+.companion-action-icon-btn {
+    width: 6.5cqw;
+    height: 6.5cqw;
+    min-width: 26px;
+    min-height: 26px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-soft);
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.companion-action-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.companion-action-icon-btn.is-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+/* Companion Card Body (3'lü Vitrin) */
+.companion-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5cqh 4.5cqw 4.5cqw 4.5cqw;
+    display: flex;
+    flex-direction: column;
+    gap: 1.8cqh;
+}
+
+.companion-empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6cqh 2cqw;
+    gap: 2cqh;
+    color: var(--text-tertiary);
+}
+
+.companion-empty-title {
+    font-size: var(--cq-fs-body);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.companion-empty-desc {
+    font-size: var(--cq-fs-desc);
+    line-height: 1.4;
+    max-width: 80%;
+}
+/* #endregion */
+

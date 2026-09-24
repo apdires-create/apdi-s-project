@@ -88,12 +88,6 @@ const RenderEngine = {
             aktifMenuler.push({ id: "links", baslik: "Links" });
         }
 
-        // Tops - SADECE içerik varsa
-        const hasTops = (kart.tops && Array.isArray(kart.tops.ogeler) && kart.tops.ogeler.length > 0) || (Array.isArray(kart.tops) && kart.tops.length > 0);
-        if (hasTops) {
-            aktifMenuler.push({ id: "tops", baslik: kart.tops?.kategori || "Tops" });
-        }
-
         // Trophies - SADECE içerik varsa
         if (Array.isArray(kart.trophies) && kart.trophies.length > 0) {
             aktifMenuler.push({ id: "trophies", baslik: "Trophies" });
@@ -194,11 +188,7 @@ const RenderEngine = {
         // 1. Links Ekranı
         viewsWrapper.appendChild(this.ekranKabuguOlustur('links', 'Links', this.linksIcerikHTML(data.links)));
 
-        // 2. Tops Ekranı
-        const topsTitle = data.tops?.kategori || 'Tops';
-        viewsWrapper.appendChild(this.ekranKabuguOlustur('tops', topsTitle, this.topsIcerikHTML(data.tops)));
-
-        // 3. Trophies Ekranı
+        // 2. Trophies Ekranı
         viewsWrapper.appendChild(this.ekranKabuguOlustur('trophies', 'Trophies', this.trophiesIcerikHTML(data.trophies)));
 
         // 4. Widgets Ekranı
@@ -299,16 +289,183 @@ const RenderEngine = {
         `;
     },
 
-    topsIcerikHTML(tops) {
-        const ogeler = (tops && Array.isArray(tops.ogeler))
-            ? tops.ogeler
-            : (Array.isArray(tops) ? tops : []);
+    // 1.5: TOPS EŞLİKÇİ KART (SHOWCASE WING) RENDER MOTORU
+    companionCiz(topsData) {
+        const tabsBar = document.getElementById('companionTabsBar');
+        const listMeta = document.getElementById('companionListMeta');
+        const companionBody = document.getElementById('companionBody');
+        if (!companionBody) return;
 
+        const tops = topsData || kartVerisi.tops || { listeler: [] };
+        const listeler = Array.isArray(tops.listeler) ? tops.listeler : [];
         const isUserOwner = (typeof isOwner !== 'undefined' && isOwner);
 
-        if (ogeler.length === 0 && !isUserOwner) {
-            return `<p class="placeholder-text">Henüz içerik eklenmemiş.</p>`;
+        // Aktif listeyi belirle
+        let aktifListe = listeler.find(l => l.id === tops.aktifListeId);
+        if (!aktifListe && listeler.length > 0) {
+            aktifListe = listeler[0];
+            tops.aktifListeId = aktifListe.id;
         }
+
+        // 1. TABS (SEKMELER) ÇİZİMİ
+        if (tabsBar) {
+            let tabsHtml = '';
+            if (listeler.length === 0) {
+                tabsHtml = `<span class="placeholder-text" style="padding: 2px 8px; font-size: 0.75rem;">Liste yok</span>`;
+            } else {
+                tabsHtml = listeler.map(l => {
+                    const isActive = (aktifListe && l.id === aktifListe.id);
+                    return `
+                        <button type="button" class="companion-tab-btn ${isActive ? 'is-active' : ''}" data-list-id="${this.escapeHtml(l.id)}">
+                            <span>${this.escapeHtml(l.kategori || 'Liste')}</span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            // Kart sahibi ise ve 6'dan az liste varsa "+" yeni liste butonu
+            if (isUserOwner && listeler.length < 6) {
+                tabsHtml += `
+                    <button type="button" class="companion-tab-add-btn" id="companionAddListBtn" title="Yeni Liste Ekle (${listeler.length}/6)" aria-label="Yeni Liste Ekle">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                `;
+            }
+
+            tabsBar.innerHTML = tabsHtml;
+
+            // Sekme tıklama olayları
+            tabsBar.querySelectorAll('.companion-tab-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const listId = btn.dataset.listId;
+                    if (listId && tops.aktifListeId !== listId) {
+                        tops.aktifListeId = listId;
+                        this.companionCiz(tops);
+                        if (isUserOwner && typeof EditManager !== 'undefined') {
+                            EditManager.CompanionViews?.init();
+                        }
+                    }
+                };
+            });
+
+            // Yeni liste ekle butonu
+            const addListBtn = tabsBar.querySelector('#companionAddListBtn');
+            if (addListBtn) {
+                addListBtn.onclick = () => {
+                    if (typeof EditManager !== 'undefined') {
+                        EditManager.TopsModal.ac(null); // null = yeni liste
+                    }
+                };
+            }
+        }
+
+        // 2. LİSTE META (BAŞLIK & LİNK & DÜZENLEME BUTONLARI)
+        if (listMeta) {
+            if (!aktifListe) {
+                listMeta.innerHTML = '';
+            } else {
+                const turAdlari = {
+                    film: 'Film',
+                    dizi: 'Dizi',
+                    oyun: 'Oyun',
+                    anime: 'Anime'
+                };
+                const turEtiketi = turAdlari[aktifListe.tur] || (aktifListe.tur ? aktifListe.tur.toUpperCase() : 'VİTRİN');
+
+                const linkHtml = (aktifListe.harici_link && aktifListe.harici_link.url) ? `
+                    <a href="${this.safeUrl(aktifListe.harici_link.url)}" target="_blank" rel="noopener noreferrer" class="companion-meta-link">
+                        <span>${this.escapeHtml(aktifListe.harici_link.baslik || 'Harici Profil')}</span>
+                        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                ` : '';
+
+                const ownerActionsHtml = isUserOwner ? `
+                    <div class="companion-meta-actions">
+                        <button type="button" class="companion-action-icon-btn is-edit" id="companionEditMetaBtn" title="Listeyi Düzenle (İsim, Tür, Link)">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                        <button type="button" class="companion-action-icon-btn is-delete" id="companionDeleteListBtn" title="Bu Listeyi Sil">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                    </div>
+                ` : '';
+
+                listMeta.innerHTML = `
+                    <div class="companion-meta-left">
+                        <div class="companion-meta-title-row">
+                            <h4 class="companion-meta-title ${isUserOwner ? 'editable-hover' : ''}" id="companionMetaTitle">${this.escapeHtml(aktifListe.kategori || 'Liste')}</h4>
+                            <span class="companion-meta-type-badge">${this.escapeHtml(turEtiketi)}</span>
+                        </div>
+                        ${linkHtml}
+                    </div>
+                    ${ownerActionsHtml}
+                `;
+
+                if (isUserOwner) {
+                    const editBtn = listMeta.querySelector('#companionEditMetaBtn');
+                    const titleClick = listMeta.querySelector('#companionMetaTitle');
+                    const deleteBtn = listMeta.querySelector('#companionDeleteListBtn');
+
+                    const acDuzenleme = () => {
+                        if (typeof EditManager !== 'undefined') {
+                            EditManager.TopsModal.ac(aktifListe.id);
+                        }
+                    };
+
+                    if (editBtn) editBtn.onclick = acDuzenleme;
+                    if (titleClick) titleClick.onclick = acDuzenleme;
+
+                    if (deleteBtn) {
+                        deleteBtn.onclick = () => {
+                            if (confirm(`"${aktifListe.kategori}" listesini silmek istediğinize emin misiniz?`)) {
+                                const idx = listeler.findIndex(l => l.id === aktifListe.id);
+                                if (idx > -1) {
+                                    listeler.splice(idx, 1);
+                                    tops.aktifListeId = listeler[0]?.id || null;
+                                    this.companionCiz(tops);
+                                    if (typeof EditManager !== 'undefined') {
+                                        EditManager.Global.degisiklikYapildi();
+                                        EditManager.CompanionViews?.init();
+                                    }
+                                }
+                            }
+                        };
+                    }
+                }
+            }
+        }
+
+        // 3. VİTRİN İÇERİĞİ (3'LÜ AFİŞLER VE EKLEME SLOTU)
+        if (!aktifListe || listeler.length === 0) {
+            if (isUserOwner) {
+                companionBody.innerHTML = `
+                    <div class="companion-empty-state">
+                        <div class="companion-empty-title">Henüz kürasyon listesi oluşturulmamış</div>
+                        <div class="companion-empty-desc">Favori film, dizi, oyun veya animelerinizi sergilemek için hemen ilk listenizi oluşturun.</div>
+                        <button type="button" class="add-section-big-btn" id="companionCreateFirstListBtn">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>İlk Listeyi Oluştur</span>
+                        </button>
+                    </div>
+                `;
+                const firstBtn = companionBody.querySelector('#companionCreateFirstListBtn');
+                if (firstBtn) {
+                    firstBtn.onclick = () => {
+                        if (typeof EditManager !== 'undefined') EditManager.TopsModal.ac(null);
+                    };
+                }
+            } else {
+                companionBody.innerHTML = `
+                    <div class="companion-empty-state">
+                        <div class="companion-empty-title">Kürasyon Listesi Bulunmuyor</div>
+                        <div class="companion-empty-desc">Kullanıcı henüz bir vitrin listesi eklememiş.</div>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        const ogeler = Array.isArray(aktifListe.ogeler) ? aktifListe.ogeler : [];
 
         // Afiş Kartları (Maksimum 3 adet)
         const kartlarHtml = ogeler.slice(0, 3).map((item, idx) => {
@@ -356,20 +513,11 @@ const RenderEngine = {
             `;
         }
 
-        const linkHtml = (tops && tops.harici_link && tops.harici_link.url) ? `
-            <div class="top-external-link">
-                <a href="${this.safeUrl(tops.harici_link.url)}" target="_blank" rel="noopener noreferrer" class="letterboxd-link">
-                    ${this.escapeHtml(tops.harici_link.baslik || 'Harici Profil →')}
-                </a>
-            </div>
-        ` : '';
-
-        return `
+        companionBody.innerHTML = `
             <div class="tops-container-wrap" id="tops-container-wrap">
                 ${kartlarHtml}
                 ${addPosterSlotHtml}
             </div>
-            ${linkHtml}
         `;
     },
 

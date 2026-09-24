@@ -4,6 +4,60 @@
     z-index: 2;
     transform: rotateY(0deg);
 }
+
+/* Sol Üst: Menüyü Gör Butonu */
+.flip-trigger-btn.flip-trigger-left {
+    left: 3.5cqw;
+    right: auto;
+}
+
+/* Sağ Üst: Tops Showcase Wing Tetikleyici Butonu */
+.showcase-trigger-btn {
+    position: absolute;
+    top: 3.5cqw;
+    right: 3.5cqw;
+    width: var(--btn-icon-size);
+    height: var(--btn-icon-size);
+    border-radius: var(--radius-circle);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-highlight);
+    color: #ffd43b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.showcase-trigger-btn svg {
+    width: var(--btn-icon-svg);
+    height: var(--btn-icon-svg);
+    stroke: currentColor;
+    transition: transform 0.22s ease;
+}
+
+.showcase-trigger-btn:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.8);
+    border-color: #ffd43b;
+    box-shadow: 0 0 20px rgba(255, 212, 59, 0.35);
+}
+
+.showcase-trigger-btn:hover svg {
+    transform: rotate(15deg);
+}
+
+/* Tops Companion Card açıkken butonun aktif parlaması */
+.stage.has-companion-open .showcase-trigger-btn {
+    background: rgba(59, 91, 219, 0.3);
+    border-color: var(--accent-color);
+    color: #ffffff;
+    box-shadow: 0 0 18px var(--accent-glow);
+}
 /* #endregion */
 
 /* #region 2: 1. BÖLGE — ÜST KİMLİK (BANNER, AVATAR, İSİM, UNVAN) */

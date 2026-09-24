@@ -26,6 +26,8 @@ const Router = {
 
         const flipToBackBtn = document.getElementById('flipToBackBtn');
         const flipToFrontBtn = document.getElementById('flipToFrontBtn');
+        const topsTriggerBtn = document.getElementById('topsTriggerBtn');
+        const companionCloseBtn = document.getElementById('companionCloseBtn');
 
         // Flip butonları
         if (flipToBackBtn) {
@@ -39,6 +41,21 @@ const Router = {
             flipToFrontBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.setFlipped(false);
+            });
+        }
+
+        // Tops Companion Card (Showcase Wing) Tetikleyicileri
+        if (topsTriggerBtn) {
+            topsTriggerBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleCompanion();
+            });
+        }
+
+        if (companionCloseBtn) {
+            companionCloseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleCompanion(false);
             });
         }
 
@@ -232,6 +249,36 @@ const Router = {
         }
         if (typeof EditManager !== 'undefined' && typeof EditManager.temizleBosKategorileri === 'function') {
             EditManager.temizleBosKategorileri();
+        }
+    },
+
+    toggleCompanion(forceState) {
+        const stage = document.getElementById('profileStage');
+        const companionCard = document.getElementById('topsCompanionCard');
+        if (!stage || !companionCard) return;
+
+        const isCurrentlyOpen = stage.classList.contains('has-companion-open');
+        const nextState = (typeof forceState === 'boolean') ? forceState : !isCurrentlyOpen;
+
+        if (nextState) {
+            stage.classList.add('has-companion-open');
+            companionCard.style.display = 'flex';
+            if (typeof RenderEngine !== 'undefined') {
+                RenderEngine.companionCiz(kartVerisi.tops);
+            }
+            if (typeof EditManager !== 'undefined' && isOwner) {
+                EditManager.CompanionViews?.init();
+            }
+
+            // Mobilde Companion Card açıldığında yumuşakça yapışarak kartı hizala
+            if (window.innerWidth <= 899) {
+                setTimeout(() => {
+                    companionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        } else {
+            stage.classList.remove('has-companion-open');
+            companionCard.style.display = 'none';
         }
     }
 };

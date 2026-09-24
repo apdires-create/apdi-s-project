@@ -50,17 +50,46 @@ async function tumVerileriCek() {
         kartVerisi.front_data = guvenliObje(profil.front_data);
         kartVerisi.links = guvenliDizi(profil.links);
         const rawTops = guvenliObje(profil.tops);
-        if (rawTops && Array.isArray(rawTops.ogeler)) {
-            rawTops.ogeler = rawTops.ogeler.map((item, i) => ({
-                id: item.id || item.kimlik || ('top_' + (i + 1)),
-                baslik: item.baslik || '',
-                aciklama: item.aciklama || '',
-                afis_url: item.afis_url || item.gorsel_url || null,
-                yil: item.yil || null,
-                skor: item.skor || null
+        let normalizeTops = { aktifListeId: null, listeler: [] };
+
+        if (rawTops && Array.isArray(rawTops.listeler)) {
+            // Zaten yeni formatta
+            normalizeTops.listeler = rawTops.listeler.map((l, lIdx) => ({
+                id: l.id || ('list_' + (lIdx + 1)),
+                kategori: l.kategori || 'Favorilerim',
+                tur: l.tur || 'film',
+                harici_link: l.harici_link || null,
+                ogeler: Array.isArray(l.ogeler) ? l.ogeler.map((item, i) => ({
+                    id: item.id || item.kimlik || ('top_' + (i + 1)),
+                    baslik: item.baslik || '',
+                    aciklama: item.aciklama || '',
+                    afis_url: item.afis_url || item.gorsel_url || null,
+                    yil: item.yil || null,
+                    skor: item.skor || null
+                })) : []
             }));
+            normalizeTops.aktifListeId = rawTops.aktifListeId || normalizeTops.listeler[0]?.id || null;
+        } else if (rawTops && (rawTops.kategori || Array.isArray(rawTops.ogeler))) {
+            // Eski tekil tops formatını yeni çoklu listeler formatına göç ettir
+            const tekilListe = {
+                id: 'list_1',
+                kategori: rawTops.kategori || 'Favorilerim',
+                tur: rawTops.tur || 'film',
+                harici_link: rawTops.harici_link || null,
+                ogeler: Array.isArray(rawTops.ogeler) ? rawTops.ogeler.map((item, i) => ({
+                    id: item.id || item.kimlik || ('top_' + (i + 1)),
+                    baslik: item.baslik || '',
+                    aciklama: item.aciklama || '',
+                    afis_url: item.afis_url || item.gorsel_url || null,
+                    yil: item.yil || null,
+                    skor: item.skor || null
+                })) : []
+            };
+            normalizeTops.listeler = [tekilListe];
+            normalizeTops.aktifListeId = 'list_1';
         }
-        kartVerisi.tops = rawTops;
+
+        kartVerisi.tops = normalizeTops;
         kartVerisi.trophies = guvenliDizi(profil.trophies);
         kartVerisi.widgets = guvenliDizi(profil.widgets);
         kartVerisi.working_on = guvenliObje(profil.working_on);
