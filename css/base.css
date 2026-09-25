@@ -121,25 +121,6 @@ html, body {
     transform: rotateY(180deg);
 }
 
-/* Flip Kalkanı: Dönüş sırasında içerikleri örterek korur, tıklanınca seri çevirmeyi (reversal) tetikler */
-.flip-shield {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: var(--card-radius);
-    z-index: 500;
-    background: transparent;
-    pointer-events: none;
-    cursor: default;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.card-container.is-flipping .flip-shield {
-    pointer-events: auto !important;
-}
-
 /* Evrensel Sıralanabilir Öğeler & Pointer Sürükleme İmleç Kuralı */
 body.is-pointer-dragging,
 body.is-pointer-dragging * {
@@ -432,6 +413,7 @@ html.is-profile-loading #landing-screen {
 
 /* #region 5: SHOWCASE WING (TOPS COMPANION CARD) SAHNE MİMARİSİ */
 .stage {
+    perspective: 1200px;
     transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
                 padding 0.45s cubic-bezier(0.16, 1, 0.3, 1),
                 gap 0.45s cubic-bezier(0.16, 1, 0.3, 1);
@@ -450,8 +432,17 @@ html.is-profile-loading #landing-screen {
         overflow: hidden;
     }
 
+    /* Ana kart daima üst katmanda kalır; Tops arkasından süzülür */
+    .stage .card-container {
+        z-index: 5;
+    }
+
     .stage.has-companion-open .card-container {
-        animation: mainCardShiftLeft 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+        animation: mainCardShiftLeft 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .stage.is-companion-closing .card-container {
+        animation: mainCardReturnCenter 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     .stage.has-companion-open .card-container,
@@ -468,12 +459,23 @@ html.is-profile-loading #landing-screen {
         width: auto;
     }
 
+    /* Açılış: Ana kart hesaplanan sola kaymış konumuna yumuşakça süzülerek geçer */
     @keyframes mainCardShiftLeft {
         from {
-            transform: translate3d(28px, 0, 0);
+            transform: translate3d(50px, 0, 0);
         }
         to {
             transform: translate3d(0, 0, 0);
+        }
+    }
+
+    /* Kapanış: Ana kart aniden ışınlanmak yerine yumuşakça sağa (merkeze) doğru akar */
+    @keyframes mainCardReturnCenter {
+        from {
+            transform: translate3d(0, 0, 0);
+        }
+        to {
+            transform: translate3d(50px, 0, 0);
         }
     }
 }
@@ -493,6 +495,10 @@ html.is-profile-loading #landing-screen {
         justify-content: flex-start;
         gap: 28px;
         padding: 32px 16px 80px 16px;
+    }
+
+    .stage .card-container {
+        z-index: 5;
     }
 
     .stage.has-companion-open .card-container,
@@ -517,97 +523,109 @@ html.is-profile-loading #landing-screen {
     flex-direction: column;
     overflow: hidden;
     container-type: size;
-    animation: companionCardEnter 0.44s cubic-bezier(0.16, 1, 0.3, 1) both;
-    transform-origin: center center;
-    z-index: 2;
+    animation: companionCard3DEnter 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform-origin: left center;
+    z-index: 4;
     will-change: transform, opacity;
 }
 
-/* Kapanırken yumuşakça süzülerek çıkış */
+/* Kapanırken ana kartın arkasına yumuşakça saklanma */
 .tops-companion-card.is-closing {
-    animation: companionCardExit 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+    animation: companionCard3DExit 0.46s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     pointer-events: none;
 }
 
-/* Masaüstü: Sağa doğru derinlikten süzülerek açılış ve kapanış */
-@keyframes companionCardEnter {
+/* Masaüstü: Profil kartının TAM ARKASINDAN (-Z ekseni ve hafif 3D açıyla) süzülerek çıkış */
+@keyframes companionCard3DEnter {
     0% {
         opacity: 0;
-        transform: translate3d(-18px, 0, 0) scale(0.96);
+        transform: translate3d(-60px, 0, -60px) rotateY(-8deg) scale(0.93);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
+    }
+    40% {
+        opacity: 0.7;
     }
     100% {
         opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
+        transform: translate3d(0, 0, 0) rotateY(0deg) scale(1);
+        box-shadow: var(--card-shadow);
     }
 }
 
-@keyframes companionCardExit {
+/* Masaüstü: Tekrar ana kartın arkasına süzülerek kaybolma */
+@keyframes companionCard3DExit {
     0% {
         opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
+        transform: translate3d(0, 0, 0) rotateY(0deg) scale(1);
+        box-shadow: var(--card-shadow);
     }
     100% {
         opacity: 0;
-        transform: translate3d(-18px, 0, 0) scale(0.95);
+        transform: translate3d(-50px, 0, -60px) rotateY(-8deg) scale(0.93);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
     }
 }
 
-/* Mobil: Kullanıcının talebine uygun olarak YUKARIDAN AŞAĞIYA DOĞRU akış */
+/* Mobil: Ana kartın arkasından derinlik ve hafif 3D eğimle dikey iniş ve geri çekiliş */
 @media (max-width: 899px) {
     .tops-companion-card {
-        animation: companionMobileDropEnter 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
+        transform-origin: center top;
+        animation: companionMobile3DEnter 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     .tops-companion-card.is-closing {
-        animation: companionMobileDropExit 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+        animation: companionMobile3DExit 0.34s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
     }
 
-    @keyframes companionMobileDropEnter {
+    @keyframes companionMobile3DEnter {
         0% {
             opacity: 0;
-            transform: translate3d(0, -38px, 0) scale(0.96);
+            transform: translate3d(0, -50px, -60px) rotateX(7deg) scale(0.94);
+        }
+        40% {
+            opacity: 0.7;
         }
         100% {
             opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
+            transform: translate3d(0, 0, 0) rotateX(0deg) scale(1);
         }
     }
 
-    @keyframes companionMobileDropExit {
+    @keyframes companionMobile3DExit {
         0% {
             opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
+            transform: translate3d(0, 0, 0) rotateX(0deg) scale(1);
         }
         100% {
             opacity: 0;
-            transform: translate3d(0, -28px, 0) scale(0.95);
+            transform: translate3d(0, -40px, -60px) rotateX(7deg) scale(0.94);
         }
     }
 }
 
 /* 4. KART İÇİ AKICI KADEMELİ GİRİŞ (STAGGERED REVEAL) */
 .tops-companion-card .companion-header {
-    animation: companionSubFadeIn 0.36s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+    animation: companionSubFadeIn 0.36s cubic-bezier(0.16, 1, 0.3, 1) 0.10s both;
 }
 
 .tops-companion-card .companion-list-meta {
-    animation: companionSubFadeIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+    animation: companionSubFadeIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
 }
 
 .tops-companion-card .top-item-card:nth-child(1) {
-    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both;
+    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
 }
 
 .tops-companion-card .top-item-card:nth-child(2) {
-    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.19s both;
+    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.21s both;
 }
 
 .tops-companion-card .top-item-card:nth-child(3) {
-    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.26s both;
 }
 
 .tops-companion-card .top-add-poster-card {
-    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+    animation: companionItemSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
 }
 
 @keyframes companionSubFadeIn {

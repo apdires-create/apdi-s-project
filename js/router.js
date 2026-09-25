@@ -8,17 +8,6 @@ const Router = {
     _flipTimeout: null,
     activeDetailView: null,
 
-    // =========================================================================
-    // FLIP KALKANI AKTİF KALMA SÜRESİ (ms)
-    // Kart çevrilirken içerideki buton, link vb. öğeleri örten "Flip Kalkanı"nın
-    // aktif kalacağı süre. CSS animasyonu toplam 600ms sürer.
-    // Dönüş optik olarak yeterli açıya ulaştığında (örn. 300ms) kalkan kalkar ve
-    // altındaki elemanlar etkileşime açılır.
-    // Kalkan aktifken karta basılırsa kart anında ters yöne çevrilir (seri flip).
-    // İhtiyacınıza göre bu süreyi buradan doğrudan değiştirebilirsiniz (Örn: 250, 300, 350).
-    // =========================================================================
-    FLIP_SHIELD_LOCK_MS: 70,
-
     init() {
         this.cardContainer = document.getElementById('cardContainer');
         this.viewMenu = document.getElementById('viewMenu');
@@ -58,16 +47,6 @@ const Router = {
                 this.toggleCompanion(false);
             });
         }
-
-        // Flip Kalkanı (Dönüş sırasında tıklanırsa kartı anında tersine çevir - Seri Flip)
-        const shields = document.querySelectorAll('.flip-shield');
-        shields.forEach(shield => {
-            shield.addEventListener('click', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                this.setFlipped(!this.isFlipped);
-            });
-        });
 
         // Tıklama Olay Delegasyonu (Menü butonları ve Geri butonları için)
         if (this.viewsWrapper) {
@@ -110,8 +89,6 @@ const Router = {
             this.cardContainer.addEventListener('click', (e) => {
                 // Kart dönüş animasyonu sürerken tıklanırsa kartı anında tersine çevir (seri flip)
                 if (this.isFlipping) {
-                    e.preventDefault();
-                    e.stopPropagation();
                     this.setFlipped(!this.isFlipped);
                     return;
                 }
@@ -207,7 +184,7 @@ const Router = {
         this.isFlipped = flipped;
         if (!this.cardContainer) return;
 
-        // Kartı etkileşime geçici olarak kilitle (animasyon sırasında)
+        // Kart dönüş durumu bayrağı
         this.isFlipping = true;
         this.cardContainer.classList.add('is-flipping');
 
@@ -217,7 +194,7 @@ const Router = {
             if (this.cardContainer) {
                 this.cardContainer.classList.remove('is-flipping');
             }
-        }, this.FLIP_SHIELD_LOCK_MS);
+        }, 300);
 
         if (this.isFlipped) {
             this.cardContainer.classList.add('is-flipped');
@@ -293,18 +270,20 @@ const Router = {
             // KAPANIŞ SEKANSI (Yumuşak süzülerek çıkış)
             this._companionTransitioning = true;
             companionCard.classList.add('is-closing');
+            stage.classList.add('is-companion-closing');
 
             if (window.innerWidth <= 899) {
                 stage.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            // Animasyon tamamlandıktan sonra DOM durumunu temizle
+            // Animasyon tamamlandıktan sonra DOM durumunu temizle (500ms yumuşak geçiş tamamlandığında)
             setTimeout(() => {
                 stage.classList.remove('has-companion-open');
+                stage.classList.remove('is-companion-closing');
                 companionCard.classList.remove('is-closing');
                 companionCard.style.display = 'none';
                 this._companionTransitioning = false;
-            }, 360);
+            }, 500);
         }
     }
 };
