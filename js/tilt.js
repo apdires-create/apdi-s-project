@@ -34,6 +34,10 @@ const TiltEngine = {
         this.currentTiltY += (targetTiltY - this.currentTiltY) * this.lerpSpeed;
 
         if (this.cardContainer) {
+            if (typeof Router !== 'undefined' && Router._companionTransitioning) {
+                requestAnimationFrame(() => this.loop());
+                return;
+            }
             const multiplier = (typeof Router !== 'undefined' && Router.isFlipped) ? 0.35 : 1;
             this.cardContainer.style.transform = `rotateX(${this.currentTiltX * multiplier}deg) rotateY(${this.currentTiltY * multiplier}deg)`;
         }

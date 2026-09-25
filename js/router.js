@@ -171,7 +171,11 @@ const Router = {
         // Klavye Kısayolları (ESC)
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (this.activeDetailView) {
+                const stage = document.getElementById('profileStage');
+                const companionCard = document.getElementById('topsCompanionCard');
+                if (stage && stage.classList.contains('has-companion-open') && companionCard && !companionCard.classList.contains('is-closing')) {
+                    this.toggleCompanion(false);
+                } else if (this.activeDetailView) {
                     this.resetToMainMenu();
                 } else if (this.isFlipped) {
                     this.setFlipped(false);
@@ -232,6 +236,7 @@ const Router = {
     toggleCompanion(forceState) {
         const stage = document.getElementById('profileStage');
         const companionCard = document.getElementById('topsCompanionCard');
+        const cardContainer = this.cardContainer || document.getElementById('cardContainer');
         if (!stage || !companionCard) return;
 
         // Devam eden bir kapanış veya açılış geçişi varsa bekle
@@ -239,15 +244,48 @@ const Router = {
 
         const isCurrentlyOpen = stage.classList.contains('has-companion-open') && !companionCard.classList.contains('is-closing');
         const nextState = (typeof forceState === 'boolean') ? forceState : !isCurrentlyOpen;
+        const isDesktop = window.innerWidth >= 900;
 
         if (nextState) {
-            // AÇILIŞ SEKANSI
+            // ==========================================
+            // AÇILIŞ SEKANSI (FLIP - First, Last, Invert, Play)
+            // ==========================================
             this._companionTransitioning = true;
-            companionCard.classList.remove('is-closing');
-            companionCard.style.display = 'flex';
-            
-            // Sahneye açılış sınıfını ekle
-            stage.classList.add('has-companion-open');
+
+            let deltaX = 0;
+            let deltaY = 0;
+
+            if (isDesktop && cardContainer) {
+                // FLIP 1: İlk pozisyonu ölç (kart tek başınayken ekranın merkezinde)
+                const firstRect = cardContainer.getBoundingClientRect();
+
+                // DOM durumunu güncelle (flex-row çift kart düzenine geç)
+                companionCard.classList.remove('is-closing');
+                companionCard.style.display = 'flex';
+                stage.classList.add('has-companion-open');
+
+                // FLIP 2: Yeni layout pozisyonunu ölç (kart sola kaymış konumda)
+                const lastRect = cardContainer.getBoundingClientRect();
+
+                // FLIP 3: İki konum arasındaki net koordinat farkını hesapla
+                deltaX = (firstRect.left + firstRect.width / 2) - (lastRect.left + lastRect.width / 2);
+                deltaY = (firstRect.top + firstRect.height / 2) - (lastRect.top + lastRect.height / 2);
+
+                // FLIP 4: Kartı ilk konumundan yeni konumuna pürüzsüzce süzdür
+                if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
+                    cardContainer.animate([
+                        { transform: `translate3d(${deltaX}px, ${deltaY}px, 0)` },
+                        { transform: 'translate3d(0, 0, 0)' }
+                    ], {
+                        duration: 550,
+                        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+                    });
+                }
+            } else {
+                companionCard.classList.remove('is-closing');
+                companionCard.style.display = 'flex';
+                stage.classList.add('has-companion-open');
+            }
 
             if (typeof RenderEngine !== 'undefined') {
                 RenderEngine.companionCiz(kartVerisi.tops);
@@ -256,8 +294,8 @@ const Router = {
                 EditManager.CompanionViews?.init();
             }
 
-            // Mobilde Companion Card yukarıdan aşağıya doğru akarken kullanıcıyı yumuşakça odakla
-            if (window.innerWidth <= 899) {
+            // Mobilde dikey akışta companion card'a yumuşak kaydır
+            if (!isDesktop) {
                 setTimeout(() => {
                     companionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 120);
@@ -265,23 +303,49 @@ const Router = {
 
             setTimeout(() => {
                 this._companionTransitioning = false;
-            }, 450);
+            }, 550);
         } else {
-            // KAPANIŞ SEKANSI (Yumuşak süzülerek çıkış)
+            // ==========================================
+            // KAPANIŞ SEKANSI (Ters FLIP - Merkeze Süzülüş)
+            // ==========================================
             this._companionTransitioning = true;
             companionCard.classList.add('is-closing');
             stage.classList.add('is-companion-closing');
 
-            if (window.innerWidth <= 899) {
+            let closeAnim = null;
+
+            if (isDesktop && cardContainer) {
+                // Sahnenin merkezi ile kartın mevcut merkezi arasındaki tam mesafeyi hesapla
+                const stageRect = stage.getBoundingClientRect();
+                const cardRect = cardContainer.getBoundingClientRect();
+                const returnDeltaX = (stageRect.left + stageRect.width / 2) - (cardRect.left + cardRect.width / 2);
+                const returnDeltaY = (stageRect.top + stageRect.height / 2) - (cardRect.top + cardRect.height / 2);
+
+                // Ana kartı bulunduğu yerden ekranın tam merkezine yumuşakça kaydır
+                closeAnim = cardContainer.animate([
+                    { transform: 'translate3d(0, 0, 0)' },
+                    { transform: `translate3d(${returnDeltaX}px, ${returnDeltaY}px, 0)` }
+                ], {
+                    duration: 500,
+                    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                    fill: 'forwards'
+                });
+            } else {
                 stage.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            // Animasyon tamamlandıktan sonra DOM durumunu temizle (500ms yumuşak geçiş tamamlandığında)
+            // Animasyon tamamlandıktan sonra DOM durumunu temizle
             setTimeout(() => {
                 stage.classList.remove('has-companion-open');
                 stage.classList.remove('is-companion-closing');
                 companionCard.classList.remove('is-closing');
                 companionCard.style.display = 'none';
+                if (closeAnim) {
+                    closeAnim.cancel();
+                }
+                if (cardContainer) {
+                    cardContainer.style.transform = '';
+                }
                 this._companionTransitioning = false;
             }, 500);
         }

@@ -437,14 +437,6 @@ html.is-profile-loading #landing-screen {
         z-index: 5;
     }
 
-    .stage.has-companion-open .card-container {
-        animation: mainCardShiftLeft 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .stage.is-companion-closing .card-container {
-        animation: mainCardReturnCenter 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
     .stage.has-companion-open .card-container,
     .stage.has-companion-open .tops-companion-card {
         flex-shrink: 0;
@@ -457,26 +449,6 @@ html.is-profile-loading #landing-screen {
         max-height: calc(100vh - (2 * var(--stage-padding)));
         max-width: calc((100vw - (2 * var(--stage-padding)) - var(--stage-gap)) / 2);
         width: auto;
-    }
-
-    /* Açılış: Ana kart hesaplanan sola kaymış konumuna yumuşakça süzülerek geçer */
-    @keyframes mainCardShiftLeft {
-        from {
-            transform: translate3d(50px, 0, 0);
-        }
-        to {
-            transform: translate3d(0, 0, 0);
-        }
-    }
-
-    /* Kapanış: Ana kart aniden ışınlanmak yerine yumuşakça sağa (merkeze) doğru akar */
-    @keyframes mainCardReturnCenter {
-        from {
-            transform: translate3d(0, 0, 0);
-        }
-        to {
-            transform: translate3d(50px, 0, 0);
-        }
     }
 }
 
@@ -523,7 +495,7 @@ html.is-profile-loading #landing-screen {
     flex-direction: column;
     overflow: hidden;
     container-type: size;
-    animation: companionCard3DEnter 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: companionCard3DEnter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
     transform-origin: left center;
     z-index: 4;
     will-change: transform, opacity;
@@ -531,7 +503,7 @@ html.is-profile-loading #landing-screen {
 
 /* Kapanırken ana kartın arkasına yumuşakça saklanma */
 .tops-companion-card.is-closing {
-    animation: companionCard3DExit 0.46s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    animation: companionCard3DExit 0.50s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     pointer-events: none;
 }
 
