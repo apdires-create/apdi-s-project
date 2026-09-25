@@ -87,12 +87,6 @@ const Router = {
         // Kartın boş alanlarına tıklandığında çevirme ve hiyerarşik geri dönme sistemi
         if (this.cardContainer) {
             this.cardContainer.addEventListener('click', (e) => {
-                // Kart dönüş animasyonu sürerken tıklanırsa kartı anında tersine çevir (seri flip)
-                if (this.isFlipping) {
-                    this.setFlipped(!this.isFlipped);
-                    return;
-                }
-
                 const interactiveSelector = [
                     'button',
                     'a',
@@ -124,10 +118,13 @@ const Router = {
                     '.profile-edit-banner-wrap'
                 ].join(', ');
 
-                // 1. İnteraktif öğelere veya kart satırlarına tıklandıysa işlemi kesme
+                // 1. İnteraktif öğelere veya kart satırlarına tıklandıysa işlemi asla kesme ve gasp etme
                 if (e.target.closest(interactiveSelector)) return;
 
-                // 2. Ön yüzde düzenleme modu açıkken dışarıdaki boş alana tıklandıysa:
+                // 2. Kartın boş alanına tıklama: Dönüşün ilk yarısında (0-90° açıda) ise boş alan flip'ini yoksay
+                if (this.isFlipping) return;
+
+                // 3. Ön yüzde düzenleme modu açıkken dışarıdaki boş alana tıklandıysa:
                 // İlk vuruşta sadece düzenlemeyi kapat, kartı çevirme
                 if (window._frontEditingActive || (window._frontEditJustClosed && Date.now() - window._frontEditJustClosed < 450)) {
                     window._frontEditingActive = false;
@@ -137,7 +134,7 @@ const Router = {
                     return;
                 }
 
-                // 3. Arka yüzde akordeon düzenlemesi yeni kapandıysa ilk vuruşta geri dönme
+                // 4. Arka yüzde akordeon düzenlemesi yeni kapandıysa ilk vuruşta geri dönme
                 if (window._linkAccordionJustClosed && Date.now() - window._linkAccordionJustClosed < 400) {
                     window._linkAccordionJustClosed = 0;
                     return;
@@ -188,7 +185,7 @@ const Router = {
         this.isFlipped = flipped;
         if (!this.cardContainer) return;
 
-        // Kart dönüş durumu bayrağı
+        // Kart dönüş durumu bayrağı (yarı sürede - 210ms - kalkar)
         this.isFlipping = true;
         this.cardContainer.classList.add('is-flipping');
 
@@ -198,7 +195,7 @@ const Router = {
             if (this.cardContainer) {
                 this.cardContainer.classList.remove('is-flipping');
             }
-        }, 300);
+        }, 210);
 
         if (this.isFlipped) {
             this.cardContainer.classList.add('is-flipped');

@@ -822,7 +822,7 @@ EditManager.Media = {
     async yukleVeGuncelle(blob, tur) {
         if (!supabaseClient || !kartVerisi.auth_id) return;
 
-        const dosyaYolu = `${kartVerisi.auth_id}/${tur}_${Date.now()}.webp`;
+        const dosyaYolu = `${kartVerisi.auth_id}/${tur}.webp`;
 
         try {
             const { error: uploadErr } = await supabaseClient.storage
@@ -836,6 +836,7 @@ EditManager.Media = {
                 .getPublicUrl(dosyaYolu);
 
             const publicUrl = publicUrlData.publicUrl;
+            const yeniUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`;
 
             if (!kartVerisi.front_data) kartVerisi.front_data = {};
 
