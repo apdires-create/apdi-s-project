@@ -1,0 +1,149 @@
+﻿auth.js:9: box.style.display = 'block';
+auth.js:18: box.style.display = 'none';
+auth.js:119: window.location.href = `?user=${encodeURIComponent(profileData.kullanici_adi)}`;
+auth.js:192: window.location.href = `?user=${encodeURIComponent(temizKullaniciAdi)}`;
+auth.js:200: window.location.href = window.location.pathname;
+auth.js:228: if (formContainer) formContainer.style.display = 'none';
+auth.js:229: if (loggedInView) loggedInView.style.display = 'flex';
+auth.js:232: if (formContainer) formContainer.style.display = 'flex';
+auth.js:233: if (loggedInView) loggedInView.style.display = 'none';
+auth.js:246: window.location.href = `?user=${encodeURIComponent(aktifKullaniciAdi)}`;
+auth.js:265: if (usernameGroup) usernameGroup.style.display = 'none';
+auth.js:272: if (usernameGroup) usernameGroup.style.display = 'flex';
+data.js:109: document.documentElement.style.setProperty('--accent-color', kartVerisi.theme_config.primary_color);
+data.js:180: if (profileStage) profileStage.style.display = 'none';
+data.js:181: if (cardContainer) cardContainer.style.display = 'none';
+data.js:185: appLoadingEl.style.display = 'flex';
+data.js:199: loadingBrandEl.style.cursor = "pointer";
+data.js:201: window.location.href = window.location.pathname;
+edit.js:130: dragPortal.style.cssText = `
+edit.js:150: dragClone.style.cssText = `
+edit.js:165: draggedItem.style.pointerEvents = 'none';
+edit.js:176: dragClone.style.left = (e.clientX - dragOffsetX - portalLeft) + 'px';
+edit.js:177: dragClone.style.top = (e.clientY - dragOffsetY - portalTop) + 'px';
+edit.js:228: draggedItem.style.pointerEvents = '';
+edit.js:266: bar.innerHTML = `
+edit.js:280: modal.innerHTML = `
+edit.js:305: bannerInput.style.display = 'none';
+edit.js:314: pfpInput.style.display = 'none';
+edit.js:331: modal.innerHTML = `
+edit.js:352: tagModal.innerHTML = `
+edit.js:382: blockModal.innerHTML = `
+edit.js:411: topsModal.innerHTML = `
+edit.js:469: searchModal.innerHTML = `
+edit.js:762: overlay.innerHTML = `${cameraIconSvg}<span>Bannerı Değiştir</span>`;
+edit.js:773: overlay.innerHTML = `${cameraIconSvg}`;
+edit.js:798: image.src = e.target.result;
+edit.js:846: if (avatarImg) avatarImg.src = publicUrl;
+edit.js:850: if (bannerImg) bannerImg.src = publicUrl;
+edit.js:911: el.innerHTML = inputHtml;
+edit.js:917: inputEl.style.height = `${mevcutYukseklik}px`;
+edit.js:928: this.style.width = `${w}ch`;
+edit.js:990: removeBtn.innerHTML = '&times;';
+edit.js:1183: urlInput.style.borderColor = "#ef4444";
+edit.js:1185: if (errorEl) errorEl.style.display = "block";
+edit.js:1204: collapseEl.style.height = collapseEl.scrollHeight + 'px';
+edit.js:1206: requestAnimationFrame(() => { collapseEl.style.height = '0px'; });
+edit.js:1212: toggleBtn.innerHTML = KALEM_IKONU;
+edit.js:1232: if (testBtn && p) testBtn.href = RenderEngine.safeUrl(p);
+edit.js:1260: wrapper.innerHTML = '';
+edit.js:1268: urlInput.style.borderColor = "#ef4444";
+edit.js:1269: if (errorEl) errorEl.style.display = "block";
+edit.js:1275: collapseEl.style.height = collapseEl.scrollHeight + 'px';
+edit.js:1277: requestAnimationFrame(() => { collapseEl.style.height = '0px'; });
+edit.js:1284: toggleBtn.innerHTML = KALEM_IKONU;
+edit.js:1305: if (testBtn && p) testBtn.href = RenderEngine.safeUrl(p);
+edit.js:1307: if (anchor && p) anchor.href = RenderEngine.safeUrl(p);
+edit.js:1329: toggleBtn.innerHTML = COP_IKONU;
+edit.js:1334: collapseEl.style.height = collapseEl.scrollHeight + 'px';
+edit.js:1336: if (rowEl.classList.contains('is-expanded')) collapseEl.style.height = 'auto';
+edit.js:1366: row.innerHTML = `
+edit.js:1373: <a href="${RenderEngine.safeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="nook-link-anchor" draggable="false">
+edit.js:1389: <a href="${RenderEngine.safeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="nook-action-btn nook-link-test-btn" title="Bağlantıyı Aç" draggable="false">
+edit.js:1422: urlInput.style.borderColor = "#ef4444";
+edit.js:1423: if (errorEl) errorEl.style.display = "block";
+edit.js:1428: urlInput.style.borderColor = "";
+edit.js:1429: if (errorEl) errorEl.style.display = "none";
+edit.js:1443: if (anchorEl && val) anchorEl.href = RenderEngine.safeUrl(val);
+edit.js:1469: iconEls.forEach(iconEl => iconEl.innerHTML = newIconSvg);
+edit.js:1470: if (testBtn) testBtn.href = RenderEngine.safeUrl(val);
+edit.js:1471: if (anchorEl) anchorEl.href = RenderEngine.safeUrl(val);
+edit.js:1530: addBtn.innerHTML = `
+edit.js:1617: if (statusCard) statusCard.style.display = 'none';
+edit.js:1620: if (placeholder) placeholder.style.display = 'none';
+edit.js:1623: if (addBtn) addBtn.style.display = 'none';
+edit.js:1629: form.innerHTML = `
+edit.js:1660: if (statusCard) statusCard.style.display = '';
+edit.js:1661: if (placeholder) placeholder.style.display = '';
+edit.js:1662: if (addBtn) addBtn.style.display = '';
+edit.js:1700: actionsWrap.style.display = 'flex';
+edit.js:1701: actionsWrap.style.justifyContent = 'flex-end';
+edit.js:1702: actionsWrap.style.gap = '8px';
+edit.js:1703: actionsWrap.style.marginTop = '8px';
+edit.js:1705: actionsWrap.innerHTML = `
+edit.js:1732: addBtn.innerHTML = `
+edit.js:1761: form.innerHTML = `
+edit.js:1840: actionsWrap.style.display = 'flex';
+edit.js:1841: actionsWrap.style.justifyContent = 'flex-end';
+edit.js:1842: actionsWrap.style.gap = '8px';
+edit.js:1843: actionsWrap.style.marginTop = '8px';
+edit.js:1845: actionsWrap.innerHTML = `
+edit.js:1877: addBtn.innerHTML = `
+edit.js:1946: list.innerHTML = kategoriler.map(k => `
+edit.js:2061: wrap.innerHTML = `<div class="tag-pool-empty">Eşleşen etiket bulunamadı.</div>`;
+edit.js:2065: wrap.innerHTML = filtrelenmis.map(tag => {
+edit.js:2351: resultsWrap.innerHTML = `
+edit.js:2380: resultsWrap.innerHTML = `<div class="tops-search-empty">${EditManager.escapeHtml(mesaj)}</div>`;
+edit.js:2384: resultsWrap.innerHTML = sonuclar.map((item, idx) => {
+edit.js:2387: ? `<img class="tops-search-poster" src="${EditManager.escapeHtml(rawAfis)}" alt="${EditManager.escapeHtml(item.baslik)}" onerror="this.style.display='none'">`
+edit.js:2505: delBtn.style.position = 'absolute';
+edit.js:2506: delBtn.style.top = '8px';
+edit.js:2507: delBtn.style.right = '8px';
+edit.js:2509: delBtn.innerHTML = `
+landing.js:40: container.style.setProperty('--nook-accent-live', liveAccent);
+landing.js:42: container.innerHTML = `
+landing.js:123: if (heroLoginBtn) heroLoginBtn.style.display = 'none';
+landing.js:124: if (navUserMenu) navUserMenu.style.display = 'block';
+landing.js:126: if (navGoProfile) navGoProfile.href = `?user=${encodeURIComponent(aktifKullaniciAdi)}`;
+main.js:20: if (profileStage) profileStage.style.display = 'none';
+main.js:21: if (profileTopNav) profileTopNav.style.display = 'none';
+main.js:22: if (ambientBg) ambientBg.style.display = 'none';
+main.js:23: if (appLoadingEl) appLoadingEl.style.display = 'none';
+main.js:24: if (landingScreen) landingScreen.style.display = 'block';
+main.js:35: if (landingScreen) landingScreen.style.display = 'none';
+main.js:36: if (profileStage) profileStage.style.display = 'none';
+main.js:37: if (profileTopNav) profileTopNav.style.display = 'none';
+main.js:38: if (ambientBg) ambientBg.style.display = 'none';
+main.js:41: appLoadingEl.style.display = 'flex';
+main.js:76: if (profileStage) profileStage.style.display = 'flex';
+main.js:77: if (profileTopNav) profileTopNav.style.display = 'flex';
+main.js:78: if (ambientBg) ambientBg.style.display = 'block';
+main.js:79: if (cardContainer) cardContainer.style.display = 'block';
+main.js:84: appLoadingEl.style.display = 'none';
+main.js:105: linkCropper.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css';
+main.js:113: linkOwner.href = 'css/owner.css';
+main.js:121: scriptCropper.src = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js';
+main.js:132: scriptEdit.src = 'js/edit.js';
+render.js:25: bannerImg.src = (safeBanner && safeBanner !== '#') ? safeBanner : defaultBanner;
+render.js:26: bannerImg.onerror = () => { bannerImg.src = defaultBanner; };
+render.js:30: avatarImg.src = (safeAvatar && safeAvatar !== '#') ? safeAvatar : defaultAvatar;
+render.js:31: avatarImg.onerror = () => { avatarImg.src = defaultAvatar; };
+render.js:40: tagsGrid.innerHTML = tags
+render.js:166: menuNav.innerHTML = html;
+render.js:231: panel.innerHTML = `
+render.js:277: <a href="${this.safeUrl(link.url)}" target="_blank" rel="noopener noreferrer" class="nook-link-row">
+render.js:335: tabsBar.innerHTML = tabsHtml;
+render.js:365: listMeta.innerHTML = '';
+render.js:376: <a href="${this.safeUrl(aktifListe.harici_link.url)}" target="_blank" rel="noopener noreferrer" class="companion-meta-link">
+render.js:393: listMeta.innerHTML = `
+render.js:441: companionBody.innerHTML = `
+render.js:458: companionBody.innerHTML = `
+render.js:476: ? `<img class="top-item-thumb" src="${safeAfis}" alt="${this.escapeHtml(item.baslik || '')}" loading="lazy" draggable="false" onerror="this.style.display='none'">`
+render.js:516: companionBody.innerHTML = `
+render.js:570: <a href="https://monkeytype.com/profile/${encodeURIComponent(username)}" target="_blank" rel="noopener noreferrer" class="mt-profile-link" title="Monkeytype Profilini Gör">
+render.js:670: return `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64" alt="Site İkonu" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';"><svg class="link-fallback-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
+router.js:258: companionCard.style.display = 'flex';
+router.js:280: companionCard.style.display = 'flex';
+router.js:336: companionCard.style.display = 'none';
+router.js:341: cardContainer.style.transform = '';
+tilt.js:42: this.cardContainer.style.transform = `rotateX(${this.currentTiltX * multiplier}deg) rotateY(${this.currentTiltY * multiplier}deg)`;

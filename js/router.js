@@ -121,10 +121,7 @@ const Router = {
                 // 1. İnteraktif öğelere veya kart satırlarına tıklandıysa işlemi asla kesme ve gasp etme
                 if (e.target.closest(interactiveSelector)) return;
 
-                // 2. Kartın boş alanına tıklama: Dönüşün ilk yarısında (0-90° açıda) ise boş alan flip'ini yoksay
-                if (this.isFlipping) return;
-
-                // 3. Ön yüzde düzenleme modu açıkken dışarıdaki boş alana tıklandıysa:
+                // 2. Ön yüzde düzenleme modu açıkken dışarıdaki boş alana tıklandıysa:
                 // İlk vuruşta sadece düzenlemeyi kapat, kartı çevirme
                 if (window._frontEditingActive || (window._frontEditJustClosed && Date.now() - window._frontEditJustClosed < 450)) {
                     window._frontEditingActive = false;
@@ -145,6 +142,9 @@ const Router = {
                 if (window._suruklemeBitti && Date.now() - window._suruklemeBitti < 300) return;
 
                 // 4. HİYERARŞİK GEZİNME (Boş alana tıklama):
+                // Kart dönerken boş alana tıklamayı yoksay (çift dönüşü engelle)
+                if (this.isFlipping) return;
+
                 // A. ÖN YÜZ: Ön yüzdeyken boş alana tıklandığında arka yüze git
                 if (!this.isFlipped) {
                     this.setFlipped(true);
@@ -182,10 +182,13 @@ const Router = {
     },
 
     setFlipped(flipped) {
+        // Eğer dönüş animasyonu sürüyorsa yeni bir dönüşü engelle (çift tıklamayı kitle)
+        if (this.isFlipping) return;
+
         this.isFlipped = flipped;
         if (!this.cardContainer) return;
 
-        // Kart dönüş durumu bayrağı (yarı sürede - 210ms - kalkar)
+        // Kart dönüş durumu bayrağı (animasyon bitene kadar - 600ms - kilitli kalır)
         this.isFlipping = true;
         this.cardContainer.classList.add('is-flipping');
 
@@ -195,7 +198,7 @@ const Router = {
             if (this.cardContainer) {
                 this.cardContainer.classList.remove('is-flipping');
             }
-        }, 210);
+        }, 600);
 
         if (this.isFlipped) {
             this.cardContainer.classList.add('is-flipped');
