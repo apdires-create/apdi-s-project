@@ -829,7 +829,10 @@ EditManager.Media = {
                 .from('avatars-and-banners')
                 .upload(dosyaYolu, blob, { contentType: 'image/webp', upsert: true });
 
-            if (uploadErr) throw uploadErr;
+            if (uploadErr) {
+                alert("Görsel yüklenemedi, lütfen tekrar deneyin.");
+                return;
+            }
 
             const { data: publicUrlData } = supabaseClient.storage
                 .from('avatars-and-banners')
